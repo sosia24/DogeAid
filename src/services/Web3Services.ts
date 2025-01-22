@@ -304,7 +304,7 @@ export async function buyNft(quantity:number) {
   }
 }
 
-export async function donate(amount:string, isUsdt:boolean){
+export async function donate(amount:string){
   
   const provider = await getProvider();
   const signer = await provider.getSigner();
@@ -327,20 +327,10 @@ export async function donate(amount:string, isUsdt:boolean){
 
   let tx
   try {
-    
 
 
-    if(isUsdt){
-      const estimatedGas = await donation.donate.estimateGas(Number(amount)*10**6, isUsdt);
-      const gasLimit = estimatedGas * 150n / 100n;
+      tx = await donation.donate(Number(amount)*10**6);
 
-      tx = await donation.donate(Number(amount)*10**6, isUsdt,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas,gasLimit});
-    }else{
-      const estimatedGas = await donation.donate.estimateGas(ethers.parseUnits(amount,"ether"), isUsdt);
-      const gasLimit = estimatedGas * 150n / 100n;
-
-      tx = await donation.donate(ethers.parseUnits(amount,"ether"), isUsdt,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas,gasLimit});
-    }
     const concluded = tx.wait();
     return concluded;
   } catch (error) {
@@ -2265,7 +2255,7 @@ export async function getContributions(owner: string) {
       provider
     );
 
-    const tokens = await queue.getActiveContributions(owner);
+    const tokens = await queue.getActiveContributions(owner, 1);
     console.log("contributions: ", tokens)
     return tokens; // Retorna a conclusão em caso de sucesso
   } catch (error: any) {

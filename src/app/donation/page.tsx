@@ -72,7 +72,31 @@ function Donation() {
     setContributionIndex(index);
   }
 
+  
 
+  useEffect(() => {
+    const fetchTimeLeft = async () => {
+      if (!walletAddress) return;
+  
+      try {
+        const timeLeft = await getTimeUntilToClaim(walletAddress, contributionIndex+1);
+        console.log("catou esse timeleft", timeLeft)
+  
+        // Atualiza os estados com os valores obtidos
+        setTimeUntil(formatTime(timeLeft));
+        setTimeUntilNumber(Number(timeLeft));
+        
+  
+        // Inicia o cronômetro decremental
+        startDecrementalTimer(timeLeft);
+      } catch (error) {
+        console.error("Erro ao obter o tempo restante:", error);
+      }
+    };
+  
+    fetchTimeLeft();
+  }, [walletAddress, contributionIndex]);
+  
   const fetchContributions = async (owner: string) => {
     try {
       const response = await getContributions(owner);
@@ -269,7 +293,7 @@ function Donation() {
       
       try {
         setIsProcessing(true);
-        await donateV2(donationAmount);
+        await donate(donationAmount);
         setAlert("Donation made successfully!");
         setSteps(3);
         setIsProcessing(false);
@@ -488,7 +512,7 @@ async function clearAlert(){
 
               </div>
             <div className="flex mt-4 w-full text-xl justify-center">
-              {Number(timeUntilNumber) <= Number(0) && Number(balanceToClaim) > Number(0)?(
+              {Number(timeUntilNumber) <= Number(0) && Number(contributions[contributionIndex]?.goal) > Number(0)?(
                                       <button   onClick={()=>handleClaim(false)}
                                       className="text-black rounded-lg font-semibold p-3 mx-2 w-[120px] bg-[#fe4a00] hover:bg-[#fe4800c4] hover:scale-105 transition-all duration-300">Claim</button>        
               ):(
