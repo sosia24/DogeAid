@@ -48,42 +48,6 @@ export async function doLogin() {
   }
 }
 
-/* 
-/*------------ UNILEVEL --------------*/
-export async function userUnilevelTotalDonated(
-  address: string,
-  maxRetries = 5, // Número máximo de tentativas
-  delay = 1000 // Tempo de espera entre tentativas (em milissegundos)
-) {
-  let retries = 0;
-
-  while (retries < maxRetries) {
-    try {
-      const provider = await getProvider(); // Usa o provider da wallet
-      const contract = new ethers.Contract(
-        DONATION_ADDRESS || "",
-        donationAbi,
-        provider
-      );
-
-      const userUnilevel = await contract.getUserUnilevelDonations(address);
-
-      // Verifica se o valor é válido antes de retornar
-      if (userUnilevel !== undefined && userUnilevel !== null) {
-        return userUnilevel; // Retorna o valor obtido
-      } else {
-      }
-    } catch (err) {
-      
-    }
-
-    retries++;
-    await new Promise((resolve) => setTimeout(resolve, delay)); // Aguarda antes de tentar novamente
-  }
-
-  throw new Error(`Falha ao obter dados após ${maxRetries} tentativas.`);
-}
-
 /*------------ COLLECTION NFTS --------------*/
 
 export async function approveUSDT(value: Number) {
@@ -1037,44 +1001,6 @@ export async function getAllowanceBtc24h(
   throw new Error(`Falha ao obter allowance após ${maxRetries} tentativas.`);
 }
 
-export async function getAllowanceBitcoin24h(
-  address: string,
-  maxRetries = 5, // Número máximo de tentativas
-  delay = 1000 // Tempo de espera entre tentativas (em milissegundos)
-) {
-  let retries = 0;
-
-  while (retries < maxRetries) {
-    try {
-      // Obtém o provedor conectado à wallet
-      const provider = await getProvider();
-
-      // Conecta ao contrato
-      const mint = new ethers.Contract(
-        BTC24H_V2_ADDRESS ? BTC24H_V2_ADDRESS : "",
-        btc24hV2Abi,
-        provider
-      );
-
-      // Obtém o allowance
-      const allowance : bigint = await mint.allowance(address, QUEUE_COIN_ADDRESS);
-
-      // Retorna o valor caso a chamada tenha sucesso
-      if (allowance !== undefined) {
-        return allowance;
-      }
-
-    } catch (error) {
-    }
-
-    retries++;
-
-    await new Promise((resolve) => setTimeout(resolve, delay));
-  }
-
-  // Lança um erro caso todas as tentativas falhem
-  throw new Error(`Falha ao obter allowance após ${maxRetries} tentativas.`);
-}
 
 export async function approveBtc24h(value: bigint) {
   const provider = await getProvider()
@@ -1092,34 +1018,12 @@ export async function approveBtc24h(value: bigint) {
 
   const maxFeePerGas = feeData.maxFeePerGas *3n;
 
-  const tx = await mint.approve(QUEUE_COIN_ADDRESS, value+BigInt(100000000000000000000),{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
+  const tx = await mint.approve(QUEUE_COIN_ADDRESS, value+BigInt(100000000000000000000));
   await tx.wait();
 
   return tx;
 }
 
-
-export async function approveBitcoin24h(value: bigint) {
-  const provider = await getProvider()
-  const signer = await provider.getSigner();
-
-  const mint = new ethers.Contract(
-    BTC24H_V2_ADDRESS ? BTC24H_V2_ADDRESS : "",
-    btc24hV2Abi,
-    signer
-  );
-  const feeData = await provider.getFeeData();
-  if (!feeData.maxFeePerGas) {
-    throw new Error("Unable to get gas price");
-  }
-
-  const maxFeePerGas = feeData.maxFeePerGas *3n;
-
-  const tx = await mint.approve(QUEUE_COIN_ADDRESS, value+BigInt(30000000000000000000));
-  await tx.wait();
-
-  return tx;
-}
 
 
 export async function addQueueBtc24h(tokenId: number) {

@@ -19,23 +19,7 @@ import {
         addQueue,
         setApprovalForAll,
         getTokensToWithdraw,
-        getTokensToWithdrawWbtc,
-        coinPrice,
         withdrawTokens,
-        getNftsUser,
-        approveWbtcNft,
-        verifyApprovalWbtc,
-        addQueueWbtc,
-        balanceWbtcQueue,
-        getWbtcCotation,
-        getQueueWbtc,
-        doClaimQueueWbtc,
-        wbtcNftNumber,
-        withdrawTokensWbtc,
-        getValuesDeposit,
-        getAllowanceBitcoin24h,
-        getAllowanceBtc24h,
-        approveBitcoin24h,
         approveBtc24h,
         addQueueBtc24h,
         getQueueBtc24h,
@@ -191,196 +175,7 @@ function Page1() {
         }
     }
 
-    async function doAddQueueBtc24h() {
-        try {
-            setLoading(true)
-          if (valuesDeposit && valuesDeposit[0] !== undefined) {
-            const amountToApprove = valuesDeposit[0] || 0n;
-            const result = await addQueueBtc24h(1);
-            setAlert("Success")
-            setLoading(false)
-            getBtc24hAllowances();
-          } else {
-            setError("Error")
-            setLoading(false)
-          }
-        } catch (error) {
-            setLoading(false)
-            setError("Error")
-        }
-      }
 
-      async function doAddQueueBitcoin24h() {
-        try {
-            setLoading(true)
-            const result = await addQueueBtc24h(2);
-            setAlert("Success")
-            setLoading(false)
-            getBtc24hAllowances();
-        } catch (error) {
-            setLoading(false)
-            setError("Error")
-        }
-      }
-
-
-    async function doApproveBtc24h() {
-        try {
-            setLoading(true)
-          if (valuesDeposit && valuesDeposit[0] !== undefined) {
-            const amountToApprove = valuesDeposit[0] || 0n;
-            const result = await approveBtc24h(amountToApprove);
-            setAlert("Success")
-            setLoading(false)
-            getBtc24hAllowances();
-          } else {
-            setError("Error")
-            setLoading(false)
-          }
-        } catch (error) {
-            setLoading(false)
-            setError("Error")
-        }
-      }
-
-      async function doApproveBitcoin24h() {
-        setLoading(true)
-        try {
-          if (valuesDeposit && valuesDeposit[1] !== undefined) {
-            const amountToApprove = valuesDeposit[1] || 0n;
-            const result = await approveBitcoin24h(amountToApprove);; 
-            setAlert("Success")// Adicione logs úteis para depuração
-            setLoading(false)
-            getBtc24hAllowances();
-          } else {
-            setError("Error")
-            setLoading(false)
-          }
-        } catch (error) {
-          setError("Error")
-          setLoading(false)
-        }
-      }
-      
-    async function getBtc24hAllowances(){
-        if(address){
-        try{
-            const result1 = await getAllowanceBtc24h(address);
-            const result2 = await getAllowanceBitcoin24h(address);
-            setAllowanceBtc24h([result1, result2])
-        }catch{
-
-        }
-                   
-    }
-    }
-
-
-    async function getValuesDepositFront(){
-        try{
-            const results = await getValuesDeposit();
-            if(results){
-                setValuesDeposit(results)
-            }
-        }catch{
-
-        }
-    }
-
-
-
-    async function wbtcNftUser(){
-        try{
-          if(address){
-            
-            const result = await wbtcNftNumber(address)
-            if(result){
-              setWbtc(Number(result))
-            }else{
-                setWbtc(0)
-            }
-          }
-        }catch(error){
-  
-        }
-      }
-  
-      useEffect(() =>{
-        wbtcNftUser();
-      })
-
-
-    async function doClaimQueueWbtcFront(){
-        try{
-            setLoading(true)
-            const result = await doClaimQueueWbtc();
-            if(result){
-                getQueueWbtcDetails();
-                getBalanceWbtc();
-                setLoading(false)
-                setAlert("Success")
-            }
-        }catch(error){
-            setLoading(false)
-            setError("Error")
-        }
-    }
-
-    async function getQueueWbtcDetails() {
-        try {
-            const result: queueData[] = await getQueueWbtc(); // Supondo que getQueue retorna uma lista
-            setQueueWbtcDetails(result);
-        } catch (error) {
-        }
-    }
-
-    async function getWbtcCotationFront(){
-        try{    
-            const result = await getWbtcCotation();
-            if(result){
-                setWbtcCotation(Number(result))
-            }
-            
-        }catch(error){
-
-        }
-    }
-
-    async function getBalanceWbtc() {
-        try {
-            const result = await balanceWbtcQueue();
-            const cotation = await getWbtcCotation();
-            const valueFinal = Number(result) * Number(cotation) / 1000000
-            if (result) {
-                setBalance((prevBalance) => {
-                    const newBalance = [...prevBalance]; // Cria uma cópia do array atual
-                    newBalance[3] = valueFinal; // Atualiza o índice desejado
-                    return newBalance; // Retorna o novo array
-                });
-            }
-        } catch (error) {
-            console.error("Erro ao obter o balance WBTC:", error);
-        }
-    }
-    
-    
-
-    async function addQueueWbtcFront() {
-        setLoading(true);
-        try {
-            const result = await addQueueWbtc();
-            if (result) {
-                setAlert("Success");
-                wbtcNftUser();
-                getQueueWbtcDetails();
-            }
-        } catch (error: unknown) { // Especificamos que 'error' tem tipo 'unknown'
-            console.error("Blockchain error:", error); // Log completo do erro
-            setAlert(`Error: ${getBlockchainErrorMessage(error)}`); // Exibir a mensagem de erro ao usuário
-        } finally {
-            setLoading(false);
-        }
-    }
     
     function getBlockchainErrorMessage(error: unknown): string {
         if (typeof error === "object" && error !== null) {
@@ -398,39 +193,6 @@ function Page1() {
     
 
 
-    async function verifyApprovalWbtcFront(){
-        if(address){
-            try{
-                const result = await verifyApprovalWbtc(address, true)
-                if(result){
-                    setApproveWbtc(result);
-                }
-            }catch(error){
-
-            }
-        }
-    }
-
-
-    async function approveWbtcNftFront() {
-        setLoading(true)
-        if(address){
-            try{
-                const result = await approveWbtcNft(true);
-                if(result){
-                    setApproveWbtc(true);
-                    setLoading(false)
-                    setAlert("Approval Success");
-                    verifyApprovalWbtcFront()
-                }
-            }catch(error){
-                setLoading(false)
-                verifyApprovalWbtcFront()
-            }
-        }
-    }
-
-
     async function addQueueFront(tokenId: number) {
         
         if((tokenId == 3 && gold < 1)||(tokenId == 2 && silver < 1)||(tokenId == 1 && bronze < 1)){
@@ -446,7 +208,6 @@ function Page1() {
             getQueueBronzeDetails();
             getQueueSilverDetails();
             getQueueGoldDetails();
-            getQueueWbtcDetails();
             getQueueBtc24hDetails()
             getQueueBitcoin24hDetails()
 
@@ -489,7 +250,6 @@ function Page1() {
             getQueueBronzeDetails();
             getQueueSilverDetails();
             getQueueGoldDetails();
-            getQueueWbtcDetails();
             getQueueBtc24hDetails()
             getQueueBitcoin24hDetails()
           }
@@ -511,37 +271,12 @@ function Page1() {
         } catch (error) {
         }
       }
-          async function getNftsUserFront() {
-              if(address){
-                  for(let i = 1; i<4; i++){
-                      const result = await getNftsUser(address,i);
-                      if(i === 1){
-                          setBronze(Number(result));
-                      }else if(i === 2){
-                          setSilver(Number(result));
-                      }else if(i === 3){
-                          setGold(Number(result))
-                      }
-                  }
-              }
-          }
+    
           
     async function getTokensToWithdrawF() {
         try{
             const result = await getTokensToWithdraw(address?address:"");
             setTokensToWithdraw(result);
-        }catch(error){
-
-        }
-    }
-
-    async function getTokensToWithdrawWbtcFront() {
-        try{
-            const result = await getTokensToWithdrawWbtc(address?address:"");
-            if(result){
-                setTokensToWithdrawWbtc(result);
-            }
-            
         }catch(error){
 
         }
@@ -627,28 +362,18 @@ function Page1() {
         };
         const fetchData = () => {
             getCotation();
-            getNftsUserFront()
             verifyApprove();
             getQueueBronzeDetails();
             getQueueSilverDetails();
             getQueueGoldDetails();
-            getQueueWbtcDetails();
             getQueueBtc24hDetails()
             getQueueBitcoin24hDetails()
             getTokensToWithdrawF();
             getTokensToWithdrawBtc24hFront()
-            getTokensToWithdrawWbtcFront()
-            verifyApprovalWbtcFront();
-            getWbtcCotationFront();
-            getValuesDepositFront();
-            getBtc24hAllowances();
-            getBalanceWbtc();
             getBalanceBitcoin24h()
             getBalanceBtc24h()
             if (coinCotation > 0) {
                 balanceFree();
-                getWbtcCotationFront()
-                getBalanceWbtc();
             }
         };
         
@@ -688,15 +413,11 @@ function Page1() {
 
     
     useEffect(() => {
-        getBalanceWbtc();
         getBalanceBitcoin24h()
         getBalanceBtc24h()
-        getWbtcCotationFront();
         if (coinCotation > 0) {
             
             balanceFree();
-            getWbtcCotationFront()
-            getBalanceWbtc();
             getBalanceBitcoin24h()
             getBalanceBtc24h()
         }
@@ -875,20 +596,6 @@ function Page1() {
         setLoading(false);
       };
 
-      const handleWithdrawWbtc = async () => {
-        setLoading(true);
-        setAlert(""); // Limpa mensagens anteriores
-      
-        const result = await withdrawTokensWbtc();
-      
-        if (result.success) {
-          setAlert("Sucess");
-        } else {
-          setError(result.errorMessage);
-        }
-      
-        setLoading(false);
-      };
 
 
       const handleWithdrawBtc24h = async () => {
@@ -1227,118 +934,7 @@ function Page1() {
                              <p >You have on wallet: {bronze}</p>
                              </div>                        </div>
                     </div>
-                    {/* ------------------ QUEUE WBTC --------------------- */}
-                    <div className="flex flex-col lg:flex-row w-[90%] max-w-[1400px] items-center justify-between p-4 bg-white bg-opacity-10 rounded-3xl space-y-4 lg:space-y-0 lg:space-x-4">
-                        {/* Image */}
-                        <div className="lg:w-[25%] md:w-[50%] w-[30%] flex items-center justify-center">
-                            <img
-                                src={`images/wbtc_logo.png`}
-                                className="w-full h-auto"
-                                alt={`QueueBronze`}
-                            />
-                        </div>
-
-                        {/* Balance and Action */}
-                        
-                        <div className="lg:w-[15%] w-[40%] flex flex-col items-center text-center">
-                            <p>Balance to Paid:</p>
-                            <p className="text-[#ffc100]">{(balance[3])  || 0}$</p>
-                            {readyToPaidWbtc >= 10 && queueWbtcDetailsFormated?(
-                                <button onClick={() => doClaimQueueWbtcFront()} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
-                                Distribute
-                                </button>
-                            ):(
-                                <button className="w-[150px] p-2 cursor-not-allowed bg-gray-400 rounded-3xl text-black mt-[10px] hover:bg-gray-500 hover:scale-105 transition-all duration-300">
-                                Distribute
-                                </button>
-                            )}
-                            
-                            {approveWbtc?(
-                            <button onClick={() => addQueueWbtcFront()} className="w-[150px] p-2 bg-[#cbc622] rounded-3xl text-black mt-[10px]  hover:scale-105 transition-all duration-300">
-                                Add Nft
-                            </button>
-                            ):(
-                            <button onClick={approveWbtcNftFront} className="w-[150px] p-2 bg-[#cbc622] rounded-3xl text-black mt-[10px] hover:scale-105 transition-all duration-300">
-                                Approve
-                            </button>
-                            )}
-                        </div>
-
-                        {/* Carousel */}
-                        <div className="lg:w-[60%] p-4 md:max-w-[480px] md:w-[96%] w-[84%] bg-white bg-opacity-10 rounded-3xl relative overflow-hidden">
-                            <Slider ref={wbtcSliderRef} {...settings}>
-                                {queueWbtcDetailsFormated?.map((data, index) => (
-                                    data.nextPaied === true?(
-                                        <div
-                                        key={index}
-                                        className="border-2 border-green-500 p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
-                                        >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 500$</p>
-                                        </div>
-                                    ):data.user.toLowerCase() === address?.toLowerCase()?(
-                                        <div
-                                        key={index}
-                                        className="border-2 border-blue-600 p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
-                                        >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 500$</p>
-                                        </div>
-                                    ):(
-                                        <div
-                                        key={index}
-                                        className=" p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
-                                        >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 500$</p>
-                                        </div>
-                                    )
-                                    
-                                ))}
-                            </Slider>
-                            <button className='p-[2px] text-[30px]   rounded-md shadow-lg absolute right-20 mt-[10px] '
-                            onClick={() => goToFirstSlide(wbtcSliderRef, queueWbtcDetailsFormated?.length)}
-                                    >
-                                <MdKeyboardDoubleArrowLeft />
-                             </button>
-                            <button className='p-[2px] text-[30px]  rounded-md shadow-lg absolute right-6 mt-[10px]'
-                            onClick={() => goToLastSlide(wbtcSliderRef, queueWbtcDetailsFormated?.length)}
-                                    >
-                                <MdKeyboardDoubleArrowRight />
-                             </button>
-                             <div className='p-2 mt-[10px]'>
-                             <p >You have on queue: {countUserNftWbtc}</p>
-                             <p >You have on wallet: {wbtc}</p>
-                             </div>                        </div>
-                    </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        
 
 
 
@@ -1400,11 +996,11 @@ function Page1() {
                             
 
                             {valuesDeposit && allowanceBtc24h[0] > (valuesDeposit[0] || 0n)?(
-                            <button onClick={() => doAddQueueBtc24h()} className="w-[150px] p-2 bg-[#cbc622] rounded-3xl text-black mt-[10px]  hover:scale-105 transition-all duration-300">
+                            <button className="w-[150px] p-2 bg-[#cbc622] rounded-3xl text-black mt-[10px]  hover:scale-105 transition-all duration-300">
                                 Add Queue
                             </button>
                             ):(
-                            <button onClick={() => doApproveBtc24h()} className="w-[150px] p-2 bg-[#cbc622] rounded-3xl text-black mt-[10px] hover:scale-105 transition-all duration-300">
+                            <button  className="w-[150px] p-2 bg-[#cbc622] rounded-3xl text-black mt-[10px] hover:scale-105 transition-all duration-300">
                                 Approve
                             </button>
                             )}
@@ -1524,11 +1120,11 @@ function Page1() {
                             )}
                             
                             {valuesDeposit && allowanceBtc24h[1] > (valuesDeposit[1] || 0n)?(
-                            <button onClick={() => doAddQueueBitcoin24h()} className="w-[150px] p-2 bg-[#cbc622] rounded-3xl text-black mt-[10px]  hover:scale-105 transition-all duration-300">
+                            <button  className="w-[150px] p-2 bg-[#cbc622] rounded-3xl text-black mt-[10px]  hover:scale-105 transition-all duration-300">
                                 Add Queue
                             </button>
                             ):(
-                            <button onClick={() => doApproveBitcoin24h()} className="w-[150px] p-2 bg-[#cbc622] rounded-3xl text-black mt-[10px] hover:scale-105 transition-all duration-300">
+                            <button  className="w-[150px] p-2 bg-[#cbc622] rounded-3xl text-black mt-[10px] hover:scale-105 transition-all duration-300">
                                 Approve
                             </button>
                             )}
@@ -1642,8 +1238,6 @@ function Page1() {
                        {/* <p className='font-bold text-3xl mt-[5px]'>{tokensToWithdraw?  parseFloat(ethers.formatEther(tokensToWithdraw)).toFixed(2) : ' 0'} BTC24H</p>*/}
                         {tokensToWithdraw > 0?(
                             <button onClick={handleWithdraw} className='text-black  font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl bg-[#00ff54] hover:w-[210px] duration-100'>Claim</button>
-                        ):tokensToWithdrawWbtc > 0?(
-                            <button onClick={handleWithdrawWbtc} className='text-black  font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl bg-[#00ff54] hover:w-[210px] duration-100'>Claim</button>
                         ):tokensToWithdrawBtc24h > 0?(
                             <button onClick={handleWithdrawBtc24h} className='text-black  font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl bg-[#00ff54] hover:w-[210px] duration-100'>Claim</button>
                         ):(

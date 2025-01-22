@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { fetchReferralTree } from "@/services/Web3Services";
 import { IoMdArrowDropdown, IoMdArrowDropright } from "react-icons/io";
-import { FaCheck, FaCopy } from "react-icons/fa";
 
-// Define os tipos de dados do nó de referência
+// Tipo para representar o nó da árvore
 interface ReferralNodeType {
-  address: string;
-  children?: ReferralNodeType[]; // Lista de nós filhos (opcional)
+  address: string | null;
+  children?: ReferralNodeType[];
 }
 
 function getBackgroundColor(level: number): string {
@@ -25,15 +24,14 @@ function getBackgroundColor(level: number): string {
 interface ReferralNodeProps {
   node: ReferralNodeType;
   level?: number;
-  address: string;
 }
 
-const ReferralNode: React.FC<ReferralNodeProps> = ({ node, level = 0, address }) => {
+const ReferralNode: React.FC<ReferralNodeProps> = ({ node, level = 0 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (!node) return null;
 
-  const childrenCount = node.children ? node.children.length : 0;
+  const childrenCount = node.children?.length || 0;
   const backgroundColor = getBackgroundColor(level);
 
   return (
@@ -47,7 +45,9 @@ const ReferralNode: React.FC<ReferralNodeProps> = ({ node, level = 0, address })
             Lvl {level}
           </span>
           <span className="truncate">
-            {node.address.slice(0, 6) + "..." + node.address.slice(-4)}
+            {node.address
+              ? `${node.address.slice(0, 6)}...${node.address.slice(-4)}`
+              : "N/A"}
           </span>
           <div className="flex space-x-2 items-center ml-4">
             <button
@@ -61,15 +61,10 @@ const ReferralNode: React.FC<ReferralNodeProps> = ({ node, level = 0, address })
         </div>
       </div>
 
-      {isExpanded && node.children && node.children.length > 0 && (
+      {isExpanded && node.children && (
         <div className="flex flex-col mt-4 pl-6 w-full">
           {node.children.map((child, index) => (
-            <ReferralNode
-              key={index}
-              node={child}
-              level={level + 1}
-              address={address}
-            />
+            <ReferralNode key={index} node={child} level={level + 1} />
           ))}
         </div>
       )}
@@ -86,6 +81,7 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ address }) => {
 
   useEffect(() => {
     async function loadTree() {
+      if (!address) return;
       try {
         const fetchedTree = await fetchReferralTree(address);
         setTree(fetchedTree);
@@ -105,7 +101,7 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ address }) => {
       </h1>
       {tree ? (
         <div className="flex flex-col items-start w-full">
-          <ReferralNode node={tree} address={address} />
+          <ReferralNode node={tree} />
         </div>
       ) : (
         <p className="text-center text-gray-500">Carregando...</p>

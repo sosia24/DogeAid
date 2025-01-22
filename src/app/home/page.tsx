@@ -11,41 +11,19 @@ import { PiTriangleFill } from "react-icons/pi";
 import { FaCopy, FaCheck } from "react-icons/fa";
 import { UserDonation } from "@/services/types";
 import Marquee from "@/componentes/marquee";
-import { userUnilevelTotalDonated, getTreeUsers ,getBtc24hPrice, getBtc24hPriceV2, } from "@/services/Web3Services"; // Import getUser
+import { getTreeUsers ,getBtc24hPrice, } from "@/services/Web3Services"; // Import getUser
 import RegisterModal from "@/componentes/RegisterModal";
 import { ethers } from "ethers";
 import ReferralTree from "@/componentes/referralNode";
 
 function Page1() {
-  const [treeData, setTreeData] = useState<number[]>([]);
-  const [validAddresses, setValidAddresses] = useState<string[]>([]); // Store valid addresses
-
   const [coinCotation, setCoinCotation] = useState<number | null>(null);
-  const [coinCotationV2, setCoinCotationV2] = useState<number | null>(null);
   const { address, setAddress } = useWallet();
   const [treeUsers, setTreeUsers] = useState<string[]>([]);
   const [user, setUser] = useState<UserDonation| null>(null);
 
 
  
-  
-  
-  useEffect(() => {
-    async function fetchTreeData() {
-      if (address) {
-        try {
-          const data = await userUnilevelTotalDonated(address);
-          setTreeData(data);
-        } catch (error) {
-          console.error("Error fetching tree data", error);
-        }
-      }
-      getCotation()
-      getCotationV2()
-    }
-
-    fetchTreeData();
-  }, [address]);
   
 
   async function fetchTreeUsers(address: string) {
@@ -79,7 +57,6 @@ function Page1() {
       try {
         await fetchTreeUsers(address);
         getCotation();
-        getCotationV2()
         
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -110,41 +87,8 @@ function Page1() {
       console.error("Failed to fetch coin price", error);
     }
   }
-  async function getCotationV2() {
-    try {
-
-        const result = await getBtc24hPriceV2();
-        if (result) {
-          setCoinCotationV2(Number(result) / Number(1000000));
-        }else{
-          const again = await getBtc24hPriceV2();
-            if(again){
-              setCoinCotationV2(Number(again) / Number(1000000));
-            }
-        }
-    } catch (error) {
-      console.error("Failed to fetch coin price", error);
-    }
-  }
-  
 
 
-  useEffect(() => {
-    async function fetchTreeData() {
-      if (address) {
-        try {
-          const data = await userUnilevelTotalDonated(address);
-          setTreeData(data);
-        } catch (error) {
-          console.error("Error fetching tree data", error);
-        }
-      }
-      getCotation();
-      getCotationV2()
-    }
-
-    fetchTreeData();
-  }, [address]);
 
   const [copied, setCopied] = useState(false);
   const handleCopyReferral = async () => {
@@ -245,7 +189,12 @@ function Page1() {
               {copied ? <FaCheck className="mr-2" /> : <FaCopy className="mr-2" />}
               {copied ? "Copied!" : "Referral"}
             </button>
-          <ReferralTree address={address}  />
+            {address?(
+                <ReferralTree address={address}  />
+            ):(
+              ""
+            )}
+          
           
           </div>
           

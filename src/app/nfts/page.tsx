@@ -13,22 +13,12 @@ import { MdOutlineAttachMoney } from "react-icons/md";
 import {
     approveUSDT,
     getAllowanceUsdt,
-    getNftsUser,
     buyNft,
     isActiveNft,
     isApprovedNft,
     setApprovalForAll,
     activeUnilevelNft,
     timeUntilInactiveNfts,
-    approveUSDTwbtc,
-    getAllowanceUsdtWbtc,
-    buyNftWbtc,
-    wbtcNftNumber,
-    approveWbtcNft,
-    verifyApprovalWbtc,
-    activateWbtcNft,
-    isActiveNftWbtc,
-    timeUntilInactiveNftsWbtc,
 }from "@/services/Web3Services";
 
 function Page1(){
@@ -129,13 +119,6 @@ function Page1(){
             }
         }
     }
-    async function getNftsUserFront() {
-        if(address){
-    
-                const result = await getNftsUser(address,0);
-                setSilver(Number(result));
-        }
-    }
     
 
     async function getAllowanceUsdtFront(){
@@ -166,7 +149,6 @@ function Page1(){
     
           // Atualiza outras informações
           await getIsApprovedNft();
-          await getNftsUserFront();
           await fetch(); // Atualiza os dados gerais
         } else {
           throw new Error("Transaction failed unexpectedly");
@@ -206,7 +188,6 @@ function Page1(){
     /* ---------- INICIA JUNTO COM A PAGINA --------- */
     const fetch = async () =>{
         getAllowanceUsdtFront();
-        getNftsUserFront();
         getIsActiveStatus();
         getIsApprovedNft();
         getTimeUntilStatus()
