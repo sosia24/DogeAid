@@ -96,49 +96,44 @@ export default function Footer(){
     return(
       <>
       <footer className="flex items-center justify-center z-30">
-      <div className="rounded-[35px] w-[80%] md:w-[98%] max-w-[1280px] p-1 h-[80px] fixed bottom-[17px] bg-[#7F7F7F]"></div>
-<aside className="rounded-[33px] w-[80%] md:w-[98%] max-w-[1280px] p-5 fixed bottom-[20px] bg-[#171717] flex justify-between items-center">
+      <aside className="rounded-[33px] w-[60%] md:w-[98%] max-w-[1280px] py-2 px-6 fixed bottom-[20px] bg-custom flex justify-between items-center">
   {/* Home */}
   <div className="flex flex-col items-center text-[14px] md:text-[10px]">
     <Link href="/home" className="flex flex-col items-center hover:scale-105 transition-all duration-300">
-      <IoHome className="w-[30px] h-[30px] md:w-[20px] md:h-[20px] text-[#FFE501]"></IoHome>
-      <p className={isActive('/home') ? 'text-[#FFE501]' : 'text-white'}>Home</p>
+      <IoHome className="w-[30px] h-[30px] md:w-[20px] md:h-[20px] text-white"></IoHome>
+      <p className={isActive('/home') ? 'text-white' : 'text-white'}>Home</p>
     </Link>
   </div>
 
   {/* Donation */}
   <div className="flex flex-col items-center text-[14px] md:text-[10px]">
     <Link href="/donation" className="flex flex-col items-center hover:scale-105 transition-all duration-300">
-      <AiFillDollarCircle className="w-[30px] h-[30px] md:w-[20px] md:h-[20px] text-[#FFE501]"></AiFillDollarCircle>
-      <p className={isActive('/donation') ? 'text-[#FFE501]' : 'text-white'}>Donation</p>
+      <AiFillDollarCircle className="w-[30px] h-[30px] md:w-[20px] md:h-[20px] text-white"></AiFillDollarCircle>
+      <p className={isActive('/donation') ? 'text-white' : 'text-white'}>Donation</p>
     </Link>
   </div>
 
   {/* Queues (Central Logo) */}
   <div className="flex flex-col items-center justify-end">
-    <Link href="/queues" className="flex flex-col items-center">
-      <div className="bg-[#171717] bottom-[20px] absolute flex flex-col justify-center items-center rounded-full w-[120px] h-[120px] md:w-[80px] md:h-[80px]">
-        <div className="hover:scale-105 transition-all duration-300 text-center">
-          <Image priority width={80} height={80} className="w-[100px] h-[100px] md:w-[60px] md:h-[60px]" src="/images/logo.png" alt="logo"></Image>
-          <p className={isActive('/queues') ? 'text-[#FFE501] text-[18px] sm:text-[14px]' : 'text-white text-[18px] sm:text-[14px]'}>Queues</p>
-        </div>
-      </div>
+    <Link href="/queues" className="flex flex-col items-center hover:scale-105 transition-all duration-300">
+          <Image priority width={80} height={80} className="w-[50px] h-[50px]" src="/images/logoD.png" alt="logo"></Image>
     </Link>
+    <p className={isActive('/queues') ? 'text-white text-[18px] sm:text-[14px]' : 'text-white text-[18px] sm:text-[14px]'}>Queues</p>
   </div>
 
   {/* NFTs */}
   <div className="flex flex-col items-center text-[14px] md:text-[10px]">
     <Link href="/nfts" className="flex flex-col items-center hover:scale-105 transition-all duration-300">
-      <RiNftFill className="w-[30px] h-[30px] md:w-[20px] md:h-[20px] text-[#FFE501]"></RiNftFill>
-      <p className={isActive('/nfts') ? 'text-[#FFE501]' : 'text-white'}>Nfts</p>
+      <RiNftFill className="w-[30px] h-[30px] md:w-[20px] md:h-[20px] text-white"></RiNftFill>
+      <p className={isActive('/nfts') ? 'text-white' : 'text-white'}>Nfts</p>
     </Link>
   </div>
 
   {/* User Settings */}
   <div className="flex flex-col items-center text-[14px] md:text-[10px]">
     <Link onClick={closePopUp} href="" className="flex flex-col items-center hover:scale-105 transition-all duration-300">
-      <FaUserCog className="w-[30px] h-[30px] md:w-[20px] md:h-[20px] text-[#FFE501]"></FaUserCog>
-      <p className={isActive('/networking') ? 'text-[#FFE501]' : 'text-white'}>
+      <FaUserCog className="w-[30px] h-[30px] md:w-[20px] md:h-[20px] text-white"></FaUserCog>
+      <p className={isActive('/networking') ? 'text-white' : 'text-white'}>
         {address?.slice(0, 6) + "..." + address?.slice(-4)}
       </p>
     </Link>

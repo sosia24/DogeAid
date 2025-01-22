@@ -25,6 +25,10 @@ input[type="number"]::-webkit-outer-spin-button {
   --background-end-rgb: 255, 255, 255;
 }
 
+.bg-custom {
+  background: linear-gradient(120deg, #fe4a00 60%, #d93b00 50%);
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;

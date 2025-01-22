@@ -70,35 +70,29 @@ function HomeContent() {
       </div>
 
       <div className="w-[100%] lg:mt-0 mt-[60px] lg:w-[50%] flex flex-col items-center lg:items-start text-center lg:text-left md:order-1">
-        <p className="lg:text-[80px] md:text-[65px] text-[35px] font-bold">BTC24H</p>
-        <p className="lg:text-[30px] md:text-[22px] text-[18px]">Twenty four hours every day</p>
+        <p className="lg:text-[80px] md:text-[65px] text-[35px] font-bold">DogeAid</p>
+        <p className="lg:text-[26px] md:text-[22px] text-[18px]">Transforming liquidity in opportunity for all</p>
         {address ? (
-          <button className="p-2 w-[300px] bg-[#ffc908] rounded-3xl mt-[10px] text-black">
+          <button className="p-2 w-[300px] bg-[#fe4800cf] rounded-3xl mt-[10px] text-black">
             {address.slice(0, 6) + "..." + address.slice(-4)}
           </button>
         ) : (
           <button
-            className="p-2 w-[300px] bg-[#08ff65] rounded-3xl mt-[10px] text-black hover:bg-[#08ff67d3]"
+            className="p-2 w-[300px] bg-[#fe4a00] rounded-3xl mt-[10px] text-black hover:bg-[#fe4800cf]"
             onClick={handleLogin}
           >
             Connect Wallet
           </button>
         )}
         <Link
-          className="p-2 w-[300px] text-center lg:mb-0 bg-[#08ff65] rounded-3xl mt-[10px] text-black hover:bg-[#08ff67d3]"
+          className="p-2 w-[300px] text-center lg:mb-0 bg-[#fe4a00] rounded-3xl mt-[10px] text-black hover:bg-[#fe4800cf]"
           href="/home"
         >
           Enter
         </Link>
-        <Link
-          className="p-2 w-[300px] text-center lg:mb-0 bg-[#08ff65] rounded-3xl mt-[10px] text-black hover:bg-[#08ff67d3]"
-          href="/preSale"
-        >
-          Presale
-        </Link>
         {socio?(
           <Link
-          className="p-2 w-[300px] text-center lg:mb-0  border-2 border-[#08ff65] rounded-3xl mt-[10px] text-white hover:bg-[#08ff672d]"
+          className="p-2 w-[300px] text-center lg:mb-0  border-2 border-[#fe4a00] rounded-3xl mt-[10px] text-white hover:bg-[#fe4800cf]"
           href="/claim"
         >
           Claim
@@ -106,24 +100,6 @@ function HomeContent() {
         ):(
           ""
         )}
-        <Link
-          className="p-2 w-[300px] text-center lg:mb-0 border-2 border-[#08ff65] rounded-3xl mt-[10px] text-white hover:border-[#08ff67d3]"
-          href="presentation"
-        >
-          Presentation
-        </Link>
-        <Link
-          className="p-2 w-[300px] text-center lg:mb-0 border-2 border-[#08ff65] rounded-3xl mt-[10px] text-white hover:border-[#08ff67d3]"
-          href="https://btc24h.site/whitepaper/"
-        >
-          WhitePaper
-        </Link>
-        <Link
-          className="p-2 mb-[150px] w-[300px] text-center lg:mb-0 border-2 border-[#08ff65] rounded-3xl mt-[10px] text-white hover:border-[#08ff67d3]"
-          href="https://btc24h.site/"
-        >
-          Institutional Website
-        </Link>
         
         
         {showModal ? <RegisterModal /> : ""}

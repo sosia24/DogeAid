@@ -1,3 +1,4 @@
+/* ,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas} */
 import { ethers, toNumber } from "ethers";
 import donationAbi from "./abis/donation.abi.json";
 import userAbi from "./abis/user.abi.json";
@@ -123,14 +124,10 @@ export async function approveUSDT(value: Number) {
     usdtAbi,
     signer
   );
-  const feeData = await provider.getFeeData();
-  if (!feeData.maxFeePerGas) {
-    throw new Error("Unable to get gas price");
-  }
 
-  const maxFeePerGas = feeData.maxFeePerGas *3n;
 
-  const tx = await mint.approve(COLLECTION_ADDRESS, value,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
+
+  const tx = await mint.approve(COLLECTION_ADDRESS, value);
   await tx.wait();
 
   return tx;
@@ -171,10 +168,11 @@ export async function approveUsdtDonation(value: string) {
     throw new Error("Unable to get gas price");
   }
 
+  console.log("value", value)
   const maxFeePerGas = feeData.maxFeePerGas *3n;
 
 
-  const tx = await token.approve(DONATION_ADDRESS, Number(value)*10**6,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
+  const tx = await token.approve(DONATION_ADDRESS, Number(value)*10**6);  
   await tx.wait();
   return tx;
 }
@@ -261,7 +259,7 @@ export async function getNftsUser(address: string, value: number, maxRetries = 3
 
 
 
-export async function buyNft(id: number,quantity:number) {
+export async function buyNft(quantity:number) {
   const provider = await getProvider();
   const signer = await provider.getSigner();
 
@@ -282,7 +280,7 @@ export async function buyNft(id: number,quantity:number) {
 
   try {
     // Envia a transação
-    const tx = await buy.mint(id, quantity,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
+    const tx = await buy.mint(quantity);
 
     let concluded;
 
@@ -477,7 +475,7 @@ export async function getBtc24hPreviewedClaim(owner:string){
     return null;
   }
 
-export async function getTimeUntilToClaim(owner:string){
+export async function getTimeUntilToClaim(owner:string, index:number){
   
     //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
     const provider = await getProvider();
@@ -489,26 +487,13 @@ export async function getTimeUntilToClaim(owner:string){
     provider
   );
 
-  const time = Number(await donation.timeUntilNextWithdrawal(owner));
+  const time = Number(await donation.timeUntilNextWithdrawal(owner, index));
   
   return time;
 }
 
 
-export async function getUser(owner:string){
-  
-    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
-    const provider = await getProvider();
-  const donation = new ethers.Contract(
-    DONATION_ADDRESS ? DONATION_ADDRESS : "",
-    donationAbi,
-    provider
-  );
 
-  const user : UserDonation = (await donation.getUser(owner));
-  
-  return user;
-}
   
 
 export async function getNextPool(){
@@ -576,7 +561,7 @@ export async function registerUser(newUser:string){
 
   const maxFeePerGas = feeData.maxFeePerGas *3n;
 
-  const tx  = (await user.createUser(newUser,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas}));
+  const tx  = (await user.createUser(newUser));
   const receipet = await tx.wait()
 
   return receipet;
@@ -1578,7 +1563,7 @@ export async function getAllowanceUsdtV2(
       );
 
       // Obtém o allowance
-      const allowance : bigint = await mint.allowance(address, DONATION_V2_ADDRESS);
+      const allowance : bigint = await mint.allowance(address, DONATION_ADDRESS);
 
       // Retorna o valor caso a chamada tenha sucesso
       if (allowance !== undefined) {
@@ -2213,6 +2198,78 @@ export async function withdrawTokensBtc24h() {
       };
     }
   } catch (error: any) {
+    return {
+      success: false,
+      errorMessage: error?.reason || error?.message || "Unknown error occurred",
+    };
+  }
+}
+
+
+interface ReferralNode {
+  address: string; // Use "string" (em minúsculas), não "String" (em maiúsculas).
+  children: ReferralNode[]; // Um array de nós recursivos.
+}
+
+
+export async function fetchReferralTree(userAddress:string, currentLevel = 0, maxLevel = 20) {
+
+  // Interrompe a recursão se o nível máximo for atingido
+  if (currentLevel >= maxLevel) return null;
+
+  // Obtenha os referenciados diretos do contrato
+  const referrals = await fetchReferrals(userAddress);
+
+  // Crie o nó do usuário atual
+  const node : ReferralNode = {
+    address: userAddress,
+    children: [],
+  }
+
+  // Para cada referenciado, chame a função recursivamente
+  for (const referral of referrals) {
+    const childNode = await fetchReferralTree(referral, currentLevel + 1, maxLevel);
+    if (childNode) {
+      node.children.push(childNode);
+    }
+  }
+
+  return node;
+}
+
+// Função auxiliar para buscar apenas as referências diretas
+export async function fetchReferrals(userAddress:String) {
+console.log("chegou aqui")
+  const provider = await getProvider();
+    const signer = await provider.getSigner();
+
+    const queue = new ethers.Contract(
+      USER_ADDRESS || "",
+      userAbi,
+      signer
+    );
+
+  const [, , , referral] = await queue.getUser(userAddress);
+  return referral;
+}
+
+
+export async function getContributions(owner: string) {
+  try {
+      //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+      const provider = await getProvider();
+
+    const queue = new ethers.Contract(
+      DONATION_ADDRESS || "",
+      donationAbi,
+      provider
+    );
+
+    const tokens = await queue.getActiveContributions(owner);
+    console.log("contributions: ", tokens)
+    return tokens; // Retorna a conclusão em caso de sucesso
+  } catch (error: any) {
+    // Retorna a mensagem de erro
     return {
       success: false,
       errorMessage: error?.reason || error?.message || "Unknown error occurred",

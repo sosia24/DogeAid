@@ -1,6 +1,6 @@
 "use client";
 
-import { donate, getDonationAllowance,getUser,getBtc24hBalance,getTotalBurned,approveBTC24HDonation,getTimeUntilToClaim,getBtc24hPreviewedClaim,claim, getBtc24hPrice, getNextPool, approveUsdtDonation, getAllowanceUsdt, getDonationAllowanceUsdt, getUsdtBalance, getAllowanceUsdtV2, approveUsdtDonationV2, donateV2, getBtc24hPreviewedClaimV2, getBtc24hPriceV2, getTimeUntilToClaimV2, claimV2, getUserV2} from "@/services/Web3Services";
+import { donate, getDonationAllowance,getBtc24hBalance,getTotalBurned,approveBTC24HDonation,getTimeUntilToClaim,getBtc24hPreviewedClaim,claim, getBtc24hPrice, getNextPool, approveUsdtDonation, getAllowanceUsdt, getDonationAllowanceUsdt, getUsdtBalance, getAllowanceUsdtV2, approveUsdtDonationV2, donateV2, getBtc24hPreviewedClaimV2, getBtc24hPriceV2, getTimeUntilToClaimV2, claimV2, getUserV2, getContributions} from "@/services/Web3Services";
 import { useRef, useState } from "react";
 import withAuthGuard from "@/services/authGuard";
 import Footer from "@/componentes/footer";
@@ -14,11 +14,20 @@ import ModalError from "@/componentes/ModalError";
 import { TbReload } from "react-icons/tb";
 import ModalSuccess from "@/componentes/ModalSuccess";
 
+interface Contribution {
+  amount: number;
+  goal: number;
+  startTime: number;
+  endTime: number;
+  days: number;
+}
+
 function Donation() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [donationAmount, setDonationAmount] = useState("");
 
-  const [dayContribute, setDayContribute] = useState(0);
+  const [contributions, setContributions] = useState<Contribution[]>([]);
+  const [contributionIndex, setContributionIndex] = useState<number>(1);
   const [allowanceUsdtV2, setAllowanceUsdtV2] = useState<bigint>(0n);
   const [allowance, setAllowance] = useState<bigint>(0n);
   const [balance, setBalance] = useState<bigint>(0n);
@@ -33,7 +42,6 @@ function Donation() {
   const [btc24hPriceV2, setBtc24hPriceV2] = useState<bigint>(0n);
   const [nextPool, setNextPool] = useState<bigint>(0n);
   const [totalBurned, setTotalBurned] = useState<bigint>(0n);
-  const [isV2, setIsV2] = useState<boolean>(false)
 
   const { requireRegistration } = useRegistered();
   const [show, setShow] = useState(false);
@@ -60,30 +68,52 @@ function Donation() {
   };
 
 
-
-  async function getDays() {
-    try{
-      const result = await getUserV2(walletAddress!);
-      if(result){
-        setDayContribute(result)
-      }
-    }catch(erro){
-
-    }
+  async function handleContributionIndex(index:number){
+    setContributionIndex(index);
   }
 
-  function handleV1() {
-    setIsV2(prevValue => !prevValue)
-}
+
+  const fetchContributions = async (owner: string) => {
+    try {
+      const response = await getContributions(owner);
+      console.log(response)
+      if (response.success === false) {
+        throw new Error(response.errorMessage);
+      }
+      // Formatando a resposta da tupla em um array legível
+      const formattedContributions = response.map((item: any[]) => ({
+        amount: Number(item[0]),
+        goal: Number(item[1]),
+        startTime: Number(item[2]),
+        endTime: Number(item[3]),
+        days: Number(item[4]),
+      }));
+      setContributions(formattedContributions);
+      if(walletAddress){
+        getTimeUntilToClaim(walletAddress, contributionIndex)
+      }
+    } catch (err: any) {
+      setError(err.message || "Erro desconhecido");
+    }
+  };
+
+  useEffect(() => {
+    if(walletAddress){
+      fetchContributions(walletAddress);
+    }
+    
+  }, []);
+
+
 
   useEffect(() => {
     fetchData(); // Chamada inicial
-    getDays()
+
 
     // Configura o intervalo
     const interval = setInterval(() => {
       fetchData();
-      getDays()
+      
     }, 10000); // 10 segundos
 
     // Limpeza ao desmontar o componente
@@ -124,10 +154,8 @@ function Donation() {
       setTimeout(() => setIsModalOpen(false), 300); 
       setLoading(false)
       await fetchData()
-      getDays()
     } else {
       setIsModalOpen(true);
-      setIsV2(true)
       setTimeout(() => setShow(true), 10); 
     }
   };
@@ -137,7 +165,6 @@ function Donation() {
     setTimeout(() => setIsModalOpen(false), 300); 
   };
   const fetchData = async () => {
-    getDays()
     if (walletAddress) {
       try {
         let allowanceValue;
@@ -146,6 +173,7 @@ function Donation() {
         if(donateWithUsdt){
           allowanceValue = await getDonationAllowanceUsdt(walletAddress);
           allowanceValueV2 = await getAllowanceUsdtV2(walletAddress)
+          
           setAllowanceUsdtV2(allowanceValueV2)
           balanceValue = await getUsdtBalance(walletAddress);
         }else{
@@ -156,7 +184,7 @@ function Donation() {
 
         setBalance(balanceValue);
   
-        const timeLeft = await getTimeUntilToClaim(walletAddress);
+        const timeLeft = await getTimeUntilToClaim(walletAddress, contributionIndex);
         const timeLeftV2 = await getTimeUntilToClaimV2(walletAddress)
         setTimeUntilV2(formatTime(timeLeftV2));
         setTimeUntil(formatTime(timeLeft));
@@ -164,7 +192,6 @@ function Donation() {
         setTimeUntilNumberV2(Number(timeLeftV2));
         startDecrementalTimer(timeLeft);
         startDecrementalTimerV2(timeLeftV2);
-        getDays();
   
         const previewedClaim = await getBtc24hPreviewedClaim(walletAddress);
         const previewedClaimV2 = await getBtc24hPreviewedClaimV2(walletAddress);
@@ -175,8 +202,6 @@ function Donation() {
   
         const price = await getBtc24hPrice(); 
         const priceV2 = await getBtc24hPriceV2();
-        const userData = await getUser(walletAddress);
-        setUser(userData);
         const nextPoolBalance = await getNextPool();
         setNextPool(nextPoolBalance);
 
@@ -196,7 +221,6 @@ function Donation() {
 
   useEffect(() => {
     fetchData();
-    getDays()
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
@@ -204,7 +228,6 @@ function Donation() {
 
   useEffect(() => {
     fetchData();
-    getDays()
   }, [walletAddress,donateWithUsdt]);
   useEffect(() => {
     const fetchBtcPrice = async () => {
@@ -253,8 +276,6 @@ function Donation() {
         setLoading(false);
         setDonationAmount("");
         await fetchData();
-        getDays()
-        getDays();
         handleModalToggle();
       } catch (error : any) {
         
@@ -282,9 +303,7 @@ function Donation() {
     setDonationAmount(value);
   
     if (value && parseFloat(value) > 0) {
-      const allowanceValue = isV2
-        ? await getAllowanceUsdtV2(walletAddress!)
-        : await getDonationAllowanceUsdt(walletAddress!);
+      const allowanceValue = await getDonationAllowanceUsdt(walletAddress!);
   
       // Verifica se o allowance é suficiente
       if (allowanceValue >= BigInt(ethers.parseUnits(value, donateWithUsdt ? 6 : 18))) {
@@ -307,11 +326,7 @@ function Donation() {
       setIsProcessing(true);
 
       if (donateWithUsdt) {
-        if(isV2){
-          await approveUsdtDonationV2(donationAmount);
-        }else{
           await approveUsdtDonation(donationAmount);
-        }
       } else {
         await approveBTC24HDonation(donationAmount);
       }
@@ -331,7 +346,7 @@ function Donation() {
     try {
       if (walletAddress) {
         // Atualiza o tempo restante para reclamar
-        const timeLeft = await getTimeUntilToClaim(walletAddress);
+        const timeLeft = await getTimeUntilToClaim(walletAddress, contributionIndex);
         const timeLeftV2 = await getBtc24hPreviewedClaimV2(walletAddress)
         setTimeUntil(formatTime(timeLeft));
         setTimeUntilV2(formatTime(timeLeftV2));
@@ -367,29 +382,13 @@ function Donation() {
         return;
       }
       
-      if(isV2){
-        if (balanceToClaimV2 === 0n) {
-          setLoading(false);
-          setError("There is no balance available to claim.");
-          
-          return;
-          }
-          if(isRoot){
-            await claimV2(true); 
-          }else{
-            await claimV2(false); 
-          }
-     
-      }else{
       if (balanceToClaim === 0n) {
         setLoading(false);
         setError("There is no balance available to claim.");
         
         return;
         }
-        
-        await claim();         
-      }
+      await claim();         
       setAlert("Claim made successfully!");
       setLoading(false);
       await fetchData(); 
@@ -423,42 +422,25 @@ async function clearAlert(){
         <div className=" w-[70%] md:w-full p-4 flex justify-center items-center relative text-black">
             <img
             src="./images/BannerDonation.png"
-            className="w-[100%]"
+            className="w-[100%] sm:w-[80%]"
             />
-            <p className="absolute top-1/2 left-1/3 md:left-1/3 transform -translate-x-1/2 -translate-y-1/2 text-black md:text-xl text-[40px] font-bold">
-                Donate System
-            </p>
         </div>
           <div
-            className="bg-[#00FF3D] z-10 hover:bg-[#00D837] hover:scale-105 transition-all duration-300 relative top-4 md:top-0 cursor-pointer rounded-[30px] sm:w-3/5 ml-4  w-[200px] py-4 mt-6 mb-[20px] font-semibold text-2xl text-center sm:m-0 flex items-center justify-center"
+            className="bg-[#fe4a00] z-10 hover:bg-[#d93b00] hover:scale-105 transition-all duration-300 relative top-4 md:top-0 cursor-pointer rounded-[30px] sm:w-3/5 ml-4  w-[200px] py-4 mt-6 mb-[20px] font-semibold text-2xl text-center sm:m-0 flex items-center justify-center"
             onClick={handleModalToggle}
           >
+
             <span className="w-full h-full flex items-center justify-center">
               New<br className="sm:hidden" /> Donation
             </span>
           </div>
         </div>
-        <div className="w-[100%] mt-[20px] flex flex-row justify-center">
-        {isV2?(
-          <>
-          <button onClick={handleV1} className="p-4 border-2 border-gray  w-[130px] rounded-xl">Claim V1</button>
-          <button className="ml-[15px] p-4 w-[130px] bg-[#001eff] rounded-xl">Claim V2</button>
-        </>
-        ):(
-          <>
-          <button className="p-4 w-[130px] text-black bg-[#00FF3D] rounded-xl">Claim V1</button>
-          <button onClick={handleV1} className="ml-[15px] p-4 w-[130px] border-2 border-gray rounded-xl">Claim V2</button>
-          </>
-        )}
-        </div>
-       
         
-        <div className="flex flex-col lg:flex-row :justify-between lg:items-center mt-4 sm:pb-10">
+        <div className="flex flex-col lg:flex-row :justify-between lg:items-center justify-center items-center mt-4 sm:pb-10">
   {/* Primeiro Card */}
   
-  <div className="lg:w-[40%] w-[100%] flex flex-col">
-  <div className="flex sm:flex-col sm:items-center sm:text-center lg:flex-row lg:items-center mb-6 sm:mb-4 w-full lg:w-[90%]">
-    <img className="w-1/3 lg:w-1/2 sm:w-[40%] lg:mr-4 sm:mb-2" src="images/TotalDonation.png" alt="banner" />
+  <div className="lg:w-[40%] w-[75%] flex flex-col">
+  <div className="flex sm:flex-col border-2 border-[#fe4a00] px-12 py-4 bg-gray-600 bg-opacity-30 rounded-xl sm:items-center sm:text-center lg:flex-row lg:items-center mb-6 sm:mb-4 w-full lg:w-[90%]">
     <div className="flex flex-col">
       <h3 className="text-lg sm:text-[14px] font-semibold">Your donations rewards</h3>
       <p className="font-light text-base sm:text-[14px] sm:mt-1">
@@ -467,8 +449,7 @@ async function clearAlert(){
     </div>
   </div>
   {/* Segundo Card */}
-  <div className="flex sm:flex-col sm:items-center sm:text-center lg:flex-row lg:items-center mb-6 sm:mb-4 w-full lg:w-[90%]">
-    <img className="w-1/3 lg:w-1/2 sm:w-[40%] lg:mr-4 sm:mb-2" src="images/PrizePool.png" alt="banner" />
+  <div className="flex sm:flex-col border-2 border-[#fe4a00] px-12 py-4 bg-gray-600 bg-opacity-30 rounded-xl sm:items-center sm:text-center lg:flex-row lg:items-center mb-6 sm:mb-4 w-full lg:w-[90%]">
     <div className="flex flex-col">
       <h3 className="text-lg sm:text-[14px] font-semibold">Next Pool</h3>
       <p className="font-light text-base sm:text-[14px] sm:mt-1">
@@ -479,8 +460,7 @@ async function clearAlert(){
     </div>
   </div>
   {/* Terceiro Card */}
-  <div className="flex sm:flex-col sm:items-center sm:text-center lg:flex-row lg:items-center mb-6 sm:mb-4 w-full lg:w-[90%]">
-    <img className="w-1/3 lg:w-1/2 sm:w-[40%] lg:mr-4 sm:mb-2" src="images/LiquidityPool.png" alt="banner" />
+  <div className="flex sm:flex-col border-2 border-[#fe4a00] px-12 py-4 bg-gray-600 bg-opacity-30 rounded-xl sm:items-center sm:text-center lg:flex-row lg:items-center mb-6 sm:mb-4 w-full lg:w-[90%]">
     <div className="flex flex-col">
       <h3 className="text-lg sm:text-[14px] font-semibold">Total Burned</h3>
       <p className="font-light text-base sm:text-[14px] sm:mt-1">
@@ -488,97 +468,20 @@ async function clearAlert(){
           ? `${parseFloat(ethers.formatEther(totalBurned)).toFixed(2)} BTC24H`
           : "0.00 BTC24H"}
       </p>
-    </div>
-  </div>
-  </div>
-
-
-
-
-
-
-
-
-
-
-
-
-          
-  {isV2?(
-            <div className="flex flex-col sm:w-[90%] sm:items-center sm:justify-center  p-9 md:p-4 bg-[#001eff] bg-opacity-15 ml-6  rounded-xl">
+          </div>
+        </div>
+        </div>
+        
+            <div className="flex flex-col sm:w-[50%] justify-center items-center    ml-4 sm:ml-0 rounded-xl">
             <div className="flex sm2:justify-center sm2:items-center">
-              <img className="sm2:size-32" src="images/claimImage.png" alt="banner" />
+              <img className="sm2:size-28" src="images/claimImage.png" alt="banner" />
               <div className="ml-5">
-                <h1 className="text-4xl font-semibold">Claim <span className="text-blue-500">Rewards V2</span></h1>
+                <h1 className="text-4xl font-semibold">Claim <span className="text-[#fe4a00]">Rewards {contributionIndex+1}</span></h1>
+                <p>Donated:</p>
+                <p><span className="text-[#fe4a00]">U$ {contributions[contributionIndex]?.amount ? (contributions[contributionIndex].amount / 1000000) : 0}</span></p>
                 <p>USDT Estimated:</p>
-                <p>U$ <span className="text-blue-500">{formatUsdt(balanceToClaimV2)}</span></p>
-                <p>Bitcoin24H estimated: </p>
-
-                <span className="text-blue-500">{btc24hPriceV2 > 0n ? (Number(balanceToClaimV2) / Number(btc24hPriceV2)).toFixed(2) : "Loading..."} Bitcoin24H</span>
-                <p>Day: {Number(dayContribute)+1}</p>
-                </div>
-              
-
-              </div>
-            <div className="flex mt-4 w-full text-xl justify-center">
-              {Number(timeUntilNumberV2) <= Number(0) && Number(balanceToClaimV2) > Number(0)?(
-                <>
-                    <button   onClick={() => handleClaim(false)}
-                    className="text-black rounded-lg font-semibold p-2 mx-1 w-[120px] bg-[#00FF3D] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">Claim 5%</button>        
-                    {Number(dayContribute)+1 % 2 === 1?(
-                       <button   
-                       className="text-black rounded-lg font-semibold p-2 mx-1 w-w-[70px] bg-gray-400 cursor-not-allowed hover:scale-105 transition-all duration-300">105%</button>
-                      
-                    ):(
-                      <button   onClick={() => handleClaim(true)}
-                       className="text-black rounded-lg font-semibold p-2 mx-1 w-[70px] bg-[#22d04b] hover:bg-[#00d836b1] hover:scale-105 transition-all duration-300">105%</button>        
-                    )}  
-                   
-              </>
-              ):(
-                <>
-                <button   
-                className="text-black rounded-lg font-semibold p-2 mx-1 w-[120px] bg-gray-500 cursor-not-allowed hover:scale-105 transition-all duration-300">Claim 5%</button>
-                 <button   
-                className="text-black rounded-lg font-semibold p-2 mx-1 w-[70px] bg-gray-400 cursor-not-allowed hover:scale-105 transition-all duration-300">105%</button>
-                </>
-                 )}
-
-                 <p className="bg-[#9B9701] rounded-lg mx-2 p-3">{timeUntilV2}</p>
-               </div>
-             </div>
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-          ):(
-            <div className="flex flex-col sm:w-[95%]  p-9 md:p-4 bg-[#00ff53] bg-opacity-15 ml-4 sm:ml-0 rounded-xl">
-            <div className="flex sm2:justify-center sm2:items-center">
-              <img className="sm2:size-32" src="images/claimImage.png" alt="banner" />
-              <div className="ml-5">
-                <h1 className="text-4xl font-semibold">Claim <span className="text-[#FAE201]">Rewards V1</span></h1>
-                <p>USDT Estimated:</p>
-                <p>U$ <span className="text-[#FAE201]">{formatUsdt(balanceToClaim)}</span></p>
-                <p>BTC24H estimated: </p>
-                <span className="text-[#FAE201]">{btc24hPrice > 0n ? (Number(balanceToClaim) / Number(btc24hPrice)).toFixed(2) : "Loading..."} BTC24h</span>
-
-                <p>Donated Tokens:</p>
-                <p><span className="text-[#FAE201]">{user ? Number(ethers.formatEther(user.maxUnilevel*2n)).toFixed(2): "loading"} BTC24H</span></p>
+                <p><span className="text-[#fe4a00]">U$ {contributions[contributionIndex]?.goal ? (contributions[contributionIndex].goal / 1000000) : 0}</span></p>
+                <p>Claims: <p><span className="text-[#fe4a00]">{contributions[contributionIndex]?.days ? contributions[contributionIndex]?.days : 0} / 30</span></p></p>
 
                 </div>
 
@@ -587,27 +490,27 @@ async function clearAlert(){
             <div className="flex mt-4 w-full text-xl justify-center">
               {Number(timeUntilNumber) <= Number(0) && Number(balanceToClaim) > Number(0)?(
                                       <button   onClick={()=>handleClaim(false)}
-                                      className="text-black rounded-lg font-semibold p-3 mx-2 w-[120px] bg-[#00FF3D] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">Claim</button>        
+                                      className="text-black rounded-lg font-semibold p-3 mx-2 w-[120px] bg-[#fe4a00] hover:bg-[#fe4800c4] hover:scale-105 transition-all duration-300">Claim</button>        
               ):(
                 <button   onClick={()=>handleClaim(false)}
                               className="text-black rounded-lg font-semibold p-3 mx-2 w-[120px] bg-gray-400 cursor-not-allowed hover:scale-105 transition-all duration-300">Claim</button>
 
               )}
 
-              <p className="bg-[#9B9701] rounded-lg mx-2 p-3">{timeUntil}</p>
-              <button
-              onClick={reloadDonation}
-              className={`flex items-center mt-[5px] justify-center w-10 h-10 bg-gray-500 text-white rounded-full ${
-              isReloading ? 'animate-spin' : ''
-              }`}
-              disabled={isReloading} // Evita múltiplos cliques
-              >
-      <TbReload />
-    </button>
+              <p className="bg-[#f60d53de] rounded-lg mx-2 p-3">{timeUntil}</p>
             </div>
+            <div className="max-w-[100%] sm:max-w-[100%] w-[500px] bg-gray-600 bg-opacity-20 mt-[20px] p-2 flex flex-row overflow-x-auto scrollbar-thin scrollbar-thumb-[#fe4a00] scrollbar-track-gray-700">
+            {contributions.map((contribution, index) => (
+            <div
+            onClick={() => handleContributionIndex(index)}
+              key={index}
+              className="cursor-pointer hover:scale-105 w-[40px] h-[30px] p-4 bg-[#f60d53de] text-center flex justify-center items-center ml-[5px]"
+            >
+              {index + 1}
+            </div>
+             ))}
           </div>
-          )}
-          
+          </div>
         </div>
       </div>
 
@@ -633,7 +536,7 @@ async function clearAlert(){
       </button>
 
       <div className="w-[100%] flex text-black justify-center mb-[20px]">
-        <p>Donate v2</p>
+        <p>Donate</p>
       </div>
 
       {/* Header */}
