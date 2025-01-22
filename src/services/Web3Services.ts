@@ -1339,4 +1339,33 @@ export async function getContributions(owner: string) {
       errorMessage: error?.reason || error?.message || "Unknown error occurred",
     };
   }
+
+}  
+export async function getTransactionsReceived(owner:string){
+  try {
+    const provider = new ethers.JsonRpcProvider(
+        "https://polygon-rpc.com"
+    );
+
+    const contract = new ethers.Contract(
+        "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+        usdtAbi,
+        provider
+    );
+    const from = "0x9AC84d23E5a6c221e4A2C53bf8158Fe09905D812"
+    const to = owner
+    const filter = contract.filters.Transfer(from,to);
+
+    const events = await contract.queryFilter(filter);
+
+    const result = events.map(event => ({
+      transactionHash: event.transactionHash,
+      value: ethers.formatUnits(event.data, 6) 
+  }));
+
+    return result;
+} catch (error) {
+    console.error('Error fetching events:', error);
+}
+    
 }
