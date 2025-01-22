@@ -11,7 +11,7 @@ import { PiTriangleFill } from "react-icons/pi";
 import { FaCopy, FaCheck } from "react-icons/fa";
 import { UserDonation } from "@/services/types";
 import Marquee from "@/componentes/marquee";
-import { getTreeUsers ,getBtc24hPrice,getTransactionsReceived } from "@/services/Web3Services"; // Import getUser
+import { getTreeUsers ,getBtc24hPrice,getTransactionsReceived,getTotalEarnedPerLevel } from "@/services/Web3Services"; // Import getUser
 import RegisterModal from "@/componentes/RegisterModal";
 import { FaCircleCheck } from "react-icons/fa6";
 
@@ -25,6 +25,8 @@ function Page1() {
   const [treeUsers, setTreeUsers] = useState<string[]>([]);
   const [user, setUser] = useState<UserDonation| null>(null);
   const [transactions, setTransactions] = useState([]);
+  const [totalEarnedPerLevel, setTotalEarnedPerLevel] = useState<bigint[]>([]);
+
 
 
 
@@ -64,6 +66,10 @@ function Page1() {
         getCotation();
         const txs : any = await getTransactionsReceived(address);
         setTransactions(txs);        
+        const totalEarnedTree =  await getTotalEarnedPerLevel(address);
+        console.log(totalEarnedTree);
+        
+        setTotalEarnedPerLevel(totalEarnedTree) 
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -200,9 +206,10 @@ function Page1() {
             ):(
               ""
             )}
-          <div className="w-[80%] p-[20px] bg-[#441212] rounded mt-6" >
-            <h1 className="text-center text-2xl">Last Transactions Received</h1>
-            {transactions.map((tx:any, index) => (
+          <div className="w-[80%] p-[20px] bg-[#441212] rounded mt-6 flex" >
+            <div className="w-2/3">            <h1 className="text-center text-2xl">Last Transactions Received</h1>
+            <p>Aqui esta comentado</p>
+            {/* {transactions.map((tx:any, index) => (
               
                 <Link key={index} href={`https://polygonscan.com/tx/${tx.transactionHash}`} className="!my-10 hover:!bg-[#f60d53de] transition duration-200">
                   <div className="justify-between flex items-center flex-row">
@@ -220,7 +227,32 @@ function Page1() {
                     </div>
                   </div>
                 </Link>
-              ))}
+              ))} */}</div>
+            <div className="w-1/3">
+            <h1 className="text-center text-2xl">Total Earned Per Level</h1>
+            <div 
+                className="w-full p-2 my-2 flex justify-between rounded bg-[#F60E51] opacity-90"
+              >
+                <p>Total Earned: </p>
+                <p>{ethers.formatUnits(totalEarnedPerLevel.reduce((acc, value) => acc + value, 0n),6)} USDT</p>
+              </div>
+            {totalEarnedPerLevel.map((earned: BigInt, index: number) => (
+              <div 
+                key={index} 
+                className="w-full p-2 my-2 flex justify-between rounded bg-[#F60E51] opacity-90"
+              >
+                <p>{index + 1}</p>
+                <p>{ethers.formatUnits(String(earned),6)} USDT</p>
+              </div>
+            ))}
+
+            
+
+
+
+            </div>
+
+
 
           </div>
 
