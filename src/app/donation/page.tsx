@@ -1,6 +1,6 @@
 "use client";
 
-import { donate, getDonationAllowance,getBtc24hBalance,getTotalBurned,approveBTC24HDonation,getTimeUntilToClaim,getBtc24hPreviewedClaim,claim, getBtc24hPrice, getNextPool, approveUsdtDonation, getAllowanceUsdt, getDonationAllowanceUsdt, getUsdtBalance, getAllowanceUsdtV2, approveUsdtDonationV2, donateV2, getBtc24hPreviewedClaimV2, getBtc24hPriceV2, getTimeUntilToClaimV2, claimV2, getUserV2, getContributions} from "@/services/Web3Services";
+import { donate, getDonationAllowance,getBtc24hBalance,getTotalBurned,approveBTC24HDonation,getTimeUntilToClaim,getBtc24hPreviewedClaim,claim, getBtc24hPrice, getNextPool, approveUsdtDonation, getAllowanceUsdt, getDonationAllowanceUsdt, getUsdtBalance,  getContributions} from "@/services/Web3Services";
 import { useRef, useState } from "react";
 import withAuthGuard from "@/services/authGuard";
 import Footer from "@/componentes/footer";
@@ -28,18 +28,13 @@ function Donation() {
 
   const [contributions, setContributions] = useState<Contribution[]>([]);
   const [contributionIndex, setContributionIndex] = useState<number>(1);
-  const [allowanceUsdtV2, setAllowanceUsdtV2] = useState<bigint>(0n);
   const [allowance, setAllowance] = useState<bigint>(0n);
   const [balance, setBalance] = useState<bigint>(0n);
   const [timeUntil, setTimeUntil] = useState("00h:00min:00s");
-  const [timeUntilV2, setTimeUntilV2] = useState("00h:00min:00s");
   const [timeUntilNumber, setTimeUntilNumber] = useState<Number>(0)
-  const [timeUntilNumberV2, setTimeUntilNumberV2] = useState<Number>(0)
   const [balanceToClaim, setBalanceToClaim] = useState<bigint>(0n);
-  const [balanceToClaimV2, setBalanceToClaimV2] = useState<bigint>(0n);
   const [btc24hRealPrice, setBtc24hRealPrice] = useState<bigint>(0n);
   const [btc24hPrice, setBtc24hPrice] = useState<bigint>(0n);
-  const [btc24hPriceV2, setBtc24hPriceV2] = useState<bigint>(0n);
   const [nextPool, setNextPool] = useState<bigint>(0n);
   const [totalBurned, setTotalBurned] = useState<bigint>(0n);
 
@@ -49,7 +44,6 @@ function Donation() {
 
   const [user, setUser] = useState<UserDonation| null>(null);
 
-  const [isApproved, setIsApproved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [alert, setAlert] = useState("");
@@ -157,20 +151,7 @@ function Donation() {
       }
     }, 1000);
   };
-  const startDecrementalTimerV2 = (timeLeft: number) => {
-    if (timerRef.current) clearInterval(timerRef.current);
-
-    timerRef.current = setInterval(() => {
-      if (timeLeft > 0) {
-        timeLeft -= 1;
-        setTimeUntilNumberV2(Number(setTimeUntilNumberV2)-1)
-        setTimeUntilV2(formatTime(timeLeft));
-      } else {
-        clearInterval(timerRef.current!);
-      }
-    }, 1000);
-  };
-
+ 
   const handleModalToggle = async () => {
     setSteps(0);
     if (isModalOpen) {
@@ -196,9 +177,7 @@ function Donation() {
         let balanceValue;
         if(donateWithUsdt){
           allowanceValue = await getDonationAllowanceUsdt(walletAddress);
-          allowanceValueV2 = await getAllowanceUsdtV2(walletAddress)
-          
-          setAllowanceUsdtV2(allowanceValueV2)
+
           balanceValue = await getUsdtBalance(walletAddress);
         }else{
           allowanceValue = await getDonationAllowance(walletAddress);
@@ -209,31 +188,22 @@ function Donation() {
         setBalance(balanceValue);
   
         const timeLeft = await getTimeUntilToClaim(walletAddress, contributionIndex);
-        const timeLeftV2 = await getTimeUntilToClaimV2(walletAddress)
-        setTimeUntilV2(formatTime(timeLeftV2));
         setTimeUntil(formatTime(timeLeft));
         setTimeUntilNumber(Number(timeLeft));
-        setTimeUntilNumberV2(Number(timeLeftV2));
         startDecrementalTimer(timeLeft);
-        startDecrementalTimerV2(timeLeftV2);
   
         const previewedClaim = await getBtc24hPreviewedClaim(walletAddress);
-        const previewedClaimV2 = await getBtc24hPreviewedClaimV2(walletAddress);
         if (previewedClaim !== null) {
           setBalanceToClaim(previewedClaim);
-          setBalanceToClaimV2(previewedClaimV2);
         }
   
         const price = await getBtc24hPrice(); 
-        const priceV2 = await getBtc24hPriceV2();
         const nextPoolBalance = await getNextPool();
         setNextPool(nextPoolBalance);
 
         const totalBurned = await getTotalBurned();
         setTotalBurned(totalBurned);
-        
         setBtc24hRealPrice(price)
-        setBtc24hPriceV2(priceV2)
         setBtc24hPrice(BigInt(400000));
 
       } catch (error) {
@@ -253,26 +223,6 @@ function Donation() {
   useEffect(() => {
     fetchData();
   }, [walletAddress,donateWithUsdt]);
-  useEffect(() => {
-    const fetchBtcPrice = async () => {
-      try {
-        const priceV2 = await getBtc24hPriceV2();
-        setBtc24hPriceV2(priceV2);
-        
-      } catch (error) {
-        console.error("Erro to get price:", error);
-      }
-    };
-
-    fetchBtcPrice();
-
-    const intervalId = setInterval(() => {
-      fetchBtcPrice();
-    }, 5000); // 60000ms = 1 minuto
-
-    return () => clearInterval(intervalId);
-  }, []);
-
 
 
 
@@ -371,13 +321,9 @@ function Donation() {
       if (walletAddress) {
         // Atualiza o tempo restante para reclamar
         const timeLeft = await getTimeUntilToClaim(walletAddress, contributionIndex);
-        const timeLeftV2 = await getBtc24hPreviewedClaimV2(walletAddress)
         setTimeUntil(formatTime(timeLeft));
-        setTimeUntilV2(formatTime(timeLeftV2));
         setTimeUntilNumber(Number(timeLeft));
-        setTimeUntilNumberV2(Number(timeLeftV2));
         startDecrementalTimer(timeLeft);
-        startDecrementalTimerV2(timeLeftV2);
 
         // Atualiza o saldo a ser reivindicado
         const previewedClaim = await getBtc24hPreviewedClaim(walletAddress);
@@ -663,7 +609,7 @@ async function clearAlert(){
           Balance: {donateWithUsdt? Number(ethers.formatUnits(balance,6)).toFixed(2):Number(ethers.formatEther(balance)).toFixed(2)} {donateWithUsdt?"USDT":"BTC24H"}
         </p>
         <p className="text-lg text-gray-800 mb-4">
-          Allowance: {donateWithUsdt? ethers.formatUnits(allowanceUsdtV2,6):ethers.formatEther(allowance)} {donateWithUsdt?"USDT":"BTC24H"}
+          Allowance: {donateWithUsdt? ethers.formatUnits(allowance,6):ethers.formatEther(allowance)} {donateWithUsdt?"USDT":"BTC24H"}
         </p>
           
           

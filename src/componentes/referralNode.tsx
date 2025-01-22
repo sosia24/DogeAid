@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { fetchReferralTree } from "@/services/Web3Services";
-import { IoMdArrowDropdown, IoMdArrowDropright } from "react-icons/io"; // Adicione IoMdArrowDropright
+import { IoMdArrowDropdown, IoMdArrowDropright } from "react-icons/io";
 import { FaCheck, FaCopy } from "react-icons/fa";
 
-function getBackgroundColor(level) {
+// Define os tipos de dados do nó de referência
+interface ReferralNodeType {
+  address: string;
+  children?: ReferralNodeType[]; // Lista de nós filhos (opcional)
+}
+
+function getBackgroundColor(level: number): string {
   const baseRed = 246;
   const baseGreen = 13;
   const baseBlue = 81;
@@ -16,7 +22,13 @@ function getBackgroundColor(level) {
   return `rgb(${red}, ${green}, ${blue}, ${opacity})`;
 }
 
-const ReferralNode = ({ node, level = 0, address }) => {
+interface ReferralNodeProps {
+  node: ReferralNodeType;
+  level?: number;
+  address: string;
+}
+
+const ReferralNode: React.FC<ReferralNodeProps> = ({ node, level = 0, address }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (!node) return null;
@@ -40,7 +52,7 @@ const ReferralNode = ({ node, level = 0, address }) => {
           <div className="flex space-x-2 items-center ml-4">
             <button
               className="bg-green-500 flex items-center text-white px-2 py-1 text-xs rounded"
-              onClick={() => setIsExpanded(!isExpanded)} // Alterna o estado
+              onClick={() => setIsExpanded(!isExpanded)}
             >
               {childrenCount}{" "}
               {isExpanded ? <IoMdArrowDropdown /> : <IoMdArrowDropright />}
@@ -65,13 +77,21 @@ const ReferralNode = ({ node, level = 0, address }) => {
   );
 };
 
-const ReferralTree = ({ address }) => {
-  const [tree, setTree] = useState(null);
+interface ReferralTreeProps {
+  address: string;
+}
+
+const ReferralTree: React.FC<ReferralTreeProps> = ({ address }) => {
+  const [tree, setTree] = useState<ReferralNodeType | null>(null);
 
   useEffect(() => {
     async function loadTree() {
-      const fetchedTree = await fetchReferralTree(address);
-      setTree(fetchedTree);
+      try {
+        const fetchedTree = await fetchReferralTree(address);
+        setTree(fetchedTree);
+      } catch (error) {
+        console.error("Erro ao carregar a árvore de referências:", error);
+      }
     }
     loadTree();
   }, [address]);
