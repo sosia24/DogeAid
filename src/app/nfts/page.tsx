@@ -8,16 +8,18 @@ import { useEffect, useState } from "react";
 import ModalSuccess from "@/componentes/ModalSuccess";
 import ModalError from "@/componentes/ModalError";
 import { useRegistered } from "@/services/RegistrationContext";
-import { SiFireship } from "react-icons/si";
-import { MdOutlineAttachMoney } from "react-icons/md";
+
 import {
     approveUSDT,
     getAllowanceUsdt,
     buyNft,
     isApprovedNft,
     setApprovalForAll,
-    activeUnilevelNft,
+    
     getMuskBalance,
+    getTreeUsers,increaseGas,
+    approveUSDTUser,
+    getAllowanceUsdtGas
 }from "@/services/Web3Services";
 
 function Page1(){
@@ -25,24 +27,21 @@ function Page1(){
     const [error, setError] = useState("");
     const [alert, setAlert] = useState("");
     const [allowanceUsdt, setAllowanceUsdt] = useState<bigint>(0n);
+    const [allowanceUsdtGas, setAllowanceUsdtGas] = useState<bigint>(0n);
+
     const [musk, setMusk] = useState<number>(0)
     const [timeUntil, setTimeUntil] = useState<bigint[]>([0n,0n,0n,0n]);
     const [quantity, setQuantity] = useState<number>(1);
+    const [gas, setGas] = useState<number>(0);
+    const [gasAmount, setGasAmount] = useState<number>(0);
+
     const [approvalWbtcUnilevel, setApprovalWbtcUnilevel] = useState<boolean>()
 
     const [isApprovedNftV, setIsApprovedNftV] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
     const { requireRegistration } = useRegistered();
 
-    function formatTime(time: bigint): string {
-        const totalSeconds = Number(time);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-    
-        return `${hours}h ${minutes}m ${seconds}s`;
-    }
-        
+
 
     async function getMusknft(){
       if(address){
@@ -54,7 +53,16 @@ function Page1(){
         }
       }
     }
+    async function getGas(){
+      if(address){
+        try{
+          const result = await getTreeUsers(address);
+          setGas(result.gas)
+        }catch(error){
 
+        }
+      }
+    }
 
     async function doApproveUsdt(value: Number){
         setLoading(true);
@@ -68,6 +76,18 @@ function Page1(){
             setLoading(false)
         }
     }
+    async function doApproveUsdtUser(value: Number){
+      setLoading(true);
+      try{
+          const result = await approveUSDTUser(value);
+          if(result){
+              getAllowanceUsdtFrontGas();
+              setLoading(false)
+          }
+      }catch(error){
+          setLoading(false)
+      }
+  }
 
 
 
@@ -115,6 +135,19 @@ function Page1(){
 
         }
     }
+    async function getAllowanceUsdtFrontGas(){
+      try{
+          if(address){
+                  const result = await getAllowanceUsdtGas(address);
+
+                  
+                  setAllowanceUsdtGas(result); 
+              }
+      }catch(error){
+
+      }
+  }
+
 
     async function buyNftFront() {
       await requireRegistration(() => {});
@@ -143,7 +176,31 @@ function Page1(){
       }
     }
     
-      
+    async function buyGas(amount : number) {
+      await requireRegistration(() => {});
+
+      setLoading(true);
+      try {
+        const result = await increaseGas(amount); // Executa a compra
+    
+        if (result && result.status === 1) { // status 1 significa sucesso
+          setAlert("Gas purchased successfully");
+    
+          // Aguarde a atualização do allowance após a compra
+          await getAllowanceUsdtFront(); 
+    
+          await fetch(); // Atualiza os dados gerais
+        } else {
+          throw new Error("Transaction failed unexpectedly");
+        }
+      } catch (error) {
+        console.error("Erro na compra do NFT:", error); // Log detalhado
+        setError("Something went wrong, try again");
+      } finally {
+        setLoading(false);
+      }
+    }
+    
 
     
       
@@ -153,6 +210,8 @@ function Page1(){
         getAllowanceUsdtFront();
         getIsApprovedNft();
         getMusknft()
+        getGas()
+        getAllowanceUsdtFrontGas()
     }
     
     useEffect(() => {
@@ -185,6 +244,7 @@ function Page1(){
         </div>
         <div className="lg:w-[100%] w-full sm:p-2 p-6 pb-12 mx-4 mt-[30px] rounded-3xl flex lg:flex-row flex-col items-center justify-center">
   {/* Silver */}
+  <div className="w-full flex-col">
   <div className="lg:w-[100%] w-full h-auto flex flex-col items-center justify-center lg:items-start lg:flex-row lg:mt-0 mt-[30px]">
       <Image alt="prata" src={"/images/nft.png"} width={350} height={350} className="mx-auto lg:mx-0"></Image>
     <div className="bg-[#fe4a00] flex flex-col items-center justify-center bg-opacity-20 w-[90%] lg:w-[330px] mt-[20px] h-auto text-white p-4 ml-[20px] rounded-xl z-0">
@@ -259,6 +319,45 @@ function Page1(){
       </div>
     </div>
   </div>
+  <div className="lg:w-[100%] mt-[30px] w-full h-auto flex flex-col items-center justify-center lg:items-start lg:flex-row  ">
+      <Image alt="prata" src={"/images/nft.png"} width={350} height={350} className="mx-auto lg:mx-0"></Image>
+    <div className="bg-[#fe4a00] flex flex-col items-center justify-center bg-opacity-20 w-[90%] lg:w-[330px] mt-[20px] h-auto text-white p-4 ml-[20px] rounded-xl z-0">
+      <div className=" text-center font-semibold text-[18px]">
+        <p className="">Buy Gas</p>
+        <p>Your Gas Available: {ethers.formatUnits(String(gas),6)} USDT</p>
+        <input
+                                type="number"
+                                className="text-black"
+                                placeholder="Amount gas to buy"
+                                value={gasAmount}
+                                onChange={(e) => setGasAmount(Number(e.target.value))}
+                            />
+                            {allowanceUsdtGas >= BigInt(gasAmount * 1000000) ? (
+                                <button
+                                    onClick={async () => {
+                                        await buyGas(gasAmount);
+                                    }}
+                                    className="text-black rounded-tl-full w-[130px] mt-[15px] rounded-br-full py-[5px] bg-[#00ff54]"
+                                >
+                                    Buy Gas
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={async () => {
+                                        await doApproveUsdtUser(gasAmount * 1000000);
+                                    }}
+                                    className="text-black rounded-tl-full w-[130px] mt-[15px] rounded-br-full py-[5px] bg-[#f60d53de]"
+                                >
+                                    Approve
+                                </button>
+                            )}
+      </div>
+
+    </div>
+  </div>
+  </div>
+
+
 
  
 
