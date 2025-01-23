@@ -1,6 +1,6 @@
 "use client";
 
-import { donate, getDonationAllowance,getBtc24hBalance,getTotalBurned,approveBTC24HDonation,getTimeUntilToClaim,getBtc24hPreviewedClaim,claim, getBtc24hPrice, getNextPool, approveUsdtDonation, getAllowanceUsdt, getDonationAllowanceUsdt, getUsdtBalance,  getContributions} from "@/services/Web3Services";
+import { donate, getDonationAllowance,getBtc24hBalance,getTotalBurned,approveBTC24HDonation,getTimeUntilToClaim, claim, getBtc24hPrice, getNextPool, approveUsdtDonation, getAllowanceUsdt, getDonationAllowanceUsdt, getUsdtBalance,  getContributions} from "@/services/Web3Services";
 import { useRef, useState } from "react";
 import withAuthGuard from "@/services/authGuard";
 import Footer from "@/componentes/footer";
@@ -192,11 +192,6 @@ function Donation() {
         setTimeUntilNumber(Number(timeLeft));
         startDecrementalTimer(timeLeft);
   
-        const previewedClaim = await getBtc24hPreviewedClaim(walletAddress);
-        if (previewedClaim !== null) {
-          setBalanceToClaim(previewedClaim);
-        }
-  
         const price = await getBtc24hPrice(); 
         const nextPoolBalance = await getNextPool();
         setNextPool(nextPoolBalance);
@@ -245,6 +240,8 @@ function Donation() {
         setIsProcessing(true);
         await donate(donationAmount);
         setAlert("Donation made successfully!");
+        if(walletAddress)
+        fetchContributions(walletAddress)
         setSteps(3);
         setIsProcessing(false);
         setLoading(false);
@@ -325,15 +322,6 @@ function Donation() {
         setTimeUntilNumber(Number(timeLeft));
         startDecrementalTimer(timeLeft);
 
-        // Atualiza o saldo a ser reivindicado
-        const previewedClaim = await getBtc24hPreviewedClaim(walletAddress);
-        if (previewedClaim !== null) {
-          setBalanceToClaim(previewedClaim);
-          setIsReloading(false);  // Apenas define o estado se o valor não for `null`
-        } else {
-          console.warn('Saldo retornado é nulo. Ignorando atualização do estado.');
-          setIsReloading(false); 
-        }
       }
     } catch (error) {
       setIsReloading(false); 
@@ -451,7 +439,7 @@ async function clearAlert(){
                 <p><span className="text-[#fe4a00]">U$ {contributions[contributionIndex]?.amount ? (contributions[contributionIndex].amount / 1000000) : 0}</span></p>
                 <p>USDT Estimated:</p>
                 <p><span className="text-[#fe4a00]">U$ {contributions[contributionIndex]?.goal ? (contributions[contributionIndex].goal / 1000000) : 0}</span></p>
-                <p>Claims: <p><span className="text-[#fe4a00]">{contributions[contributionIndex]?.days ? contributions[contributionIndex]?.days : 0} / 30</span></p></p>
+                <p>Claims: <span className="text-[#fe4a00]">{contributions[contributionIndex]?.days ? contributions[contributionIndex]?.days : 0} / 30</span></p>
 
                 </div>
 

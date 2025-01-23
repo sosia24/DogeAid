@@ -3,7 +3,7 @@ import { ethers, toNumber } from "ethers";
 import donationAbi from "./abis/donation.abi.json";
 import userAbi from "./abis/user.abi.json";
 import usdtAbi from "./abis/usdt.abi.json"
-import btc24hAbi from "./abis/btc24h.abi.json"
+import dogeAbi from "./abis/btc24h.abi.json"
 import oracleAbi from "./abis/oracle.abi.json";
 import collectionAbi from "./abis/collection.abi.json";
 import queueAbi from "./abis/queue.abi.json";
@@ -18,7 +18,7 @@ import {queueData} from "./types"
 const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID;
 const DONATION_ADDRESS = process.env.NEXT_PUBLIC_DONATION;
 const USDT_ADDRESS = process.env.NEXT_PUBLIC_USDT;
-const BTC24H_ADDRESS = process.env.NEXT_PUBLIC_BTC24H;
+const DOGE_ADDRESS = process.env.NEXT_PUBLIC_DOGE;
 const COLLECTION_ADDRESS= process.env.NEXT_PUBLIC_COLLECTION;
 const ORACLE_ADDRESS= process.env.NEXT_PUBLIC_ORACLE;
 const USER_ADDRESS= process.env.NEXT_PUBLIC_USER;
@@ -73,8 +73,8 @@ export async function approveBTC24HDonation(value: string) {
   const signer = await provider.getSigner();
 
   const token = new ethers.Contract(
-    BTC24H_ADDRESS ? BTC24H_ADDRESS : "",
-    btc24hAbi,
+    DOGE_ADDRESS ? DOGE_ADDRESS : "",
+    dogeAbi,
     signer
   );
   const feeData = await provider.getFeeData();
@@ -166,14 +166,6 @@ export async function buyNft(quantity:number) {
     collectionAbi,
     signer
   );
-  const feeData = await provider.getFeeData();
-  if (!feeData.maxFeePerGas) {
-    throw new Error("Unable to get gas price");
-  }
-
-  const maxFeePerGas = feeData.maxFeePerGas *3n;
-  
-  
   
 
   try {
@@ -285,8 +277,8 @@ export async function getDonationAllowance(owner:string){
     const provider = await getProvider();
   
   const btc24h = new ethers.Contract(
-    BTC24H_ADDRESS ? BTC24H_ADDRESS : "",
-    btc24hAbi,
+    DOGE_ADDRESS ? DOGE_ADDRESS : "",
+    dogeAbi,
     provider
   );
 
@@ -303,8 +295,8 @@ export async function getBtc24hBalance(owner:string){
     const provider = await getProvider();
   
   const btc24h = new ethers.Contract(
-    BTC24H_ADDRESS ? BTC24H_ADDRESS : "",
-    btc24hAbi,
+    DOGE_ADDRESS ? DOGE_ADDRESS : "",
+    dogeAbi,
     provider
   );
 
@@ -328,40 +320,7 @@ export async function getBtc24hPrice(){
   return price;
 }
 
-export async function getBtc24hPreviewedClaim(owner:string){
-  
-    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        const provider = await getProvider();
-  
-        const donation = new ethers.Contract(
-          DONATION_ADDRESS || '',
-          donationAbi,
-          provider
-        );
-  
-        const balance = await donation.previewTotalValue(owner);
-  
-        return balance;
-  
-      } catch (error) {
-        console.error(`Erro na tentativa ${attempt}:`, error);
-  
-        // Verifica se é a última tentativa
-        if (attempt === 3) {
-          console.error('Número máximo de tentativas atingido.');
-          return null;
-        }
-  
-        // Aguarda um tempo antes da próxima tentativa
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
-    }
-  
-    // Retorno caso todas as tentativas falhem
-    return null;
-  }
+
 
 export async function getTimeUntilToClaim(owner:string, index:number){
   
@@ -455,22 +414,6 @@ export async function registerUser(newUser:string){
   return receipet;
 }
 
-export async function isActiveNft(owner:string,tokenId:number){
-  
-    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
-    const provider = await getProvider();
-  
-  const collection = new ethers.Contract(
-    COLLECTION_ADDRESS ? COLLECTION_ADDRESS : "",
-    collectionAbi,
-    provider
-  );
-
-  const isActive : boolean  = (await collection.isActive(owner,tokenId));
-
-  return isActive;
-}
-
 export async function isApprovedNft(owner: string, isQueue: boolean) {
     //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
     const provider = await getProvider();
@@ -540,7 +483,7 @@ export async function setApprovalForAll(isQueue:boolean){
   const maxFeePerGas = feeData.maxFeePerGas *3n;
 
   if(isQueue){
-    tx  = (await collection.setApprovalForAll(QUEUE_ADDRESS,true,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas}));
+    tx  = (await collection.setApprovalForAll(QUEUE_ADDRESS, true));
   }else{
     tx  = (await collection.setApprovalForAll(COLLECTION_ADDRESS,true,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas}));
   }
@@ -551,7 +494,7 @@ export async function setApprovalForAll(isQueue:boolean){
 }
 
 
-export async function getQueue(batchLevel: number): Promise<queueData[]> {
+export async function getQueue(): Promise<queueData[]> {
     //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
     const provider = await getProvider();
 
@@ -564,7 +507,7 @@ export async function getQueue(batchLevel: number): Promise<queueData[]> {
   while (true) {
     try {
       // Obtenha os dados da fila diretamente do contrato
-      const getQueueDetails: any[] = await queueContract.getQueueDetails(batchLevel);
+      const getQueueDetails: any[] = await queueContract.getQueueDetails();
       
       // Transforme as tuplas retornadas para o formato `queueData`
       const queue: queueData[] = getQueueDetails.map((item) => ({
@@ -582,7 +525,7 @@ export async function getQueue(batchLevel: number): Promise<queueData[]> {
   }
 }
 
-export async function balanceToPaid(tokenId: number, maxRetries = 3): Promise<string> {
+export async function balanceToPaid(maxRetries = 3) {
   // Initialize the provider
   const provider = await getProvider();
   const collection = new ethers.Contract(
@@ -596,10 +539,10 @@ export async function balanceToPaid(tokenId: number, maxRetries = 3): Promise<st
   while (attempt < maxRetries) {
     try {
       // Attempt to fetch data from the blockchain
-      const tx = await collection.balanceFree(tokenId);
+      const tx = await collection.balanceFree();
 
       // If successful, format and return the result
-      return ethers.formatEther(tx);
+      return Number(ethers.formatEther(tx));
     } catch (error) {
     }
 
@@ -663,7 +606,7 @@ export async function claimQueue(index: number, queueId: number) {
 
 
 
-export async function addQueue(tokenId: BigInt, quantity: BigInt) {
+export async function addQueue() {
   const provider = await getProvider();
     const signer = await provider.getSigner();
 
@@ -680,7 +623,7 @@ export async function addQueue(tokenId: BigInt, quantity: BigInt) {
     const maxFeePerGas = feeData.maxFeePerGas *3n;
   
     
-    const tx = await collection.addToQueue(tokenId, quantity,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
+    const tx = await collection.addToQueue();
     const concluded = await tx.wait(); // Aguarda a confirmação da transação
     return concluded; // Retorna a conclusão em caso de sucesso
 
@@ -772,6 +715,25 @@ export async function getUsdtBalance(owner:string){
   return balance;
 }
 
+
+export async function getMuskBalance(owner:string){
+  
+  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  const provider = await getProvider();
+
+const usdt = new ethers.Contract(
+  COLLECTION_ADDRESS ? COLLECTION_ADDRESS : "",
+  collectionAbi,
+  provider
+);
+
+const balance = await usdt.balanceOf(owner, 1);
+
+return balance;
+}
+
+
+
 export async function getDonationAllowanceUsdt(owner:string){
   
     //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
@@ -788,20 +750,6 @@ export async function getDonationAllowanceUsdt(owner:string){
 }
 
 
-export async function timeUntilInactiveNfts(owner:string,tokenId:number){
-  
-    //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
-    const provider = await getProvider();
-  const collection = new ethers.Contract(
-    COLLECTION_ADDRESS ? COLLECTION_ADDRESS : "",
-    collectionAbi,
-    provider
-  );
-
-  const time = await collection.timeUntilInactive(owner,tokenId);
-  
-  return time;
-}
 
 export async function getTreeUsers(address:string){
     //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
@@ -944,10 +892,11 @@ export async function getValuesDeposit(
 
       const allowance1  = await mint.viewDepositQuantity(1);
       const allowance2  = await mint.viewDepositQuantity(2);
+      const allowance3  = await mint.viewDepositQuantity(3);
       
       // Retorna o valor caso a chamada tenha sucesso
       if (allowance1 !== undefined && allowance2 !== undefined) {
-        return [allowance1, allowance2];
+        return [allowance1, allowance2, allowance3];
       }
 
     } catch (error) {
@@ -962,7 +911,7 @@ export async function getValuesDeposit(
   throw new Error(`Falha ao obter allowance após ${maxRetries} tentativas.`);
 }
 
-export async function getAllowanceBtc24h(
+export async function getAllowanceDoge(
   address: string,
   maxRetries = 5, // Número máximo de tentativas
   delay = 1000 // Tempo de espera entre tentativas (em milissegundos)
@@ -976,8 +925,8 @@ export async function getAllowanceBtc24h(
 
       // Conecta ao contrato
       const mint = new ethers.Contract(
-        BTC24H_ADDRESS ? BTC24H_ADDRESS : "",
-        btc24hAbi,
+        DOGE_ADDRESS ? DOGE_ADDRESS : "",
+        dogeAbi,
         provider
       );
 
@@ -1002,21 +951,16 @@ export async function getAllowanceBtc24h(
 }
 
 
-export async function approveBtc24h(value: bigint) {
+export async function approveDoge(value: bigint) {
   const provider = await getProvider()
   const signer = await provider.getSigner();
 
   const mint = new ethers.Contract(
-    BTC24H_ADDRESS ? BTC24H_ADDRESS : "",
-    btc24hAbi,
+    DOGE_ADDRESS ? DOGE_ADDRESS : "",
+    dogeAbi,
     signer
   );
-  const feeData = await provider.getFeeData();
-  if (!feeData.maxFeePerGas) {
-    throw new Error("Unable to get gas price");
-  }
 
-  const maxFeePerGas = feeData.maxFeePerGas *3n;
 
   const tx = await mint.approve(QUEUE_COIN_ADDRESS, value+BigInt(100000000000000000000));
   await tx.wait();
@@ -1026,7 +970,7 @@ export async function approveBtc24h(value: bigint) {
 
 
 
-export async function addQueueBtc24h(tokenId: number) {
+export async function addQueueCoin(tokenId: number) {
   const provider = await getProvider();
     const signer = await provider.getSigner();
 
@@ -1035,21 +979,15 @@ export async function addQueueBtc24h(tokenId: number) {
       queueCoinAbi,
       signer
     );
-    const feeData = await provider.getFeeData();
-    if (!feeData.maxFeePerGas) {
-      throw new Error("Unable to get gas price");
-    }
-  
-    const maxFeePerGas = feeData.maxFeePerGas *3n;
   
     
-    const tx = await collection.addToQueue(tokenId, 1,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
+    const tx = await collection.addToQueue(tokenId, 1);
     const concluded = await tx.wait(); // Aguarda a confirmação da transação
     return concluded; // Retorna a conclusão em caso de sucesso
 
 }
 
-export async function getQueueBtc24h(): Promise<queueData[]> {
+export async function getQueueDoge(): Promise<queueData[]> {
   //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
   const provider = await getProvider();
 
@@ -1111,7 +1049,7 @@ while (true) {
 }
 }
 
-export async function balanceToPaidBtc24h(maxRetries = 3): Promise<string> {
+export async function balanceToPaidDoge(maxRetries = 3): Promise<string> {
   // Initialize the provider
   const provider = await getProvider();
   const collection = new ethers.Contract(
@@ -1369,3 +1307,39 @@ export async function getTransactionsReceived(owner:string){
 }
     
 }
+
+
+{/* ---------------------- QUEUE COIN DETAILS ------------------- */}
+
+export async function getQueueCoin(index:number): Promise<queueData[]> {
+  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  const provider = await getProvider();
+
+const queueContract = new ethers.Contract(
+  QUEUE_COIN_ADDRESS ? QUEUE_COIN_ADDRESS : "",
+  queueCoinAbi,
+  provider
+);
+
+while (true) {
+  try {
+    // Obtenha os dados da fila diretamente do contrato
+    const getQueueDetails: any[] = await queueContract.getQueueDetails(index);
+    
+    // Transforme as tuplas retornadas para o formato `queueData`
+    const queue: queueData[] = getQueueDetails.map((item) => ({
+      user: item[0], // address
+      index: BigInt(item[1]), // uint256 -> BigInt
+      batchLevel: BigInt(item[2]), // uint256 -> BigInt
+      nextPaied: item[3] === 1 // uint256 -> boolean
+    }));
+
+    return queue;
+
+  } catch (err) {
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Retry após 1s
+  }
+}
+}
+
+
