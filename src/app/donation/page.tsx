@@ -94,26 +94,35 @@ function Donation() {
   const fetchContributions = async (owner: string) => {
     try {
       const response = await getContributions(owner);
-      console.log(response)
+      console.log(response);
+  
       if (response.success === false) {
         throw new Error(response.errorMessage);
       }
-      // Formatando a resposta da tupla em um array legível
-      const formattedContributions = response.map((item: any[]) => ({
-        amount: Number(item[0]),
-        goal: Number(item[1]),
-        startTime: Number(item[2]),
-        endTime: Number(item[3]),
-        days: Number(item[4]),
-      }));
-      setContributions(formattedContributions);
-      if(walletAddress){
-        getTimeUntilToClaim(walletAddress, contributionIndex)
+  
+      // Verificar se `response` é um array
+      if (Array.isArray(response)) {
+        // Formatar a resposta da tupla em um array legível
+        const formattedContributions = response.map((item: any[]) => ({
+          amount: Number(item[0]),
+          goal: Number(item[1]),
+          startTime: Number(item[2]),
+          endTime: Number(item[3]),
+          days: Number(item[4]),
+        }));
+  
+        setContributions(formattedContributions);
+  
+        if (walletAddress) {
+          getTimeUntilToClaim(walletAddress, contributionIndex);
+        }
+      } else {
       }
     } catch (err: any) {
       setError(err.message || "Erro desconhecido");
     }
   };
+  
 
   useEffect(() => {
     if(walletAddress){

@@ -1289,8 +1289,7 @@ export async function getContributions(owner: string) {
   } catch (error: any) {
     // Retorna a mensagem de erro
     return {
-      success: false,
-      errorMessage: error?.reason || error?.message || "Unknown error occurred",
+
     };
   }
 

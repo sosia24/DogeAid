@@ -235,7 +235,7 @@ function Page1() {
 
     async function getQueueDogeDetails() {
         try {
-            const result: queueData[] = await getQueueCoin(0); // Supondo que getQueue retorna uma lista
+            const result: queueData[] = await getQueueCoin(1); // Supondo que getQueue retorna uma lista
             setQueueDogeDetails(result);
         } catch (error) {
         }
