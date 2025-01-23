@@ -67,6 +67,23 @@ export async function approveUSDT(value: Number) {
 
   return tx;
 }
+export async function approveUSDTUser(value: Number) {
+  const provider = await getProvider()
+  const signer = await provider.getSigner();
+
+  const mint = new ethers.Contract(
+    USDT_ADDRESS ? USDT_ADDRESS : "",
+    usdtAbi,
+    signer
+  );
+
+
+
+  const tx = await mint.approve(USER_ADDRESS, value);
+  await tx.wait();
+
+  return tx;
+}
 
 export async function approveBTC24HDonation(value: string) {
   const provider = await getProvider();
@@ -110,6 +127,46 @@ export async function approveUsdtDonation(value: string) {
   const tx = await token.approve(DONATION_ADDRESS, Number(value)*10**6);  
   await tx.wait();
   return tx;
+}
+
+
+export async function getAllowanceUsdtGas(
+  address: string,
+  maxRetries = 5, // Número máximo de tentativas
+  delay = 1000 // Tempo de espera entre tentativas (em milissegundos)
+) {
+  let retries = 0;
+
+  while (retries < maxRetries) {
+    try {
+      // Obtém o provedor conectado à wallet
+      const provider = await getProvider();
+
+      // Conecta ao contrato
+      const usdtContract = new ethers.Contract(
+        USDT_ADDRESS ? USDT_ADDRESS : "",
+        usdtAbi,
+        provider
+      );
+
+      // Obtém o allowance
+      const allowance : bigint = await usdtContract.allowance(address, USER_ADDRESS);
+
+      // Retorna o valor caso a chamada tenha sucesso
+      if (allowance !== undefined) {
+        return allowance;
+      }
+
+    } catch (error) {
+    }
+
+    retries++;
+
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+
+  // Lança um erro caso todas as tentativas falhem
+  throw new Error(`Falha ao obter allowance após ${maxRetries} tentativas.`);
 }
 
 
@@ -771,18 +828,54 @@ export async function getTreeUsers(address:string){
     //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
     const provider = await getProvider();
 
-  const usdt = new ethers.Contract(
+  const userContract = new ethers.Contract(
     USER_ADDRESS ? USER_ADDRESS : "",
     userAbi,
     provider
   );
 
-  const users = await usdt.getUser(address)
+  const users = await userContract.getUser(address)
   return users;
 
 }
 
+export async function increaseGas(amount:number){
+  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  const provider = await getProvider();
+  const signer = await provider.getSigner();
 
+const userContract = new ethers.Contract(
+  USER_ADDRESS ? USER_ADDRESS : "",
+  userAbi,
+  signer
+);
+try {
+  // Envia a transação
+  const tx = await userContract.increaseGas(ethers.parseUnits(String(amount),6))
+
+  let concluded;
+
+  // Tenta esperar a transação
+  try {
+    concluded = await tx.wait();
+  } catch (waitError) {
+
+    // Caso `tx.wait()` falhe, tenta obter o recibo manualmente
+    concluded = await provider.getTransactionReceipt(tx.hash);
+  }
+
+  if (concluded && concluded.status === 1) {
+    return concluded;
+  } else {
+    throw new Error("Transação failed or not confirmed.");
+  }
+
+} catch (error) {
+  throw error; // Lança erro para ser tratado no frontend
+}
+
+
+}
 /* ---------------- PAYMENT MANAGER -------------- */
 
 export async function verifyPercentage(address:String){
