@@ -391,6 +391,22 @@ export async function isRegistered(owner:string){
   return userData.registered;
 }
 
+export async function getTotalEarnedPerLevel(owner:string){
+  
+  const provider = await getProvider();
+
+  const user = new ethers.Contract(
+    USER_ADDRESS ? USER_ADDRESS : "",
+    userAbi,
+    provider
+  );
+
+  const userData : bigint[]  = (await user.getTotalEarned(owner));
+  
+  return userData;
+}
+
+
 export async function registerUser(newUser:string){
   
   const provider = await getProvider()
