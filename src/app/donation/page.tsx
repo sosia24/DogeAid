@@ -47,13 +47,12 @@ function Donation() {
   const [show, setShow] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const [user, setUser] = useState<UserDonation| null>(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [alert, setAlert] = useState("");
   const [steps, setSteps] = useState<number>(0)
-  const [donateWithUsdt, setDonateWithUsdt] = useState(false);
+  const [donateWithUsdt, setDonateWithUsdt] = useState(true);
   
   const walletAddress = useWallet().address;
 
@@ -190,16 +189,10 @@ function Donation() {
     if (walletAddress) {
       try {
         let allowanceValue;
-        let allowanceValueV2;
         let balanceValue;
-        if(donateWithUsdt){
           allowanceValue = await getDonationAllowanceUsdt(walletAddress);
 
           balanceValue = await getUsdtBalance(walletAddress);
-        }else{
-          allowanceValue = await getDonationAllowance(walletAddress);
-          balanceValue = await getBtc24hBalance(walletAddress);
-        }
         setAllowance(allowanceValue);
         setBalance(balanceValue);
   
@@ -237,7 +230,7 @@ function Donation() {
 
 
 
-  const handleDonation = async (isUsdt:boolean) => {
+  const handleDonation = async () => {
     await requireRegistration(()=>{}); 
   
       if (!donationAmount || parseFloat(donationAmount) <= 0) {
@@ -392,7 +385,7 @@ async function clearAlert(){
               <div className="w-14 h-14 border-t-4 border-b-4 border-[#f60d53de] rounded-full animate-spin"></div>
             </div>
             )}
-      <div className=" px-6 w-full flex flex-col mt-[10px] items-center overflow-x-hidden overflow-y-hidden mb-[50px]">
+      <div className=" px-6 w-full flex flex-col mt-[10px] items-center justify-center overflow-x-hidden overflow-y-hidden mb-[50px]">
         <div className="flex text-black md:flex-col w-full justify-center items-center">
         <div className=" w-[70%] md:w-full p-4 flex justify-center items-center relative text-black">
             <img
@@ -412,202 +405,242 @@ async function clearAlert(){
         </div>
         
         <div className="flex flex-col lg:flex-row :justify-between lg:items-center justify-center items-center mt-4 sm:pb-10">
-  {/* Primeiro Card */}
-  
-  <div className="lg:w-[40%] w-[75%] flex flex-col">
-  <div className="flex sm:flex-col border-2 border-[#fe4a00] px-12 py-4 bg-gray-600 bg-opacity-30 rounded-xl sm:items-center sm:text-center lg:flex-row lg:items-center mb-6 sm:mb-4 w-full lg:w-[90%]">
-    <div className="flex flex-col">
-      <h3 className="text-lg sm:text-[14px] font-semibold">Your donations rewards</h3>
-      <p className="font-light text-base sm:text-[14px] sm:mt-1">
-        U$ {formatUsdt(user ? user.totalClaimed : 0n)}
-      </p>
-    </div>
-  </div>
-
-  {/* Terceiro Card */}
         </div>
         
-{contributions.length > 0 ?             <div className="flex flex-col sm:w-[50%] justify-center items-center    ml-4 sm:ml-0 rounded-xl">
-            <div className="flex sm2:justify-center sm2:items-center">
-              <img className="sm2:size-28" src="images/claimImage.png" alt="banner" />
-              <div className="ml-5">
-                <h1 className="text-4xl font-semibold">Claim <span className="text-[#fe4a00]">Rewards {contributions[contributionIndex]?.index ? contributions[contributionIndex]?.index : 0}</span></h1>
-                <p>Donated:</p>
-                <p><span className="text-[#fe4a00]">U$ {contributions[contributionIndex]?.amount ? (contributions[contributionIndex].amount / 1000000) : 0}</span></p>
-                <p>USDT Estimated:</p>
-                <p><span className="text-[#fe4a00]">U$ {contributions[contributionIndex]?.goal ? (contributions[contributionIndex].goal / 1000000) : 0}</span></p>
-                <p>Claims: <span className="text-[#fe4a00]">{contributions[contributionIndex]?.days ? contributions[contributionIndex]?.days : 0} / 30</span></p>
-                </div>
-
-
-              </div>
-            <div className="flex mt-4 w-full text-xl justify-center">
-                                      <button   onClick={()=>handleClaim()}
-                                      className="text-black rounded-lg font-semibold p-3 mx-2 w-[120px] bg-[#fe4a00] hover:bg-[#fe4800c4] hover:scale-105 transition-all duration-300">Claim</button>        
-
-              <p className="bg-[#f60d53de] rounded-lg mx-2 p-3">{timeUntil}</p>
-            </div>
-            <div className="max-w-[100%] sm:max-w-[100%] w-[500px] bg-gray-600 bg-opacity-20 mt-[20px] p-2 flex flex-row overflow-x-auto scrollbar-thin scrollbar-thumb-[#fe4a00] scrollbar-track-gray-700">
-            {contributions.map((contribution, index) => (
-            <div
-            onClick={() => handleContributionIndex(index)}
-              key={index}
-              className="cursor-pointer hover:scale-105 w-[40px] h-[30px] p-4 bg-[#f60d53de] text-center flex justify-center items-center ml-[5px]"
-            >
-              {index + 1}
-            </div>
-             ))}
-          </div>
-          </div> : "No contributions data"} 
-        </div>
+        {contributions.length > 0 ? (
+  <div className="flex flex-col bg-gray-200 bg-opacity-10 p-10 sm:p-4  w-full max-w-[500px] justify-center items-center rounded-xl">
+    <div className="flex flex-col  sm:flex-row justify-center items-center p-4">
+      <img
+        className="w-[150px] h-auto sm:w-[120px] md:w-[140px] lg:w-[160px] mb-4 sm:mb-0"
+        src="images/claimImage.png"
+        alt="banner"
+      />
+      <div className="ml-0 sm:ml-5 text-center sm:text-left">
+        <h1 className="text-xl sm:text-2xl lg:text-4xl font-semibold">
+          Claim{" "}
+          <span className="text-[#fe4a00]">
+            Rewards {contributions[contributionIndex]?.index ? contributions[contributionIndex]?.index : 0}
+          </span>
+        </h1>
+        <p className="text-lg sm:text-xl lg:text-2xl">Donated:</p>
+        <p className="text-md sm:text-lg lg:text-xl">
+          <span className="text-[#fe4a00]">
+            U$ {contributions[contributionIndex]?.amount ? contributions[contributionIndex].amount / 1000000 : 0}
+          </span>
+        </p>
+        <p className="text-lg sm:text-xl lg:text-2xl">USDT Estimated:</p>
+        <p className="text-md sm:text-lg lg:text-xl">
+          <span className="text-[#fe4a00]">
+            U$ {contributions[contributionIndex]?.goal ? contributions[contributionIndex].goal / 1000000 : 0}
+          </span>
+        </p>
+        <p className="text-md sm:text-lg lg:text-xl">
+          Claims:{" "}
+          <span className="text-[#fe4a00]">
+            {contributions[contributionIndex]?.days ? contributions[contributionIndex]?.days : 0} / 30
+          </span>
+        </p>
       </div>
+    </div>
+    <div className="flex mt-4 w-full text-sm sm:text-lg justify-center">
+      <button
+        onClick={() => handleClaim()}
+        className="text-black rounded-lg font-semibold p-2 sm:p-3 text-md sm:text-lg lg:text-xl mx-2 w-[100px] sm:w-[120px] bg-[#fe4a00] hover:bg-[#fe4800c4] hover:scale-105 transition-all duration-300"
+      >
+        Claim
+      </button>
+      <p className="bg-[#f60d53de] text-md sm:text-lg lg:text-xl rounded-lg mx-2 p-2 sm:p-3">
+        {timeUntil}
+      </p>
+    </div>
+    <div className="w-full bg-gray-600 bg-opacity-20 mt-5 p-2 flex flex-row overflow-x-auto scrollbar-thin scrollbar-thumb-[#fe4a00] scrollbar-track-gray-700">
+      {contributions.map((contribution, index) => (
+        <div
+          onClick={() => handleContributionIndex(index)}
+          key={index}
+          className="cursor-pointer hover:scale-105 w-[40px] h-[30px] p-2 bg-[#f60d53de] text-center flex justify-center items-center ml-[5px]"
+        >
+          {contributions[contributionIndex].index}
+        </div>
+      ))}
+    </div>
+  </div>
+) : (
+  <div className="flex flex-col items-center justify-center text-center h-[400px] border-2 border-[#f60d53de] rounded-xl p-6">
+    <img
+      src="/images/claimImage.png"
+      alt="No Contributions"
+      className="w-[150px] sm:w-[200px] h-auto mb-4"
+    />
+    <h2 className="text-xl sm:text-2xl font-semibold text-white">
+      No Active Contributions Found
+    </h2>
+    <p className="text-sm sm:text-base text-white mt-2">
+      Start contributing to claim your rewards and track your progress here.
+    </p>
+    <button
+      onClick={handleModalToggle}
+      className="mt-4 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-white bg-[#fe4a00] hover:bg-[#fe4800c4] rounded-lg shadow-md transition-all duration-300"
+    >
+      Start Contributing
+    </button>
+  </div>
+)}
+</div>
 
       <Footer />
 
       {isModalOpen && (
-  <div className="fixed inset-0 z-30 flex items-center justify-center">
-    {/* Overlay */}
-    <div
-      className="fixed inset-0 bg-black bg-opacity-60 transition-opacity duration-300"
-      onClick={handleClose}
-    ></div>
+        <div className="fixed inset-0 z-30 flex items-center justify-center">
+          {/* Overlay */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-60 transition-opacity duration-300"
+            onClick={handleClose}
+          ></div>
 
-    {/* Modal */}
-    <div className="relative bg-white border-2 border-[#f60d53de] w-[90%] p-6 rounded-xl shadow-2xl max-w-md">
-      {/* Close Button */}
-      <button
-        className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition duration-200"
-        onClick={handleClose}
-      >
-        <p className="text-lg font-bold">×</p>
-      </button>
-
-      {/* Header */}
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-semibold text-[#f60d53de]">Donate in Steps</h2>
-        <p className="text-gray-600 text-sm">
-          Follow the steps to complete your donation
-        </p>
-      </div>
-
-      {/* Steps Indicator */}
-      <div className="flex items-center justify-center mb-6 gap-3">
-        {[1, 2, 3].map((step) => (
-          <React.Fragment key={step}>
-            <div
-              className={`h-1 w-8 rounded-full ${
-                steps >= step ? "bg-[#f60d53de]" : "bg-gray-300"
-              }`}
-            ></div>
-            <p
-              className={`text-sm ${
-                steps >= step ? "text-[#f60d53de]" : "text-gray-400"
-              }`}
-            >
-              Step {step === 3 ? "Success" : step}
-            </p>
-          </React.Fragment>
-        ))}
-      </div>
-
-      {/* Step Content */}
-      <div className="text-center">
-        {steps === 0 && (
-          <div>
-            <p className="text-lg text-gray-800 mb-4">
-              Select your donation currency
-            </p>
+          {/* Modal */}
+          <div className="relative bg-white border-2 border-[#f60d53de] w-[90%] p-6 rounded-xl shadow-2xl max-w-md">
+            {/* Close Button */}
             <button
-              onClick={() => {
-                setDonateWithUsdt(true);
-                setSteps(1);
-              }}
-              className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:border-2 border-[#f60d53de]"
+              className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition duration-200"
+              onClick={handleClose}
             >
-              USDT
+              <p className="text-lg font-bold">×</p>
             </button>
-          </div>
-        )}
 
-        {steps === 1 && (
-          <div>
-            <p className="text-lg text-gray-800 mb-4">
-              Balance: {Number(ethers.formatUnits(balance, 6)).toFixed(2)} USDT
+            {/* Header */}
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-semibold text-[#f60d53de]">
+                Donate in Steps
+              </h2>
+              <p className="text-gray-600 text-sm">
+                Follow the steps to complete your donation
+              </p>
+            </div>
+
+            {/* Steps Indicator */}
+            <div className="flex items-center justify-center mb-6 gap-3">
+              {[1, 2, 3].map((step) => (
+                <React.Fragment key={step}>
+                  <div
+                    className={`h-1 w-8 rounded-full ${
+                      steps >= step ? "bg-[#f60d53de]" : "bg-gray-300"
+                    }`}
+                  ></div>
+                  <p
+                    className={`text-sm ${
+                      steps >= step ? "text-[#f60d53de]" : "text-gray-400"
+                    }`}
+                  >
+                    Step {step === 3 ? "Success" : step}
+                  </p>
+                </React.Fragment>
+              ))}
+            </div>
+
+            {/* Step Content */}
+            <div className="text-center">
+              {steps === 0 && (
+                <div>
+                  <p className="text-lg text-gray-800 mb-4">
+                    Select your donation currency
+                  </p>
+                  <button
+                    onClick={() => {
+                      setDonateWithUsdt(true);
+                      setSteps(1);
+                    }}
+                    className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:border-2 border-[#f60d53de]"
+                  >
+                    USDT
+                  </button>
+                </div>
+              )}
+              {steps > 0?(
+                <>
+                <p className="text-lg text-gray-800 mb-4">
+                    Balance: {Number(ethers.formatUnits(balance, 6)).toFixed(2)}{" "}
+                    USDT
+                  </p>
+                  <p className="text-lg text-gray-800 mb-4">
+                    Allowance: {ethers.formatUnits(allowance, 6)} USDT
+                  </p>
+                  <p className="text-lg text-gray-800 mb-4">Approve tokens</p>
+                  <p className="text-green-600 mb-4">
+                    The minimum to contribute is $10
+                  </p>
+                  
+                       <input
+                      type="number"
+                      value={donationAmount}
+                      onChange={handleDonationAmountChange}
+                      placeholder="Enter amount to approve"
+                      className="my-4 p-2 w-full border border-[#f60d53de] rounded-lg text-gray-800 bg-gray-200"
+                    />
+                    </>
+              ):(
+                ""
+              )}
+                  
+              {steps === 1 && (
+                <div>
+                  
+                  {isProcessing && (
+                    <div className="mx-auto mb-4 w-12 h-12 border-t-4 border-green-500 border-solid rounded-full animate-spin"></div>
+                  )}
+                  <button
+                    onClick={handleApprove}
+                    className="bg-[#f60d53de] hover:bg-[#f60d53b4] transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
+                    disabled={isProcessing || !donationAmount}
+                  >
+                    {isProcessing
+                      ? "Processing..."
+                      : `Approve ${donationAmount || ""} USDT`}
+                  </button>
+                </div>
+              )}
+
+              {steps === 2 && (
+                <div>
+                  <p className="text-lg text-gray-800 mb-4">
+                    Confirm your donation
+                  </p>
+                  <button
+                    onClick={handleDonation}
+                    className="bg-green-500 hover:bg-green-600 transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
+                    disabled={isProcessing || !donationAmount}
+                  >
+                    {isProcessing
+                      ? "Processing..."
+                      : `Donate ${donationAmount} USDT`}
+                  </button>
+                </div>
+              )}
+
+              {steps === 3 && (
+                <div>
+                  <p className="text-lg text-green-500 mb-4">
+                    Donation successful! Thank you!
+                  </p>
+                  <svg
+                    className="w-12 h-12 text-green-500 mx-auto"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M10.293 16.293a1 1 0 011.414 0l7-7a1 1 0 00-1.414-1.414L11 14.586l-3.293-3.293a1 1 0 00-1.414 1.414l4 4z" />
+                  </svg>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <p className="text-center text-sm text-gray-500 mt-6">
+              {steps < 3 && "Complete all steps to finalize your donation"}
             </p>
-            <p className="text-lg text-gray-800 mb-4">
-              Allowance: {ethers.formatUnits(allowance, 6)} USDT
-            </p>
-            <p className="text-lg text-gray-800 mb-4">Approve tokens</p>
-            <p className="text-green-600 mb-4">The minimum to contribute is $10</p>
-            <input
-              type="number"
-              value={donationAmount}
-              onChange={handleDonationAmountChange}
-              placeholder="Enter amount to approve"
-              className="my-4 p-2 w-full border border-[#f60d53de] rounded-lg text-gray-800 bg-gray-200"
-            />
-            {isProcessing && (
-              <div className="mx-auto mb-4 w-12 h-12 border-t-4 border-green-500 border-solid rounded-full animate-spin"></div>
-            )}
-            <button
-              onClick={handleApprove}
-              className="bg-[#f60d53de] hover:bg-[#f60d53b4] transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
-              disabled={isProcessing || !donationAmount}
-            >
-              {isProcessing
-                ? "Processing..."
-                : `Approve ${donationAmount || ""} USDT`}
-            </button>
           </div>
-        )}
-
-        {steps === 2 && (
-          <div>
-            <p className="text-lg text-gray-800 mb-4">Confirm your donation</p>
-            <button
-              onClick={() => handleDonation(donateWithUsdt)}
-              className="bg-green-500 hover:bg-green-600 transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
-              disabled={isProcessing || !donationAmount}
-            >
-              {isProcessing
-                ? "Processing..."
-                : `Donate ${donationAmount} USDT`}
-            </button>
-          </div>
-        )}
-
-        {steps === 3 && (
-          <div>
-            <p className="text-lg text-green-500 mb-4">
-              Donation successful! Thank you!
-            </p>
-            <svg
-              className="w-12 h-12 text-green-500 mx-auto"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M10.293 16.293a1 1 0 011.414 0l7-7a1 1 0 00-1.414-1.414L11 14.586l-3.293-3.293a1 1 0 00-1.414 1.414l4 4z" />
-            </svg>
-          </div>
-        )}
-      </div>
-
-
-
-      {/* Footer */}
-      <p className="text-center text-sm text-gray-500 mt-6">
-        {steps < 3 && "Complete all steps to finalize your donation"}
-      </p>
-    </div>
-
-  </div>
-  )}
-
-
-
-
-
+        </div>
+      )}
     </>
   );
 }

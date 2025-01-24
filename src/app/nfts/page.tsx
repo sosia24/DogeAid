@@ -322,37 +322,40 @@ function Page1(){
   <p className="text-center mt-[100px] bg-[#fe4a00] p-2 font-bold text-[20px] rounded-2xl shadow-2xl">You need to buy gas to get earnings through unilevel</p>
   <div className="lg:w-[100%] mt-[30px] w-full h-auto flex flex-col items-center justify-center lg:items-start lg:flex-row ">
     
-    <div className="bg-[#fe4a00] mb-[140px]  flex flex-col items-center justify-center bg-opacity-20 w-[90%] lg:w-[330px] mt-[20px] h-auto text-white p-4 ml-[20px] rounded-xl z-0">
-      <div className=" text-center font-semibold text-[18px]">
-        <p className="">Buy Gas</p>
-        <p className="text-[#f60d53de]">Your Gas Available: {ethers.formatUnits(String(gas),6)} USDT</p>
-        <input
-                                type="number"
-                                className=" mt-[10px] p-2 border-0 outline-none rounded-xl text-gray-700 bg-gray-300"
-                                placeholder="Amount gas to buy"
-                                value={gasAmount}
-                                onChange={(e) => setGasAmount(Number(e.target.value))}
-                            />
-                            {allowanceUsdtGas >= BigInt(gasAmount * 1000000) ? (
-                                <button
-                                    onClick={async () => {
-                                        await buyGas(gasAmount);
-                                    }}
-                                    className="text-black rounded-tl-full w-[130px] mt-[15px] rounded-br-full py-[5px] bg-[#00ff54]"
-                                >
-                                    Buy Gas
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={async () => {
-                                        await doApproveUsdtUser(gasAmount * 1000000);
-                                    }}
-                                    className="text-black rounded-tl-full w-[130px] mt-[15px] rounded-br-full py-[5px] bg-[#f60d53de]"
-                                >
-                                    Approve
-                                </button>
-                            )}
-      </div>
+  <div className="bg-white shadow-lg flex flex-col items-center justify-center w-[90%] lg:w-[330px] mt-8 h-auto text-gray-800 p-6 rounded-xl ml-5">
+  <h2 className="text-2xl font-bold text-[#fe4a00] mb-2">Buy Gas</h2>
+  <p className="text-gray-600 text-center mb-4">
+    Your Gas Available:{" "}
+    <span className="text-[#f60d53] font-semibold">
+      {ethers.formatUnits(String(gas), 6)} USDT
+    </span>
+  </p>
+  <input
+    type="number"
+    className="w-full mt-4 p-3 border border-gray-300 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#fe4a00]"
+    placeholder="Enter amount of gas to buy"
+    value={gasAmount}
+    onChange={(e) => setGasAmount(Number(e.target.value))}
+  />
+  {allowanceUsdtGas >= BigInt(gasAmount * 1000000) ? (
+    <button
+      onClick={async () => {
+        await buyGas(gasAmount);
+      }}
+      className="w-full mt-6 py-3 bg-[#00ff54] text-white rounded-lg font-semibold hover:bg-[#00d94a] transition-all duration-300"
+    >
+      Buy Gas
+    </button>
+  ) : (
+    <button
+      onClick={async () => {
+        await doApproveUsdtUser(gasAmount * 1000000);
+      }}
+      className="w-full mt-6 py-3 bg-[#f60d53] text-white rounded-lg font-semibold hover:bg-[#d1464a] transition-all duration-300"
+    >
+      Approve
+    </button>
+  )}
 
     </div>
   </div>

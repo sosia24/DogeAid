@@ -11,7 +11,7 @@ import { PiTriangleFill } from "react-icons/pi";
 import { FaCopy, FaCheck } from "react-icons/fa";
 import { UserDonation } from "@/services/types";
 import Marquee from "@/componentes/marquee";
-import { getTreeUsers ,getBtc24hPrice,getTransactionsReceived,getTotalEarnedPerLevel } from "@/services/Web3Services"; // Import getUser
+import { getTreeUsers ,getBtc24hPrice,getTransactionsReceived,getTotalEarnedPerLevel,addTokenToMetaMask } from "@/services/Web3Services"; // Import getUser
 import RegisterModal from "@/componentes/RegisterModal";
 import { FaCircleCheck } from "react-icons/fa6";
 
@@ -26,7 +26,6 @@ function Page1() {
   const [user, setUser] = useState<UserDonation| null>(null);
   const [transactions, setTransactions] = useState([]);
   const [totalEarnedPerLevel, setTotalEarnedPerLevel] = useState<bigint[]>([]);
-
 
 
 
@@ -181,13 +180,15 @@ function Page1() {
 
 
                 <div className="h-[50px]  mt-[30px]  mb-[-20px]">
-                  <Link
-                    href="/donation"
+                  <button
+
+                    onClick={()=>addTokenToMetaMask()
+                    }
                     className="w-[200px] hover:bg-[#fe4a00] hover:scale-105 transition-all duration-300 bg-[#fe4a00] flex justify-center items-center text-black font-bold text-center rounded-3xl p-2"
                   >
                     <PiTriangleFill className="mr-2 rotate-90" />
-                    Contribute Now
-                  </Link>
+                    Add MetaMask 
+                  </button>
                 </div>
               </div>
             </div>
@@ -205,46 +206,69 @@ function Page1() {
             ):(
               ""
             )}
-          <div className="w-[80%] p-[20px] bg-[#441212] rounded mt-6 flex" >
-            <div className="w-2/3">            <h1 className="text-center text-2xl">Last Transactions Received</h1>
-             {transactions&& transactions.length> 0 ?transactions.map((tx:any, index) => (
-              
-                <Link key={index} href={`https://polygonscan.com/tx/${tx.transactionHash}`} className="!my-10 hover:!bg-[#f60d53de] transition duration-200">
-                  <div className="justify-between flex items-center flex-row">
-                    <div>
-                      <div className="flex items-center gap-4">
-                        <FaCircleCheck className="text-4xl"></FaCircleCheck>
-                        <div className="text-xl">
-                          <p>Receipt Transaction</p>
-                          <p className="text-green-500">Confirmed</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-[#ccc] text-2xl">
-                      <p>{`${parseFloat(tx.value).toFixed(2)} USDT`}</p>
-                    </div>
-                  </div>
-                </Link>
-              )):""} </div>
-            <div className="w-1/3">
-            <h1 className="text-center text-2xl">Total Earned Per Level</h1>
-            <div 
-                className="w-full p-2 my-2 flex justify-between rounded bg-[#F60E51] opacity-90"
-              >
-                <p>Total Earned: </p>
-                <p>{ethers.formatUnits(totalEarnedPerLevel.reduce((acc, value) => acc + value, 0n),6)} USDT</p>
-              </div>
-            {totalEarnedPerLevel && totalEarnedPerLevel.length>0?totalEarnedPerLevel.map((earned: BigInt, index: number) => (
-              <div 
-                key={index} 
-                className="w-full p-2 my-2 flex justify-between rounded bg-[#F60E51] opacity-90"
-              >
-                <p>{index + 1}</p>
-                <p>{ethers.formatUnits(String(earned),6)} USDT</p>
-              </div>
-            )):""}
 
-            
+       <div className="w-[90%] max-w-5xl h-auto overflow-auto p-6 bg-[#2c2c2c] rounded-lg shadow-xl mt-8 flex flex-col lg:flex-row gap-8">
+  {/* Últimas Transações Recebidas */}
+  <div className="w-full h-[300px] overflow-auto lg:w-2/3 bg-[#1f1f1f] p-4 rounded-lg shadow-md">
+    <h1 className="text-center text-2xl font-semibold text-white mb-6">
+      Last Transactions Received
+    </h1>
+    {transactions && transactions.length > 0 ? (
+      transactions.map((tx: any, index) => (
+        <Link
+          key={index}
+          href={`https://polygonscan.com/tx/${tx.transactionHash}`}
+          className="block bg-[#333] hover:bg-[#f60d53] transition-colors duration-300 rounded-lg p-4 mb-4 shadow-md"
+        >
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <FaCircleCheck className="text-4xl text-green-500" />
+              <div className="text-white">
+                <p className="font-medium">Receipt Transaction</p>
+                <p className="text-green-400 text-sm">Confirmed</p>
+              </div>
+            </div>
+            <div className="text-[#ccc] text-lg font-medium">
+              <p>{`${parseFloat(tx.value).toFixed(2)} USDT`}</p>
+            </div>
+          </div>
+        </Link>
+      ))
+    ) : (
+      <p className="text-center text-gray-400">No transactions found.</p>
+    )}
+  </div>
+
+  {/* Total Earned Per Level */}
+  <div className="w-full lg:w-1/3 h-[300px] overflow-auto bg-[#1f1f1f] p-4 rounded-lg shadow-md">
+    <h1 className="text-center text-2xl font-semibold text-white mb-6">
+      Total Earned Per Level
+    </h1>
+    <div className="w-full p-4 mb-4 bg-[#F60E51] text-white font-semibold text-lg rounded-lg shadow-md flex justify-between">
+      <p>Total Earned:</p>
+      <p>
+        {ethers.formatUnits(
+          totalEarnedPerLevel.reduce((acc, value) => acc + value, 0n),
+          6
+        )}{" "}
+        USDT
+      </p>
+    </div>
+    {totalEarnedPerLevel && totalEarnedPerLevel.length > 0 ? (
+      totalEarnedPerLevel.map((earned: BigInt, index: number) => (
+        <div
+          key={index}
+          className="w-full p-4 mb-2 bg-[#F60E51] text-white rounded-lg shadow-md flex justify-between items-center"
+        >
+          <p className="font-medium">Level {index + 1}</p>
+          <p>
+            {ethers.formatUnits(String(earned), 6)} USDT
+          </p>
+        </div>
+      ))
+    ) : (
+      <p className="text-center text-gray-400">No earnings data available.</p>
+    )}
 
 
 
