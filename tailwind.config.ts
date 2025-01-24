@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        black: '#000000',
+      },
       screens: {
         // Alterar o valor do breakpoint 'md'
         lg: "1200px",
