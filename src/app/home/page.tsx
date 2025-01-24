@@ -22,8 +22,6 @@ import ReferralTree from "@/componentes/referralNode";
 function Page1() {
   const [coinCotation, setCoinCotation] = useState<number | null>(null);
   const { address, setAddress } = useWallet();
-  const [treeUsers, setTreeUsers] = useState<string[]>([]);
-  const [user, setUser] = useState<UserDonation| null>(null);
   const [transactions, setTransactions] = useState([]);
   const [totalEarnedPerLevel, setTotalEarnedPerLevel] = useState<bigint[]>([]);
 
@@ -32,28 +30,6 @@ function Page1() {
  
   
 
-  async function fetchTreeUsers(address: string) {
-    try {
-      const result = await getTreeUsers(address);
-
-  
-      // Supondo que os endereços estejam na segunda posição (índice 1), acesse os valores corretamente
-      const addresses = result;  // Ajuste isso conforme a estrutura correta de 'result'
-
-  
-      // Filtre endereços válidos, verificando se são do tipo string e não nulos
-      const filteredAddresses = addresses.filter(
-        (addr: unknown): addr is string => typeof addr === "string" && addr !== "0x0000000000000000000000000000000000000000"
-      );
-  
-
-  
-      // Atualize o estado ou faça o que for necessário com os endereços filtrados
-      setTreeUsers(filteredAddresses); // Use os endereços filtrados no estado
-    } catch (error) {
-      console.error("Error fetching tree users:", error);
-    }
-  }
   
 
   useEffect(() => {
@@ -61,7 +37,6 @@ function Page1() {
 
     const fetchData = async () => {
       try {
-        await fetchTreeUsers(address);
         getCotation();
         const txs : any = await getTransactionsReceived(address);
         setTransactions(txs);        
@@ -158,25 +133,7 @@ function Page1() {
                   />
                   <p className="ml-[5px] font-bold text-[22px]">DogeAid/USDT</p>
                 </div>
-                <p className="text-[20px]">
-                {coinCotation
-                ? `$${coinCotation.toFixed(2).toLocaleString()}`
-                : "...loading"}
-                </p>
-                {
-                  user && user.balance > 0n ? <>
-                  <p className="text-[20px] mt-8">
-                  {user
-                    ? `${parseFloat(ethers.formatEther(user.maxUnilevel)).toFixed(2)} BTC24H Max Limit`
-                    : "...loading"}
-                </p>
 
-              <p className="text-[20px] mt-3">
-                {user
-                  ? `${parseFloat(ethers.formatEther(user.unilevelReached)).toFixed(2)} BTC24H Reached`
-                  : "...loading"}
-              </p></> : ""
-              }
 
 
                 <div className="h-[50px]  mt-[30px]  mb-[-20px]">

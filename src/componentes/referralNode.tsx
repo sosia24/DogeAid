@@ -78,13 +78,17 @@ interface ReferralTreeProps {
 
 const ReferralTree: React.FC<ReferralTreeProps> = ({ address }) => {
   const [tree, setTree] = useState<ReferralNodeType | null>(null);
+  const [quantity, setQuantity] = useState(0);
 
   useEffect(() => {
     async function loadTree() {
       if (!address) return;
       try {
         const fetchedTree = await fetchReferralTree(address);
-        setTree(fetchedTree);
+        setTree(fetchedTree[0]);
+        
+        setQuantity(fetchedTree[1]-1);
+        
       } catch (error) {
         console.error("Erro ao carregar a árvore de referências:", error);
       }
@@ -99,12 +103,14 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ address }) => {
           Team
         </button>
       </h1>
+      <h1 className="my-2">          Total affiliated: {quantity}
+      </h1>
       {tree ? (
         <div className="flex flex-col items-start w-full">
           <ReferralNode node={tree} />
         </div>
       ) : (
-        <p className="text-center text-gray-500">Carregando...</p>
+        <p className="text-center text-gray-500">Loading...</p>
       )}
     </div>
   );
