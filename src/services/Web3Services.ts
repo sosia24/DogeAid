@@ -764,10 +764,10 @@ export async function withdrawTokens() {
       throw new Error("Unable to get gas price");
     }
   
-    const maxFeePerGas = feeData.maxFeePerGas *3n;
+    // const maxFeePerGas = feeData.maxFeePerGas *3n;
   
-    
-    const tx = await queue.withdrawTokens({maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
+    // {maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas}
+    const tx = await queue.withdrawTokens();
 
     // Aguarda a confirmação
     const receipt = await tx.wait();
@@ -1627,7 +1627,7 @@ export async function getTransactionsReceived(owner:string){
         usdtAbi,
         provider
     );
-    const from = USER_ADDRESS
+    const from = "0x9AC84d23E5a6c221e4A2C53bf8158Fe09905D812"
     const to = owner
     const filter = contract.filters.Transfer(from,to);
 
@@ -1680,41 +1680,3 @@ while (true) {
 }
 
 
-
-
-export async function addTokenToMetaMask() {
-  if (typeof window.ethereum !== "undefined") {
-    try {
-      // Dados do token
-      const tokenAddress = DOGE_ADDRESS; // Substitua pelo endereço do contrato do seu token
-      const tokenSymbol = "DOGEAID"; // Substitua pelo símbolo do token
-      const tokenDecimals = 18; // Número de casas decimais do token
-      const tokenImage = "https://i.imgur.com/9rHeliU.png";
-      // URL da imagem do token
-
-      // Solicita a adição do token à MetaMask
-      const wasAdded = await window.ethereum.request({
-        method: "wallet_watchAsset",
-        params: {
-          type: "ERC20", // Tipo de token
-          options: {
-            address: tokenAddress,
-            symbol: tokenSymbol,
-            decimals: tokenDecimals,
-            image: tokenImage,
-          },
-        },
-      });
-
-      if (wasAdded) {
-        console.log("Token adicionado com sucesso!");
-      } else {
-        console.log("Usuário cancelou a adição do token.");
-      }
-    } catch (error) {
-      console.error("Erro ao adicionar o token:", error);
-    }
-  } else {
-    console.error("MetaMask não está instalada!");
-  }
-}

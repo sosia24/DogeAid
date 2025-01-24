@@ -50,7 +50,7 @@ export default function ModalTokensToWithdraw({ tokens, isBtc24h }: TokensProps)
   const handleWithdraw = async () => {
     try {
       setLoading(true);
-  
+      
       const result = await withdrawTokens();
   
       if (result.success) {
@@ -112,14 +112,14 @@ async function clearAlert(){
           <h1 className="mt-4 text-2xl">
             {isBtc24h?(
               <>
-              {(Number(tokens)/1000000).toString()}
-              <p>$</p>
+              <p>U$               {(Number(tokens)/1000000).toString()}
+              </p>
               </>
             ):
             (
               <>
-              {parseFloat(ethers.formatEther(tokens)).toFixed(2)}
-              <p>DogeAid</p>
+              <p>               {parseFloat(ethers.formatEther(tokens)).toFixed(2)} 
+              DogeAid</p>
               </>
             )}
          

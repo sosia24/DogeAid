@@ -442,6 +442,7 @@ function Page1() {
             await addQueue();
             setAlert("Added successfully");
             getQueueMuskDetails();
+            getMusknft()
             getQueueDogeDetails()
             getQueueBitcoin24hDetails()
             getQueueEthDetails()
@@ -1349,12 +1350,21 @@ function Page1() {
 
                     <div className='w-[90%] sm:w-[70%]  border-2 border-[#f60d53de] flex items-center sm:p-6 p-8 rounded-2xl flex-col'>
                         <p className='text-3xl sm:text-xl font-bold'>You have to withdraw: </p>
-                        <p>When your nft's generate rewards, you can see them here</p>
-                       {/* <p className='font-bold text-3xl mt-[5px]'>{tokensToWithdraw?  parseFloat(ethers.formatEther(tokensToWithdraw)).toFixed(2) : ' 0'} BTC24H</p>*/}
                         {tokensToWithdraw > 0?(
-                            <button onClick={handleWithdraw} className='text-black  font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl bg-[#00ff54] hover:w-[210px] duration-100'>Claim</button>
+                            <>                       <p className='font-bold text-3xl mt-[5px]'>{tokensToWithdraw?  parseFloat(ethers.formatEther(tokensToWithdraw)).toFixed(2) : ' 0'} DogeAid</p>
+                                                    <p>When your nft's generate rewards, you can see them here</p>
+
+                                                        <button onClick={handleWithdraw} className='text-black  font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl bg-[#00ff54] hover:w-[210px] duration-100'>Claim</button>
+
+</>
                         ):tokensToWithdrawBtc24h > 0?(
-                            <button onClick={handleWithdrawBtc24h} className='text-black  font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl bg-[#00ff54] hover:w-[210px] duration-100'>Claim</button>
+                            <>
+                                                       <p className='font-bold text-3xl mt-[5px]'>{tokensToWithdrawBtc24h?  parseFloat(ethers.formatUnits(tokensToWithdrawBtc24h,6)).toFixed(2) : ' 0'} USDT</p>
+                                                       <p>When your nft's generate rewards, you can see them here</p>
+
+                                                        <button onClick={handleWithdrawBtc24h} className='text-black  font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl bg-[#00ff54] hover:w-[210px] duration-100'>Claim</button>
+
+                            </>
                         ):(
                             <button className='text-black cursor-not-allowed bg-gray-400 font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl'>Claim</button>   
                         )}
