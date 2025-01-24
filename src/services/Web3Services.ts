@@ -390,7 +390,7 @@ export async function getTimeUntilToClaim(owner:string, index:number){
     provider
   );
 
-  const time = Number(await donation.timeUntilNextWithdrawal(owner, index));
+  const time = (await donation.timeUntilNextWithdrawal(owner, index));
   
   return time;
 }

@@ -59,12 +59,13 @@ function Donation() {
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const formatTime = (timeInSeconds: number) => {
-    const hours = Math.floor(timeInSeconds / 3600).toString().padStart(2, '0');
-    const minutes = Math.floor((timeInSeconds % 3600) / 60).toString().padStart(2, '0');
-    const seconds = (timeInSeconds % 60).toString().padStart(2, '0');
+  const formatTime = (timeInSeconds: bigint) => {
+    const hours = (timeInSeconds / 3600n).toString().padStart(2, '0');
+    const minutes = ((timeInSeconds % 3600n) / 60n).toString().padStart(2, '0');
+    const seconds = (timeInSeconds % 60n).toString().padStart(2, '0');
     return `${hours}h:${minutes}min:${seconds}s`;
   };
+  
 
 
   async function handleContributionIndex(index:number){
@@ -154,12 +155,12 @@ function Donation() {
     return () => clearInterval(interval);
   }, [walletAddress, donateWithUsdt]);
   
-  const startDecrementalTimer = (timeLeft: number) => {
+  const startDecrementalTimer = (timeLeft: bigint) => {
     if (timerRef.current) clearInterval(timerRef.current);
 
     timerRef.current = setInterval(() => {
       if (timeLeft > 0) {
-        timeLeft -= 1;
+        timeLeft -= 1n;
         setTimeUntilNumber(Number(setTimeUntilNumber)-1)
         setTimeUntil(formatTime(timeLeft));
       } else {
@@ -356,8 +357,13 @@ function Donation() {
       await claim(contributions[contributionIndex].index);         
       setAlert("Claim made successfully!");
       setLoading(false);
+      const len = contributions.length;
       if(walletAddress) {
         await fetchContributions(walletAddress);
+      }
+
+      if(contributions.length < len){
+        setContributionIndex(0)
       }
       await fetchData(); 
     } catch (error:any) {
