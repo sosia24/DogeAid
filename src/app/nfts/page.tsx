@@ -234,8 +234,8 @@ function Page1(){
           <div className="w-14 h-14 border-t-4 border-b-4 border-[#fe4a00] rounded-full animate-spin"></div>
         </div>
         )}
-        <div className="lg:w-[60%]  lg:py-0 py-5 px-8  w-[100%] mt-[60px] flex items-center  flex-col ">
-        <div className="relative w-[98%] h-[250px]">
+        <div className="lg:w-[60%]  lg:py-0 py-5 px-8  w-[100%] mt-[60px] flex items-center justify-center  flex-col ">
+        <div className="relative w-[98%] h-[250px] flex items-center justify-center">
             <img
             className="w-full h-full object-contain"
             alt="NFT Sale Banner"

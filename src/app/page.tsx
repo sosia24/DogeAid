@@ -59,13 +59,13 @@ function HomeContent() {
 
     <div className="h-[80%] w-[70%] flex flex-col items-center lg:flex-row">
       
-      <div className="w-[100%] lg:w-[50%] flex justify-center lg:order-2">        
+      <div className="w-[100%] lg:w-[50%] flex justify-center items-center lg:order-2">        
         <Image
           src="/images/initialCoins.png"
           alt="Coin3d"
           width={720}
           height={600}
-          className="lg:ml-0 ml-[50px]"
+          className="lg:ml-0 "
         />
       </div>
 

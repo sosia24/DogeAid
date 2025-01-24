@@ -31,19 +31,21 @@ export default function RootLayout({
       <head>
       <link rel="icon" type="image/png" href="images/D.png" />
       </head>
-      <body className="bg-black flex justify-center relative overflow-x-hidden">
+      <body className="bg-black flex justify-center items-center relative overflow-x-hidden">
         {/* Background Layer */}
         <div
-        className="absolute w-full h-full z-0 bg-opacity-20"
-        style={{
-          backgroundImage: "url('/images/BG1.png')",
-          backgroundSize: "cover", // Garante que a imagem cubra toda a área
-          backgroundRepeat: "no-repeat", // Impede repetição da imagem
-          backgroundPosition: "center center", // Centraliza a imagem
-          backgroundBlendMode: "overlay",
-        }}
-      ></div>
-       <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+  className="absolute w-full h-full z-0 bg-opacity-20"
+  style={{
+    backgroundImage: "url('/images/BG1.png')",
+    backgroundSize: "cover", // Cobre toda a área sem distorção
+    backgroundRepeat: "no-repeat", // Não repete a imagem
+    backgroundPosition: "center", // Centraliza a imagem
+    backgroundAttachment: "fixed", // Mantém a imagem fixa enquanto o conteúdo rola
+    backgroundBlendMode: "overlay",
+  }}
+></div>
+
+       <div className="absolute inset-0 bg-black bg-opacity-30"></div>
         {/* Gradient on Top */}
 
 
