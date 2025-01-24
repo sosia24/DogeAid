@@ -16,6 +16,7 @@ import {
         isApprovedNft,
         getBtc24hPrice,
         claimQueue,
+        claimQueueCoin,
         addQueue,
         setApprovalForAll,
         getTokensToWithdraw,
@@ -23,6 +24,7 @@ import {
         approveDoge,
         addQueueCoin,
         getAllowanceDoge,
+        getAllowanceEth,
         balanceToPaidDoge,
         getQueueDoge,
         getQueueBitcoin24h,
@@ -34,6 +36,12 @@ import {
         getMuskBalance,
         getValuesDeposit,
         getQueueCoin,
+        balanceToPaidBtc,
+        approveBtc,
+        approveEth,
+        getAllowanceBtc,
+        balanceToPaidEth,
+        getQueueEth,
  } from "@/services/Web3Services";
 import { queueData } from '@/services/types';
 import { CustomArrowProps } from 'react-slick';
@@ -58,15 +66,13 @@ function Page1() {
     const [readyToPaidDoge, setReadyToPaidDoge] = useState<number>(0)
     const [coinCotation, setCoinCotation] = useState<number>(0);
 
-    const [queueBtcDetails, setQueueBtcDetails] = useState<queueData[] | null>(null);
-    const [queueBtcDetailsFormated, setQueueBtcDetailsFormated] = useState<queueData[] | null>(null);
-    const [readyToPaidBtc, setReadyToPaidBtc] = useState<number>(0)
-    const [coinBtcCotation, setCoinBtcCotation] = useState<number>(0);
+    const [queueBitcoin24hDetails, setQueueBitcoin24hDetails] = useState<queueData[] | null>(null);
+    const [queueBitcoin24hDetailsFormated, setQueueBitcoin24hDetailsFormated] = useState<queueData[] | null>(null);
+    const [readyToPaidBitcoin24h, setReadyToPaidBitcoin24h] = useState<number>(0)
 
     const [queueEthDetails, setQueueEthDetails] = useState<queueData[] | null>(null);
     const [queueEthDetailsFormated, setQueueEthDetailsFormated] = useState<queueData[] | null>(null);
     const [readyToPaidEth, setReadyToPaidEth] = useState<number>(0)
-    const [coinEthCotation, setCoinEthCotation] = useState<number>(0);
 
     const [isApproved, setIsApproved] = useState<boolean>(false);
     const [balance, setBalance] = useState<number[]>([0]);
@@ -80,20 +86,153 @@ function Page1() {
 
     const [valuesDeposit, setValuesDeposit] = useState<bigint[] | null>(null)
     const [allowanceCoin, setAllowanceCoin] = useState<bigint[]>([0n,0n,0n])
-    const [queueBtc24hDetails, setQueueBtc24hDetails] = useState<queueData[] | null>(null);
-    const [queueBtc24hDetailsFormated, setQueueBtc24hDetailsFormated] = useState<queueData[] | null>(null);
-    const [queueBitcoin24hDetails, setQueueBitcoin24hDetails] = useState<queueData[] | null>(null);
-    const [queueBitcoin24hDetailsFormated, setQueueBitcoin24hDetailsFormated] = useState<queueData[] | null>(null);
-    const [readyToPaidBtc24h, setReadyToPaidBtc24h] = useState<number>(0)
-    const [readyToPaidBitcoin24h, setReadyToPaidBitcoin24h] = useState<number>(0)
+
+
+
+
+    async function addQueueBtcFront(){
+        setLoading(true)
+        try{
+            const result = await addQueueCoin(2)
+            setLoading(false)
+            setAlert("Success");
+            getQueueBitcoin24hDetails();
+        }catch(error){
+            setLoading(false)
+            setError("Try again")
+        }
+        setLoading(false)
+    }
+
+    async function addQueueEthFront(){
+        setLoading(true)
+        try{
+            const result = await addQueueCoin(3)
+            setLoading(false)
+            setAlert("Success");
+            getQueueEthDetails()
+        }catch(error){
+            setLoading(false)
+            setError("Try again")
+        }
+        setLoading(false)
+    }
+
+
+
+
+    async function getAllowanceBtcFront() {
+        try {
+          if (address) {
+            // Obtém o resultado do allowance
+            const result = await getAllowanceBtc(address);
+      
+            // Atualiza o estado de forma imutável
+            setAllowanceCoin((prev) => {
+              const newAllowanceCoin = [...prev];
+              newAllowanceCoin[1] = result;
+              return newAllowanceCoin;
+            });
+          }
+        } catch (error) {
+          console.error("Error in getAllowanceDogeFront:", error);
+        }
+      }
+      
+
+    
+    async function doApproveBtc() {
+        setLoading(true)
+        try {
+          // Verifica se valuesDeposit é um array e possui pelo menos um elemento
+          const valueToApprove = valuesDeposit && valuesDeposit.length > 0 
+            ? valuesDeposit[1] 
+            : 0n;
+      
+          // Chama a função approveDoge com o valor adequado
+          const result = await approveBtc(valueToApprove);
+            setAlert("Success")
+          console.log("ApproveDoge result:", result);
+          setLoading(false)
+        } catch (error) {
+          console.error("Error in doApproveDoge:", error);
+          setError("Try again")
+          setLoading(false)
+        }
+        setLoading(false)
+      }
+
+
+      async function doApproveEth() {
+        setLoading(true)
+        try {
+          // Verifica se valuesDeposit é um array e possui pelo menos um elemento
+          const valueToApprove = valuesDeposit && valuesDeposit.length > 0 
+            ? valuesDeposit[2] 
+            : 0n;
+      
+          // Chama a função approveDoge com o valor adequado
+          const result = await approveEth(valueToApprove);
+      
+          console.log("ApproveDoge result:", result);
+          setAlert("Success")
+          setLoading(false)
+        } catch (error) {
+          console.error("Error in doApproveDoge:", error);
+          setError("Try again")
+          setLoading(false)
+        }
+        setLoading(false)
+      }
+
+    
+    async function getBalanceBtc() {
+        try {
+            const result = await balanceToPaidBtc();
+            const valueFinal = Number(result)  / 1000000
+            if (result) {
+                setBalance((prevBalance) => {
+                    const newBalance = [...prevBalance]; // Cria uma cópia do array atual
+                    newBalance[2] = valueFinal; // Atualiza o índice desejado
+                    return newBalance; // Retorna o novo array
+                });
+            }
+        } catch (error) {
+            console.error("Erro ao obter o balance WBTC:", error);
+        }
+    }
+
+
+    async function getBalanceEth() {
+        try {
+            const result = await balanceToPaidEth();
+            const valueFinal = Number(result)  / 1000000
+            if (result) {
+                setBalance((prevBalance) => {
+                    const newBalance = [...prevBalance]; // Cria uma cópia do array atual
+                    newBalance[3] = valueFinal; // Atualiza o índice desejado
+                    return newBalance; // Retorna o novo array
+                });
+            }
+        } catch (error) {
+            console.error("Erro ao obter o balance WBTC:", error);
+        }
+    }
+
+
 
 
     async function addQueueDogeFront(){
+        setLoading(true)
         try{
             const result = await addQueueCoin(1)
+            setLoading(false)
+            setAlert("Success");
+            getQueueDogeDetails();
         }catch(error){
-
+            setLoading(false)
         }
+        setLoading(false)
     }
 
 
@@ -107,6 +246,24 @@ function Page1() {
             setAllowanceCoin((prev) => {
               const newAllowanceCoin = [...prev];
               newAllowanceCoin[0] = result;
+              return newAllowanceCoin;
+            });
+          }
+        } catch (error) {
+          console.error("Error in getAllowanceDogeFront:", error);
+        }
+      }
+
+      async function getAllowanceEthFront() {
+        try {
+          if (address) {
+            // Obtém o resultado do allowance
+            const result = await getAllowanceEth(address);
+      
+            // Atualiza o estado de forma imutável
+            setAllowanceCoin((prev) => {
+              const newAllowanceCoin = [...prev];
+              newAllowanceCoin[2] = result;
               return newAllowanceCoin;
             });
           }
@@ -175,6 +332,8 @@ function Page1() {
             if(result){
                 getQueueDogeDetails();
                 getBalanceDoge();
+                getBalanceBtc()
+                getBalanceEth()
                 setLoading(false)
                 setAlert("Success")
             }
@@ -250,6 +409,15 @@ function Page1() {
     }
 
 
+    async function getQueueEthDetails() {
+        try {
+            const result: queueData[] = await getQueueEth(); // Supondo que getQueue retorna uma lista
+            setQueueEthDetails(result);
+        } catch (error) {
+        }
+    }
+
+
     
     function getBlockchainErrorMessage(error: unknown): string {
         if (typeof error === "object" && error !== null) {
@@ -276,6 +444,7 @@ function Page1() {
             getQueueMuskDetails();
             getQueueDogeDetails()
             getQueueBitcoin24hDetails()
+            getQueueEthDetails()
 
         } catch (error: any) {
             
@@ -304,18 +473,41 @@ function Page1() {
             setLoading(false);
         }
     }
-    async function doClaimQueue(index: number, queueId: number) {
+    async function doClaimQueue() {
         try {
           setLoading(true);
       
           // Aguarda a confirmação da transação
-          const result = await claimQueue(index, queueId);
+          const result = await claimQueue();
       
           if (result) {
             setAlert("Claim Successful");
             getQueueMuskDetails();
             getQueueDogeDetails()
             getQueueBitcoin24hDetails()
+            getQueueEthDetails()
+          }
+        } catch (error) {
+          setError("Claim Failed");
+        } finally {
+          setLoading(false);
+        }
+      }
+      
+
+      async function doClaimCoinQueue(index:number) {
+        try {
+          setLoading(true);
+      
+          // Aguarda a confirmação da transação
+          const result = await claimQueueCoin(index);
+      
+          if (result) {
+            setAlert("Claim Successful");
+            getQueueMuskDetails();
+            getQueueDogeDetails()
+            getQueueBitcoin24hDetails()
+            getQueueEthDetails()
           }
         } catch (error) {
           setError("Claim Failed");
@@ -415,13 +607,18 @@ function Page1() {
             getQueueMuskDetails();
             getQueueDogeDetails()
             getQueueBitcoin24hDetails()
+            getQueueEthDetails()
             getTokensToWithdrawF();
             getTokensToWithdrawBtc24hFront()
             getBalanceBitcoin24h()
             getBalanceDoge()
+            getBalanceBtc()
+            getBalanceEth()
             getMusknft()
             getValuesDepositFront()
             getAllowanceDogeFront()
+            getAllowanceBtcFront() 
+            getAllowanceEthFront()
             if (coinCotation > 0) {
                 balanceFree();
             }
@@ -447,18 +644,27 @@ function Page1() {
         if(queueDogeDetails){
             veSePaga(queueDogeDetails, 1)
         }
-        
+        if(queueBitcoin24hDetails){
+            veSePaga(queueBitcoin24hDetails, 2)
+        }
+        if(queueEthDetails){
+            veSePaga(queueEthDetails, 3)
+        }
     }, [queueMuskDetails, balance[0], balance[1], balance[2]])
 
     
     useEffect(() => {
         getBalanceBitcoin24h()
         getBalanceDoge()
+        getBalanceBtc()
+        getBalanceEth()
         if (coinCotation > 0) {
             
             balanceFree();
             getBalanceBitcoin24h()
             getBalanceDoge()
+            getBalanceBtc()
+            getBalanceEth()
         }
     }, [coinCotation]);
     
@@ -496,9 +702,10 @@ function Page1() {
     }
 
     const goldSliderRef = useRef(null);
-    const muskSlideRef = useRef(null)
+    const muskSliderRef = useRef(null)
     const dogeSliderRef = useRef(null);
     const bitcoin24hSliderRef = useRef(null);
+    const ethSliderRef = useRef(null);
     
     const settings = {
         infinite: false,
@@ -554,7 +761,7 @@ function Page1() {
 
     async function veSePaga(queue: queueData[], index: number) {
         // Valores fixos de pagamento
-        const paymentAmounts = [50, 100];
+        const paymentAmounts = [50, 100, 100, 100];
         let count = 0;
         // Use balance[index] como saldo inicial
         let currentBalance = balance[index];
@@ -602,9 +809,12 @@ function Page1() {
         }else if(index === 1){
             setQueueDogeDetailsFormated(queueCopy);
             setReadyToPaidDoge(count);
-        }else{
+        }else if(index ===2){
             setQueueBitcoin24hDetailsFormated(queueCopy);
             setReadyToPaidBitcoin24h(count);
+        }else{
+            setQueueEthDetailsFormated(queueCopy)
+            setReadyToPaidEth(count)
         }
     }
 
@@ -645,6 +855,20 @@ function Page1() {
         (data) => data.user.toLowerCase() === address?.toLowerCase()
       ).length || 0;
 
+      const countUserNftDoge = queueDogeDetailsFormated?.filter(
+        (data) => data.user.toLowerCase() === address?.toLowerCase()
+      ).length || 0;
+
+      
+      const countUserNftBtc = queueBitcoin24hDetailsFormated?.filter(
+        (data) => data.user.toLowerCase() === address?.toLowerCase()
+      ).length || 0;
+
+
+      const countUserNftEth = queueEthDetailsFormated?.filter(
+        (data) => data.user.toLowerCase() === address?.toLowerCase()
+      ).length || 0;
+
       
       /* -------------- FIM DA VERIFICACAO ------------ */
     
@@ -661,7 +885,7 @@ function Page1() {
                     {alert && <ModalSuccess msg={alert} onClose={clearAlert} />}
                     {loading && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                      <div className="w-14 h-14 border-t-4 border-b-4 border-[#00ff54] rounded-full animate-spin"></div>
+                      <div className="w-14 h-14 border-t-4 border-b-4 border-[#fe4a00] rounded-full animate-spin"></div>
                     </div>
                     )}
             <div className="lg:w-[98%] w-[90%] max-w-[1480px] flex flex-col items-center overflow-hidden">
@@ -670,27 +894,27 @@ function Page1() {
                     
                     <img
                         alt="banner"
-                        srcSet="images/mobile_bunner_queue.png 480w,
-                                images/mobile_bunner_queue.png 768w,
-                                images/bunner_queue.png 1200w"
+                        srcSet="images/BannerMsg.png 480w,
+                                images/BannerMsg.png 768w,
+                                images/BannerMsg.png 1200w"
                         sizes="(max-width: 480px) 100vw, 
                                 (max-width: 1000px) 70vw, 
                                 50vw"
-                        className="absolute w-full h-auto"
+                        className="absolute w-[600px] h-auto"
                     />
                 </div>
-                <img src='images/claimImage.png' className='w-[400px] mt-[30px]'></img>
+                <img src='images/claimImage.png' className='w-[400px] mt-[70px]'></img>
 
                 {/* Main Content */}
                 <div className="w-[98%] mt-[30px] mb-[100px] flex flex-col items-center space-y-8">
 
 
-                    {/* ------------------ QUEUE GOLD --------------------- */}
+                    {/* ------------------ QUEUE MUSK --------------------- */}
                     <div className="flex mt-[30px] flex-col lg:flex-row w-[90%] max-w-[1400px] items-center justify-between p-10 border-2 border-[#fe4a00] rounded-3xl space-y-4 lg:space-y-0 lg:space-x-4">
                         {/* Image */}
                         <div className="lg:w-[20%] md:w-[50%] w-[30%] flex items-center justify-center">
                             <img
-                                src={`images/logo.png`}
+                                src={`images/nft.png`}
                                 className="w-full h-auto"
                                 alt={`QueueBronze`}
                             />
@@ -704,7 +928,7 @@ function Page1() {
                                 <p className="text-[#fe4a00]">{balance[0]?.toFixed(2) || 0}$</p>
                            
                             {readyToPaidMusk >= 10 && queueMuskDetailsFormated?(
-                                <button onClick={() => doClaimQueue(Number(queueMuskDetailsFormated[0].index), 3)} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
+                                <button onClick={() => doClaimQueue()} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
                                 Distribute
                                 </button>
                             ):(
@@ -727,7 +951,7 @@ function Page1() {
 
                         {/* Carousel */}
                         <div className="lg:w-[60%] p-4 md:max-w-[480px] md:w-[96%] w-[84%] bg-white bg-opacity-10 rounded-3xl relative overflow-hidden">
-                            <Slider ref={goldSliderRef} {...settings}>
+                            <Slider ref={muskSliderRef} {...settings}>
                             {queueMuskDetailsFormated?.map((data, index) => (
                                     data.nextPaied === true?(
                                         <div
@@ -761,12 +985,12 @@ function Page1() {
                                 ))}
                             </Slider>
                             <button className='p-[2px] text-[30px]   rounded-md shadow-lg absolute right-20 mt-[10px] '
-                            onClick={() => goToFirstSlide(muskSlideRef, queueMuskDetailsFormated?.length)}
+                            onClick={() => goToFirstSlide(muskSliderRef, queueMuskDetailsFormated?.length)}
                                     >
                                 <MdKeyboardDoubleArrowLeft />
                              </button>
                             <button className='p-[2px] text-[30px]  rounded-md shadow-lg absolute right-6 mt-[10px]'
-                            onClick={() => goToLastSlide(muskSlideRef, queueMuskDetailsFormated?.length)}
+                            onClick={() => goToLastSlide(muskSliderRef, queueMuskDetailsFormated?.length)}
                                     >
                                 <MdKeyboardDoubleArrowRight />
                              </button>
@@ -787,7 +1011,7 @@ function Page1() {
                     {/*--------------- DOGE AID QUEUE ----------- */}
                     <div className="flex flex-col lg:flex-row w-[90%] max-w-[1400px] items-center justify-between p-10 border-2 border-[#fe4a00] rounded-3xl space-y-4 lg:space-y-0 lg:space-x-4">
                         {/* Image */}
-                        <div className="lg:w-[20%] md:w-[50%] w-[30%] flex items-center justify-center">
+                        <div className="lg:w-[12%] md:w-[50%] w-[30%] flex items-center justify-center">
                             <img
                                 src={`images/D.png`}
                                 className="w-full h-auto"
@@ -810,7 +1034,7 @@ function Page1() {
                              DogeAid
                             </p>
                             {readyToPaidDoge >= 10 && queueDogeDetailsFormated?(
-                                <button onClick={() => doClaimQueueBtc24hFront()} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
+                                <button onClick={() => doClaimCoinQueue(1)} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
                                 Distribute
                                 </button>
                             ):(
@@ -876,6 +1100,9 @@ function Page1() {
                                     >
                                 <MdKeyboardDoubleArrowRight />
                              </button>
+                             <div className='p-2 mt-[10px]'>
+                             <p >You have on queue: {countUserNftDoge}</p>
+                             </div>
                               </div>
 
                     </div>
@@ -889,144 +1116,32 @@ function Page1() {
 
 
                     {/* ---------------------------- QUEUE BTCAID ---------------------- */}
-                    <div className="flex flex-col lg:flex-row w-[90%] max-w-[1400px] items-center justify-between p-4 bg-white bg-opacity-10 rounded-3xl space-y-4 lg:space-y-0 lg:space-x-4">
+                    <div className="flex flex-col lg:flex-row w-[90%] max-w-[1400px] items-center justify-between p-10 border-2 border-yellow-600 rounded-3xl space-y-4 lg:space-y-0 lg:space-x-4">
                         {/* Image */}
                         <div className="lg:w-[25%] md:w-[50%] w-[30%] flex items-center justify-center">
                             <img
-                                src={`images/logo.png`}
+                                src={`images/btcaid.png`}
                                 className="w-full h-auto"
                                 alt={`QueueBronze`}
                             />
                         </div>
-                        <p className='font-bold bg-green-600 p-4 text-center rounded-2xl'>Bitcoin24h Queue</p>
+                        <p className='font-bold bg-yellow-600 p-4 text-center rounded-2xl'>BtcAid Queue</p>
 
                         {/* Balance and Action */}
                         
                         <div className="lg:w-[15%] w-[40%] flex flex-col items-center text-center">
                             <p>Balance to Paid:</p>
-                            <p className="text-[#ffc100]">{ Number(balance[5])  || 0}$</p>
+                            <p className="text-yellow-600">{ Number(balance[2])  || 0}$</p>
                             <p>Preview Value:</p>
-                            <p className="text-[#ffc100]">
-                            {valuesDeposit 
-                                ? (Number(valuesDeposit[0]) / 10 ** 18).toFixed(2) // Converte e limita a 6 casas decimais
-                                : 0} 
-                             Bitcoin24h
-                            </p>
-
-                            {readyToPaidBitcoin24h >= 10 && queueBitcoin24hDetailsFormated?(
-                                <button onClick={() => doClaimQueueBitcoin24hFront()} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
-                                Distribute
-                                </button>
-                            ):(
-                                <button className="w-[150px] p-2 cursor-not-allowed bg-gray-400 rounded-3xl text-black mt-[10px] hover:bg-gray-500 hover:scale-105 transition-all duration-300">
-                                Distribute
-                                </button>
-                            )}
-                            
-                            {valuesDeposit && allowanceCoin[0] > (valuesDeposit[0] || 0n)?(
-                            <button  className="w-[150px] p-2 bg-[#cbc622] rounded-3xl text-black mt-[10px]  hover:scale-105 transition-all duration-300">
-                                Add Queue
-                            </button>
-                            ):(
-                            <button  className="w-[150px] p-2 bg-[#cbc622] rounded-3xl text-black mt-[10px] hover:scale-105 transition-all duration-300">
-                                Approve
-                            </button>
-                            )}
-                        </div>
-
-                        {/* Carousel */}
-                        <div className="lg:w-[60%] p-4 md:max-w-[480px] md:w-[96%] w-[84%] bg-white bg-opacity-10 rounded-3xl relative overflow-hidden">
-                            <Slider ref={bitcoin24hSliderRef} {...settings}>
-                                {queueBitcoin24hDetails?.map((data, index) => (
-                                    data.nextPaied === true?(
-                                        <div
-                                        key={index}
-                                        className="border-2 border-green-500 p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
-                                        >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 100$</p>
-                                        </div>
-                                    ):data.user.toLowerCase() === address?.toLowerCase()?(
-                                        <div
-                                        key={index}
-                                        className="border-2 border-blue-600 p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
-                                        >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 100$</p>
-                                        </div>
-                                    ):(
-                                        <div
-                                        key={index}
-                                        className=" p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
-                                        >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 100$</p>
-                                        </div>
-                                    )
-                                    
-                                ))}
-                            </Slider>
-                            <button className='p-[2px] text-[30px]   rounded-md shadow-lg absolute right-20 mt-[10px] '
-                            onClick={() => goToFirstSlide(bitcoin24hSliderRef, queueBitcoin24hDetailsFormated?.length)}
-                                    >
-                                <MdKeyboardDoubleArrowLeft />
-                             </button>
-                            <button className='p-[2px] text-[30px]  rounded-md shadow-lg absolute right-6 mt-[10px]'
-                            onClick={() => goToLastSlide(bitcoin24hSliderRef, queueBitcoin24hDetailsFormated?.length)}
-                                    >
-                                <MdKeyboardDoubleArrowRight />
-                             </button>                    </div>
-                    </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    
-                    <div className="flex flex-col lg:flex-row w-[90%] max-w-[1400px] items-center justify-between p-4 bg-white bg-opacity-10 rounded-3xl space-y-4 lg:space-y-0 lg:space-x-4">
-                        {/* Image */}
-                        <div className="lg:w-[25%] md:w-[50%] w-[30%] flex items-center justify-center">
-                            <img
-                                src={`images/logo.png`}
-                                className="w-full h-auto"
-                                alt={`QueueBronze`}
-                            />
-                        </div>
-                        <p className='font-bold bg-green-600 p-4 text-center rounded-2xl'>Bitcoin24h Queue</p>
-
-                        {/* Balance and Action */}
-                        
-                        <div className="lg:w-[15%] w-[40%] flex flex-col items-center text-center">
-                            <p>Balance to Paid:</p>
-                            <p className="text-[#ffc100]">{ Number(balance[5])  || 0}$</p>
-                            <p>Preview Value:</p>
-                            <p className="text-[#ffc100]">
+                            <p className="text-yellow-600">
                             {valuesDeposit 
                                 ? (Number(valuesDeposit[1]) / 10 ** 18).toFixed(2) // Converte e limita a 6 casas decimais
                                 : 0} 
-                             Bitcoin24h
+                             BtcAid
                             </p>
-                            
 
                             {readyToPaidBitcoin24h >= 10 && queueBitcoin24hDetailsFormated?(
-                                <button onClick={() => doClaimQueueBitcoin24hFront()} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
+                                <button onClick={() => doClaimCoinQueue(2)} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
                                 Distribute
                                 </button>
                             ):(
@@ -1036,11 +1151,11 @@ function Page1() {
                             )}
                             
                             {valuesDeposit && allowanceCoin[1] > (valuesDeposit[1] || 0n)?(
-                            <button  className="w-[150px] p-2 bg-[#cbc622] rounded-3xl text-black mt-[10px]  hover:scale-105 transition-all duration-300">
+                            <button onClick={()=>addQueueBtcFront()} className="w-[150px] p-2 bg-yellow-600 rounded-3xl text-black mt-[10px]  hover:scale-105 transition-all duration-300">
                                 Add Queue
                             </button>
                             ):(
-                            <button  className="w-[150px] p-2 bg-[#cbc622] rounded-3xl text-black mt-[10px] hover:scale-105 transition-all duration-300">
+                            <button onClick={()=>doApproveBtc()}  className="w-[150px] p-2 bg-yellow-600 rounded-3xl text-black mt-[10px] hover:scale-105 transition-all duration-300">
                                 Approve
                             </button>
                             )}
@@ -1050,6 +1165,122 @@ function Page1() {
                         <div className="lg:w-[60%] p-4 md:max-w-[480px] md:w-[96%] w-[84%] bg-white bg-opacity-10 rounded-3xl relative overflow-hidden">
                             <Slider ref={bitcoin24hSliderRef} {...settings}>
                                 {queueBitcoin24hDetails?.map((data, index) => (
+                                    data.nextPaied === true?(
+                                        <div
+                                        key={index}
+                                        className="border-2 border-green-500 p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
+                                        >
+                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
+                                        <p>Position: {index+1}</p>
+                                        <p>Received: 100$</p>
+                                        </div>
+                                    ):data.user.toLowerCase() === address?.toLowerCase()?(
+                                        <div
+                                        key={index}
+                                        className="border-2 border-yellow-600 p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
+                                        >
+                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
+                                        <p>Position: {index+1}</p>
+                                        <p>Received: 100$</p>
+                                        </div>
+                                    ):(
+                                        <div
+                                        key={index}
+                                        className=" p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
+                                        >
+                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
+                                        <p>Position: {index+1}</p>
+                                        <p>Received: 100$</p>
+                                        </div>
+                                    )
+                                    
+                                ))}
+                            </Slider>
+                            <button className='p-[2px] text-[30px]   rounded-md shadow-lg absolute right-20 mt-[10px] '
+                            onClick={() => goToFirstSlide(bitcoin24hSliderRef, queueBitcoin24hDetailsFormated?.length)}
+                                    >
+                                <MdKeyboardDoubleArrowLeft />
+                             </button>
+                            <button className='p-[2px] text-[30px]  rounded-md shadow-lg absolute right-6 mt-[10px]'
+                            onClick={() => goToLastSlide(bitcoin24hSliderRef, queueBitcoin24hDetailsFormated?.length)}
+                                    >
+                                <MdKeyboardDoubleArrowRight />
+                             </button>
+                             <div className='p-2 mt-[10px]'>
+                             <p >You have on queue: {countUserNftBtc}</p>
+                             </div>
+                             </div>
+                    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    {/*--------------- QUEUE ETHAID  ----------- */}
+                    <div className="flex flex-col lg:flex-row w-[90%] max-w-[1400px] items-center justify-between p-10 border-2 border-blue-600 bg-opacity-10 rounded-3xl space-y-4 lg:space-y-0 lg:space-x-4">
+                        {/* Image */}
+                        <div className="lg:w-[25%] md:w-[50%] w-[30%] flex items-center justify-center">
+                            <img
+                                src={`images/ethaid.png`}
+                                className="w-full h-auto"
+                                alt={`QueueBronze`}
+                            />
+                        </div>
+                        <p className='font-bold bg-blue-600 p-4 text-center rounded-2xl'>EthAid Queue</p>
+
+                        {/* Balance and Action */}
+                        
+                        <div className="lg:w-[15%] w-[40%] flex flex-col items-center text-center">
+                            <p>Balance to Paid:</p>
+                            <p className="text-blue-600">{ Number(balance[3])  || 0}$</p>
+                            <p>Preview Value:</p>
+                            <p className="text-blue-600">
+                            {valuesDeposit 
+                                ? (Number(valuesDeposit[2]) / 10 ** 18).toFixed(2) // Converte e limita a 6 casas decimais
+                                : 0} 
+                             EthAid
+                            </p>
+                            
+
+                            {readyToPaidEth >= 10 && queueEthDetailsFormated?(
+                                <button onClick={() => doClaimCoinQueue(3)} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
+                                Distribute
+                                </button>
+                            ):(
+                                <button className="w-[150px] p-2 cursor-not-allowed bg-gray-400 rounded-3xl text-black mt-[10px] hover:bg-gray-500 hover:scale-105 transition-all duration-300">
+                                Distribute
+                                </button>
+                            )}
+                            
+                            {valuesDeposit && allowanceCoin[2] > (valuesDeposit[2] || 0n)?(
+                            <button  onClick={()=>addQueueEthFront()}  className="w-[150px] p-2 bg-blue-600 rounded-3xl text-black mt-[10px]  hover:scale-105 transition-all duration-300">
+                                Add Queue
+                            </button>
+                            ):(
+                            <button onClick={()=>doApproveEth()}  className="w-[150px] p-2 bg-blue-600 rounded-3xl text-black mt-[10px] hover:scale-105 transition-all duration-300">
+                                Approve
+                            </button>
+                            )}
+                        </div>
+
+                        {/* Carousel */}
+                        <div className="lg:w-[60%] p-4 md:max-w-[480px] md:w-[96%] w-[84%] bg-white bg-opacity-10 rounded-3xl relative overflow-hidden">
+                            <Slider ref={ethSliderRef} {...settings}>
+                                {queueEthDetails?.map((data, index) => (
                                     data.nextPaied === true?(
                                         <div
                                         key={index}
@@ -1082,15 +1313,19 @@ function Page1() {
                                 ))}
                             </Slider>
                             <button className='p-[2px] text-[30px]   rounded-md shadow-lg absolute right-20 mt-[10px] '
-                            onClick={() => goToFirstSlide(bitcoin24hSliderRef, queueBitcoin24hDetailsFormated?.length)}
+                            onClick={() => goToFirstSlide(ethSliderRef, queueEthDetailsFormated?.length)}
                                     >
                                 <MdKeyboardDoubleArrowLeft />
                              </button>
                             <button className='p-[2px] text-[30px]  rounded-md shadow-lg absolute right-6 mt-[10px]'
-                            onClick={() => goToLastSlide(bitcoin24hSliderRef, queueBitcoin24hDetailsFormated?.length)}
+                            onClick={() => goToLastSlide(ethSliderRef, queueEthDetailsFormated?.length)}
                                     >
                                 <MdKeyboardDoubleArrowRight />
-                             </button>                    </div>
+                             </button>
+                             <div className='p-2 mt-[10px]'>
+                             <p >You have on queue: {countUserNftEth}</p>
+                             </div>                    
+                             </div>
                     </div>
 
 
@@ -1112,70 +1347,7 @@ function Page1() {
 
 
 
-
-
-
-
-
-
-                    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                    <div className='w-[90%] sm:w-[70%]  bg-white bg-opacity-5 flex items-center sm:p-6 p-2 flex-col'>
+                    <div className='w-[90%] sm:w-[70%]  border-2 border-[#f60d53de] flex items-center sm:p-6 p-8 rounded-2xl flex-col'>
                         <p className='text-3xl sm:text-xl font-bold'>You have to withdraw: </p>
                         <p>When your nft's generate rewards, you can see them here</p>
                        {/* <p className='font-bold text-3xl mt-[5px]'>{tokensToWithdraw?  parseFloat(ethers.formatEther(tokensToWithdraw)).toFixed(2) : ' 0'} BTC24H</p>*/}
@@ -1192,10 +1364,10 @@ function Page1() {
             
             </div>
             {
-                tokensToWithdraw>0?             <ModalTokensToWithdraw tokens={tokensToWithdraw} isWbtc={false} isBtc24h={false}></ModalTokensToWithdraw>:""
+                tokensToWithdraw>0?             <ModalTokensToWithdraw tokens={tokensToWithdraw} isBtc24h={false}></ModalTokensToWithdraw>:""
             }
             {
-                tokensToWithdrawBtc24h>0?             <ModalTokensToWithdraw tokens={tokensToWithdrawBtc24h} isWbtc={false} isBtc24h={true}></ModalTokensToWithdraw>:""
+                tokensToWithdrawBtc24h>0?             <ModalTokensToWithdraw tokens={tokensToWithdrawBtc24h} isBtc24h={true}></ModalTokensToWithdraw>:""
             }
             <Footer />
         </>

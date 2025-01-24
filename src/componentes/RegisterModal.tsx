@@ -103,7 +103,7 @@ export default function RegisterModal() {
           <div className="relative">
             <img
               className="absolute left-1/2 max-w-[2000%] top-1/2 transform -translate-x-1/2 -translate-y-1/2 !w-[110%]"
-              src="images/registerUserBanner.png"
+              src="images/BannerMsg.png"
               alt="Banner"
             />
             <h2 className="absolute text-2xl font-bold text-black -bottom-3 left-4">
@@ -112,13 +112,11 @@ export default function RegisterModal() {
           </div>
 
           {/* Content */}
-          <div className="p-6 text-center text-gray-800 mt-7">
-            <p className="text-gray-700 mb-4">
-              To use the platform, you must register as an affiliate under an already registered address. Referral links are available in the project's community groups.
-            </p>
+          <div className="p-6 text-center text-gray-800 mt-[60px]">
+            <p>Referral</p>
             <input
               type="text"
-              className="w-full px-4 text-sm py-2 border !border-gray-500 rounded-md focus:outline-none focus:ring focus:ring-[#00FF3D]"
+              className="w-full px-4 text-sm py-2 border !border-gray-500 rounded-md focus:outline-none focus:ring focus:ring-[#f60d53de]"
               placeholder="Referral Address"
               value={referralAddress}
               onChange={(e) => setReferralAddress(e.target.value)}
@@ -128,7 +126,7 @@ export default function RegisterModal() {
           {/* Footer */}
           <div className="p-4">
             <button
-              className="w-full bg-[#00FF3D] text-black py-2 px-4 rounded-lg hover:bg-[#00ff0d] transition"
+              className="w-full bg-[#f60d53de] text-black py-2 px-4 rounded-lg hover:bg-[#f60d53b0] transition"
               onClick={handleRegisterSponsor}
             >
               Register Sponsor

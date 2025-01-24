@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { donate, getDonationAllowance,getBtc24hBalance,getTotalBurned,approveBTC24HDonation,getTimeUntilToClaim, claim, getBtc24hPrice, getNextPool, approveUsdtDonation, getAllowanceUsdt, getDonationAllowanceUsdt, getUsdtBalance,  getContributions} from "@/services/Web3Services";
 import { useRef, useState } from "react";
 import withAuthGuard from "@/services/authGuard";
@@ -15,6 +16,7 @@ import { TbReload } from "react-icons/tb";
 import ModalSuccess from "@/componentes/ModalSuccess";
 
 interface Contribution {
+  index: number;
   amount: number;
   goal: number;
   startTime: number;
@@ -27,7 +29,7 @@ function Donation() {
   const [donationAmount, setDonationAmount] = useState("");
 
   const [contributions, setContributions] = useState<Contribution[]>([]);
-  const [contributionIndex, setContributionIndex] = useState<number>(1);
+  const [contributionIndex, setContributionIndex] = useState<number>(0);
   const [allowance, setAllowance] = useState<bigint>(0n);
   const [balance, setBalance] = useState<bigint>(0n);
   const [timeUntil, setTimeUntil] = useState("00h:00min:00s");
@@ -104,11 +106,12 @@ function Donation() {
       if (Array.isArray(response)) {
         // Formatar a resposta da tupla em um array legível
         const formattedContributions = response.map((item: any[]) => ({
-          amount: Number(item[0]),
-          goal: Number(item[1]),
-          startTime: Number(item[2]),
-          endTime: Number(item[3]),
-          days: Number(item[4]),
+          index: Number(item[0]),
+          amount: Number(item[1]),
+          goal: Number(item[2]),
+          startTime: Number(item[3]),
+          endTime: Number(item[4]),
+          days: Number(item[6]),
         }));
   
         setContributions(formattedContributions);
@@ -355,7 +358,7 @@ function Donation() {
         
         return;
         }
-      await claim();         
+      await claim(contributions[contributionIndex].index);         
       setAlert("Claim made successfully!");
       setLoading(false);
       await fetchData(); 
@@ -381,7 +384,7 @@ async function clearAlert(){
             {alert && <ModalSuccess msg={alert} onClose={clearAlert} />}
             {loading && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-              <div className="w-14 h-14 border-t-4 border-b-4 border-[#00ff54] rounded-full animate-spin"></div>
+              <div className="w-14 h-14 border-t-4 border-b-4 border-[#f60d53de] rounded-full animate-spin"></div>
             </div>
             )}
       <div className=" px-6 w-full flex flex-col mt-[10px] items-center overflow-x-hidden overflow-y-hidden mb-[50px]">
@@ -415,41 +418,20 @@ async function clearAlert(){
       </p>
     </div>
   </div>
-  {/* Segundo Card */}
-  <div className="flex sm:flex-col border-2 border-[#fe4a00] px-12 py-4 bg-gray-600 bg-opacity-30 rounded-xl sm:items-center sm:text-center lg:flex-row lg:items-center mb-6 sm:mb-4 w-full lg:w-[90%]">
-    <div className="flex flex-col">
-      <h3 className="text-lg sm:text-[14px] font-semibold">Next Pool</h3>
-      <p className="font-light text-base sm:text-[14px] sm:mt-1">
-        {nextPool
-          ? `${parseFloat(ethers.formatEther(nextPool)).toFixed(2)} BTC24H`
-          : "0.00 BTC24H"}
-      </p>
-    </div>
-  </div>
+
   {/* Terceiro Card */}
-  <div className="flex sm:flex-col border-2 border-[#fe4a00] px-12 py-4 bg-gray-600 bg-opacity-30 rounded-xl sm:items-center sm:text-center lg:flex-row lg:items-center mb-6 sm:mb-4 w-full lg:w-[90%]">
-    <div className="flex flex-col">
-      <h3 className="text-lg sm:text-[14px] font-semibold">Total Burned</h3>
-      <p className="font-light text-base sm:text-[14px] sm:mt-1">
-        {totalBurned
-          ? `${parseFloat(ethers.formatEther(totalBurned)).toFixed(2)} BTC24H`
-          : "0.00 BTC24H"}
-      </p>
-          </div>
-        </div>
         </div>
         
             <div className="flex flex-col sm:w-[50%] justify-center items-center    ml-4 sm:ml-0 rounded-xl">
             <div className="flex sm2:justify-center sm2:items-center">
               <img className="sm2:size-28" src="images/claimImage.png" alt="banner" />
               <div className="ml-5">
-                <h1 className="text-4xl font-semibold">Claim <span className="text-[#fe4a00]">Rewards {contributionIndex+1}</span></h1>
+                <h1 className="text-4xl font-semibold">Claim <span className="text-[#fe4a00]">Rewards {contributions[contributionIndex]?.index ? contributions[contributionIndex]?.index : 0}</span></h1>
                 <p>Donated:</p>
                 <p><span className="text-[#fe4a00]">U$ {contributions[contributionIndex]?.amount ? (contributions[contributionIndex].amount / 1000000) : 0}</span></p>
                 <p>USDT Estimated:</p>
                 <p><span className="text-[#fe4a00]">U$ {contributions[contributionIndex]?.goal ? (contributions[contributionIndex].goal / 1000000) : 0}</span></p>
                 <p>Claims: <span className="text-[#fe4a00]">{contributions[contributionIndex]?.days ? contributions[contributionIndex]?.days : 0} / 30</span></p>
-
                 </div>
 
 
@@ -492,8 +474,7 @@ async function clearAlert(){
     ></div>
 
     {/* Modal */}
-
-      <div className="relative bg-white w-[90%] p-6 rounded-xl shadow-2xl max-w-md">
+    <div className="relative bg-white border-2 border-[#f60d53de] w-[90%] p-6 rounded-xl shadow-2xl max-w-md">
       {/* Close Button */}
       <button
         className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition duration-200"
@@ -502,56 +483,32 @@ async function clearAlert(){
         <p className="text-lg font-bold">×</p>
       </button>
 
-      <div className="w-[100%] flex text-black justify-center mb-[20px]">
-        <p>Donate</p>
-      </div>
-
       {/* Header */}
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">Donate in Steps</h2>
+        <h2 className="text-2xl font-semibold text-[#f60d53de]">Donate in Steps</h2>
         <p className="text-gray-600 text-sm">
           Follow the steps to complete your donation
         </p>
       </div>
 
       {/* Steps Indicator */}
-      <div className="flex items-center justify-center mb-6">
-        <div
-          className={`h-1 w-8 ${
-            steps >= 1 ? "bg-green-500" : "bg-gray-300"
-          } rounded-full`}
-        ></div>
-        <p
-          className={`mx-2 text-sm ${
-            steps >= 1 ? "text-green-500" : "text-gray-400"
-          }`}
-        >
-          Step 1
-        </p>
-        <div
-          className={`h-1 w-8 ${
-            steps >= 2 ? "bg-green-500" : "bg-gray-300"
-          } rounded-full`}
-        ></div>
-        <p
-          className={`mx-2 text-sm ${
-            steps >= 2 ? "text-green-500" : "text-gray-400"
-          }`}
-        >
-          Step 2
-        </p>
-        <div
-          className={`h-1 w-8 ${
-            steps === 3 ? "bg-green-500" : "bg-gray-300"
-          } rounded-full`}
-        ></div>
-        <p
-          className={`ml-2 text-sm ${
-            steps === 3 ? "text-green-500" : "text-gray-400"
-          }`}
-        >
-          Success
-        </p>
+      <div className="flex items-center justify-center mb-6 gap-3">
+        {[1, 2, 3].map((step) => (
+          <React.Fragment key={step}>
+            <div
+              className={`h-1 w-8 rounded-full ${
+                steps >= step ? "bg-[#f60d53de]" : "bg-gray-300"
+              }`}
+            ></div>
+            <p
+              className={`text-sm ${
+                steps >= step ? "text-[#f60d53de]" : "text-gray-400"
+              }`}
+            >
+              Step {step === 3 ? "Success" : step}
+            </p>
+          </React.Fragment>
+        ))}
       </div>
 
       {/* Step Content */}
@@ -561,107 +518,64 @@ async function clearAlert(){
             <p className="text-lg text-gray-800 mb-4">
               Select your donation currency
             </p>
-            <div className="flex justify-center mb-4">
-              <button
-                onClick={() => {
-                  setDonateWithUsdt(true);
-                  setSteps(1);
-                }}
-                className={`px-4 py-2 rounded-lg mr-4 ${
-                  donateWithUsdt
-                    ? "bg-gray-200 text-black hover:border-2 border-green-400"
-                    : "bg-gray-200 text-gray-800 hover:border-2 border-green-400"
-                }`}
-              >
-                USDT
-              </button>
-     {
-      /*
-     }
-              <button
-                onClick={() => {
-                  setDonateWithUsdt(false);
-                  setSteps(1);
-                }}
-                className={`px-4 py-2 rounded-lg ${
-                  !donateWithUsdt
-                    ? "bg-gray-200 text-black hover:border-2 border-green-400"
-                    : "bg-gray-200 text-gray-800 hover:border-2 border-green-400"
-                }`}
-              >
-                BTC24H
-              </button>
-              {
-              */}
-    
-            </div>
+            <button
+              onClick={() => {
+                setDonateWithUsdt(true);
+                setSteps(1);
+              }}
+              className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:border-2 border-[#f60d53de]"
+            >
+              USDT
+            </button>
           </div>
         )}
 
-        {
+        {steps === 1 && (
+          <div>
+            <p className="text-lg text-gray-800 mb-4">
+              Balance: {Number(ethers.formatUnits(balance, 6)).toFixed(2)} USDT
+            </p>
+            <p className="text-lg text-gray-800 mb-4">
+              Allowance: {ethers.formatUnits(allowance, 6)} USDT
+            </p>
+            <p className="text-lg text-gray-800 mb-4">Approve tokens</p>
+            <p className="text-green-600 mb-4">The minimum to contribute is $10</p>
+            <input
+              type="number"
+              value={donationAmount}
+              onChange={handleDonationAmountChange}
+              placeholder="Enter amount to approve"
+              className="my-4 p-2 w-full border border-[#f60d53de] rounded-lg text-gray-800 bg-gray-200"
+            />
+            {isProcessing && (
+              <div className="mx-auto mb-4 w-12 h-12 border-t-4 border-green-500 border-solid rounded-full animate-spin"></div>
+            )}
+            <button
+              onClick={handleApprove}
+              className="bg-[#f60d53de] hover:bg-[#f60d53b4] transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
+              disabled={isProcessing || !donationAmount}
+            >
+              {isProcessing
+                ? "Processing..."
+                : `Approve ${donationAmount || ""} USDT`}
+            </button>
+          </div>
+        )}
 
-          steps == 1 || steps == 2 ?            <> 
-          
-          <p className="text-lg text-gray-800 mb-4">
-          Balance: {donateWithUsdt? Number(ethers.formatUnits(balance,6)).toFixed(2):Number(ethers.formatEther(balance)).toFixed(2)} {donateWithUsdt?"USDT":"BTC24H"}
-        </p>
-        <p className="text-lg text-gray-800 mb-4">
-          Allowance: {donateWithUsdt? ethers.formatUnits(allowance,6):ethers.formatEther(allowance)} {donateWithUsdt?"USDT":"BTC24H"}
-        </p>
-          
-          
-          <p className="text-lg text-gray-800 mb-4">
-            {steps == 1 ? " Approve tokens" : "Donate tokens"}
-         
-        </p>
-        <p className="text-[green]">The minimum to contribute is 10$</p>
-        {
-  !donateWithUsdt ? (
-    <p 
-      className={`text-lg mb-4 ${Number(ethers.formatUnits((BigInt(donationAmount) * btc24hRealPrice), 6)).toFixed(2) < String(10) ? 'text-red-500' : 'text-gray-800'}`}
-    >
-      {Number(ethers.formatUnits((BigInt(donationAmount) * btc24hRealPrice), 6)).toFixed(2)} U$
-    </p>
-  ) : ""
-}
-        <input
-          type="number"
-          value={donationAmount}
-          onChange={handleDonationAmountChange} // Usa a nova função
-          placeholder="Enter amount to approve"
-          className="my-4 p-2 w-full border rounded-lg text-gray-800"
-        /></> : <></>
-        }
-
-{steps === 1 && (
-  <div>
-
-    {isProcessing && (
-      <div className="mx-auto mb-4 w-12 h-12 border-t-4 border-green-500 border-solid rounded-full animate-spin"></div>
-    )}
-    <button
-      onClick={handleApprove}
-      className="bg-green-500 hover:bg-green-600 transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
-      disabled={isProcessing || !donationAmount}
-    >
-      {isProcessing ? "Processing..." : `Approve ${donationAmount || ""} ${donateWithUsdt?"USDT":"BTC24H"} `}
-    </button>
-  </div>
-)}
-
-
-{steps === 2 && (
-  <div>
-    <p className="text-lg text-gray-800 mb-4">Confirm your donation</p>
-    <button
-      onClick={() => handleDonation(donateWithUsdt)}
-      className="bg-green-500 hover:bg-green-600 transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
-      disabled={isProcessing || !donationAmount}
-    >
-      {isProcessing ? "Processing..." : `Donate ${donationAmount} ${donateWithUsdt?"USDT":"BTC24H"}`}
-    </button>
-  </div>
-)}
+        {steps === 2 && (
+          <div>
+            <p className="text-lg text-gray-800 mb-4">Confirm your donation</p>
+            <button
+              onClick={() => handleDonation(donateWithUsdt)}
+              className="bg-green-500 hover:bg-green-600 transition duration-200 text-white font-semibold py-2 px-6 rounded-full shadow-md"
+              disabled={isProcessing || !donationAmount}
+            >
+              {isProcessing
+                ? "Processing..."
+                : `Donate ${donationAmount} USDT`}
+            </button>
+          </div>
+        )}
 
         {steps === 3 && (
           <div>
@@ -679,6 +593,8 @@ async function clearAlert(){
           </div>
         )}
       </div>
+
+
 
       {/* Footer */}
       <p className="text-center text-sm text-gray-500 mt-6">

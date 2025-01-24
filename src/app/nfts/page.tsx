@@ -231,10 +231,10 @@ function Page1(){
               {alert && <ModalSuccess msg={alert} onClose={clearAlert} />}
         {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-14 h-14 border-t-4 border-b-4 border-[#00ff54] rounded-full animate-spin"></div>
+          <div className="w-14 h-14 border-t-4 border-b-4 border-[#fe4a00] rounded-full animate-spin"></div>
         </div>
         )}
-        <div className="lg:w-[60%] h-screen lg:py-0 py-5 px-8  w-[100%] mt-[60px] flex items-center  flex-col ">
+        <div className="lg:w-[60%]  lg:py-0 py-5 px-8  w-[100%] mt-[60px] flex items-center  flex-col ">
         <div className="relative w-[98%] h-[250px]">
             <img
             className="w-full h-full object-contain"
@@ -319,15 +319,16 @@ function Page1(){
       </div>
     </div>
   </div>
-  <div className="lg:w-[100%] mt-[30px] w-full h-auto flex flex-col items-center justify-center lg:items-start lg:flex-row  ">
-      <Image alt="prata" src={"/images/nft.png"} width={350} height={350} className="mx-auto lg:mx-0"></Image>
-    <div className="bg-[#fe4a00] flex flex-col items-center justify-center bg-opacity-20 w-[90%] lg:w-[330px] mt-[20px] h-auto text-white p-4 ml-[20px] rounded-xl z-0">
+  <p className="text-center mt-[100px] bg-[#fe4a00] p-2 font-bold text-[20px] rounded-2xl shadow-2xl">You need to buy gas to get earnings through unilevel</p>
+  <div className="lg:w-[100%] mt-[30px] w-full h-auto flex flex-col items-center justify-center lg:items-start lg:flex-row ">
+    
+    <div className="bg-[#fe4a00] mb-[140px]  flex flex-col items-center justify-center bg-opacity-20 w-[90%] lg:w-[330px] mt-[20px] h-auto text-white p-4 ml-[20px] rounded-xl z-0">
       <div className=" text-center font-semibold text-[18px]">
         <p className="">Buy Gas</p>
-        <p>Your Gas Available: {ethers.formatUnits(String(gas),6)} USDT</p>
+        <p className="text-[#f60d53de]">Your Gas Available: {ethers.formatUnits(String(gas),6)} USDT</p>
         <input
                                 type="number"
-                                className="text-black"
+                                className=" mt-[10px] p-2 border-0 outline-none rounded-xl text-gray-700 bg-gray-300"
                                 placeholder="Amount gas to buy"
                                 value={gasAmount}
                                 onChange={(e) => setGasAmount(Number(e.target.value))}

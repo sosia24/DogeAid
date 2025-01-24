@@ -161,7 +161,7 @@ export default function Footer(){
     <div className="flex flex-col space-y-3">
       <button
         onClick={switchAccount}
-        className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600"
+        className="w-full px-4 py-2 bg-[#f60d53de] text-white rounded-lg font-medium hover:bg-[#f60d53]"
       >
         Switch Account
       </button>

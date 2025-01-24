@@ -9,6 +9,8 @@ import collectionAbi from "./abis/collection.abi.json";
 import queueAbi from "./abis/queue.abi.json";
 import paymentManagerAbi from "./abis/payment.manager.abi.json"
 import queueCoinAbi from "./abis/queueCoin.abi.json"
+import btcAbi from "./abis/btc.abi.json"
+import ethAbi from "./abis/eth.abi.json"
 
 import {queueData} from "./types"
 
@@ -25,6 +27,8 @@ const USER_ADDRESS= process.env.NEXT_PUBLIC_USER;
 const QUEUE_ADDRESS = process.env.NEXT_PUBLIC_QUEUE;
 const PAYMENT_MANAGER = process.env.NEXT_PUBLIC_PAYMENT_MANAGER
 const QUEUE_COIN_ADDRESS = process.env.NEXT_PUBLIC_QUEUE_COIN
+const BTC_ADDRESS = process.env.NEXT_PUBLIC_BTC_ADDRESS;
+const ETH_ADDRESS = process.env.NEXT_PUBLIC_ETH_ADDRESS;
 
 
 const maxPriorityFeePerGas = ethers.parseUnits("35","gwei");
@@ -286,7 +290,7 @@ export async function donate(amount:string){
   }
 
 }
-export async function claim(){
+export async function claim(index:number){
   
   const provider = await getProvider()
   const signer = await provider.getSigner();
@@ -314,11 +318,7 @@ export async function claim(){
 
 
     // Envia a transação
-    const tx = await donation.claimDonation({
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      gasLimit,
-    });
+    const tx = await donation.claimContribution(index);
 
     await tx.wait();
 
@@ -642,7 +642,36 @@ export async function coinPrice() {
 
 }
 
-export async function claimQueue(index: number, queueId: number) {
+export async function claimQueueCoin(queueId: number) {
+  if (!QUEUE_COIN_ADDRESS) {
+    throw new Error("QUEUE_ADDRESS não está definido.");
+  }
+
+  const provider = await getProvider();
+  const signer = await provider.getSigner();
+
+  const collection = new ethers.Contract(
+    QUEUE_COIN_ADDRESS,
+    queueCoinAbi,
+    signer
+  );
+ 
+  try {
+    // Envia a transação para o contrato
+    const tx = await collection.claim(queueId);
+
+    // Aguarda a confirmação da transação
+    const concluded = await tx.wait();
+
+    // Retorna o resultado após a transação ser confirmada
+    return concluded;
+  } catch (error) {
+    console.error("Erro ao realizar a transação:", error);
+    throw error; // Repassa o erro para o chamador
+  }
+}
+
+export async function claimQueue() {
   if (!QUEUE_ADDRESS) {
     throw new Error("QUEUE_ADDRESS não está definido.");
   }
@@ -655,16 +684,10 @@ export async function claimQueue(index: number, queueId: number) {
     queueAbi,
     signer
   );
-  const feeData = await provider.getFeeData();
-  if (!feeData.maxFeePerGas) {
-    throw new Error("Unable to get gas price");
-  }
-
-  const maxFeePerGas = feeData.maxFeePerGas *3n;
-
+ 
   try {
     // Envia a transação para o contrato
-    const tx = await collection.claim(queueId,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
+    const tx = await collection.claim();
 
     // Aguarda a confirmação da transação
     const concluded = await tx.wait();
@@ -1060,6 +1083,86 @@ export async function getAllowanceDoge(
 }
 
 
+
+export async function getAllowanceEth(
+  address: string,
+  maxRetries = 5, // Número máximo de tentativas
+  delay = 1000 // Tempo de espera entre tentativas (em milissegundos)
+) {
+  let retries = 0;
+
+  while (retries < maxRetries) {
+    try {
+      // Obtém o provedor conectado à wallet
+      const provider = await getProvider();
+
+      // Conecta ao contrato
+      const mint = new ethers.Contract(
+        ETH_ADDRESS ? ETH_ADDRESS : "",
+        ethAbi,
+        provider
+      );
+
+      // Obtém o allowance
+      const allowance : bigint = await mint.allowance(address, QUEUE_COIN_ADDRESS);
+
+      // Retorna o valor caso a chamada tenha sucesso
+      if (allowance !== undefined) {
+        return allowance;
+      }
+
+    } catch (error) {
+    }
+
+    retries++;
+
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+
+  // Lança um erro caso todas as tentativas falhem
+  throw new Error(`Falha ao obter allowance após ${maxRetries} tentativas.`);
+}
+
+
+export async function getAllowanceBtc(
+  address: string,
+  maxRetries = 5, // Número máximo de tentativas
+  delay = 1000 // Tempo de espera entre tentativas (em milissegundos)
+) {
+  let retries = 0;
+
+  while (retries < maxRetries) {
+    try {
+      // Obtém o provedor conectado à wallet
+      const provider = await getProvider();
+
+      // Conecta ao contrato
+      const mint = new ethers.Contract(
+        BTC_ADDRESS ? BTC_ADDRESS : "",
+        btcAbi,
+        provider
+      );
+
+      // Obtém o allowance
+      const allowance : bigint = await mint.allowance(address, QUEUE_COIN_ADDRESS);
+
+      // Retorna o valor caso a chamada tenha sucesso
+      if (allowance !== undefined) {
+        return allowance;
+      }
+
+    } catch (error) {
+    }
+
+    retries++;
+
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+
+  // Lança um erro caso todas as tentativas falhem
+  throw new Error(`Falha ao obter allowance após ${maxRetries} tentativas.`);
+}
+
 export async function approveDoge(value: bigint) {
   const provider = await getProvider()
   const signer = await provider.getSigner();
@@ -1067,6 +1170,41 @@ export async function approveDoge(value: bigint) {
   const mint = new ethers.Contract(
     DOGE_ADDRESS ? DOGE_ADDRESS : "",
     dogeAbi,
+    signer
+  );
+
+
+  const tx = await mint.approve(QUEUE_COIN_ADDRESS, value+BigInt(100000000000000000000));
+  await tx.wait();
+
+  return tx;
+}
+
+
+export async function approveBtc(value: bigint) {
+  const provider = await getProvider()
+  const signer = await provider.getSigner();
+
+  const mint = new ethers.Contract(
+    BTC_ADDRESS ? BTC_ADDRESS : "",
+    btcAbi,
+    signer
+  );
+
+
+  const tx = await mint.approve(QUEUE_COIN_ADDRESS, value+BigInt(100000000000000000000));
+  await tx.wait();
+
+  return tx;
+}
+
+export async function approveEth(value: bigint) {
+  const provider = await getProvider()
+  const signer = await provider.getSigner();
+
+  const mint = new ethers.Contract(
+    ETH_ADDRESS ? ETH_ADDRESS : "",
+    ethAbi,
     signer
   );
 
@@ -1158,6 +1296,38 @@ while (true) {
 }
 }
 
+
+export async function getQueueEth(): Promise<queueData[]> {
+  //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+  const provider = await getProvider();
+
+const queueContract = new ethers.Contract(
+  QUEUE_COIN_ADDRESS ? QUEUE_COIN_ADDRESS : "",
+  queueCoinAbi,
+  provider
+);
+
+while (true) {
+  try {
+    // Obtenha os dados da fila diretamente do contrato
+    const getQueueDetails: any[] = await queueContract.getQueueDetails(3);
+    
+    // Transforme as tuplas retornadas para o formato `queueData`
+    const queue: queueData[] = getQueueDetails.map((item) => ({
+      user: item[0], // address
+      index: BigInt(item[1]), // uint256 -> BigInt
+      batchLevel: BigInt(item[2]), // uint256 -> BigInt
+      nextPaied: item[3] === 1 // uint256 -> boolean
+    }));
+
+    return queue;
+
+  } catch (err) {
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Retry após 1s
+  }
+}
+}
+
 export async function balanceToPaidDoge(maxRetries = 3): Promise<string> {
   // Initialize the provider
   const provider = await getProvider();
@@ -1173,6 +1343,66 @@ export async function balanceToPaidDoge(maxRetries = 3): Promise<string> {
     try {
       // Attempt to fetch data from the blockchain
       const tx = await collection.balanceFree(0);
+
+      // If successful, format and return the result
+      return (tx);
+    } catch (error) {
+    }
+
+    // Increment the attempt counter
+    attempt++;
+  }
+
+  // If all retries fail, throw an error or return a default value
+  throw new Error(`Failed to fetch balance from the blockchain after ${maxRetries} attempts.`);
+}
+
+
+export async function balanceToPaidBtc(maxRetries = 3): Promise<string> {
+  // Initialize the provider
+  const provider = await getProvider();
+  const collection = new ethers.Contract(
+    QUEUE_COIN_ADDRESS ? QUEUE_COIN_ADDRESS : "",
+    queueCoinAbi,
+    provider
+  );
+
+  let attempt = 0;
+
+  while (attempt < maxRetries) {
+    try {
+      // Attempt to fetch data from the blockchain
+      const tx = await collection.balanceFree(1);
+
+      // If successful, format and return the result
+      return (tx);
+    } catch (error) {
+    }
+
+    // Increment the attempt counter
+    attempt++;
+  }
+
+  // If all retries fail, throw an error or return a default value
+  throw new Error(`Failed to fetch balance from the blockchain after ${maxRetries} attempts.`);
+}
+
+
+export async function balanceToPaidEth(maxRetries = 3): Promise<string> {
+  // Initialize the provider
+  const provider = await getProvider();
+  const collection = new ethers.Contract(
+    QUEUE_COIN_ADDRESS ? QUEUE_COIN_ADDRESS : "",
+    queueCoinAbi,
+    provider
+  );
+
+  let attempt = 0;
+
+  while (attempt < maxRetries) {
+    try {
+      // Attempt to fetch data from the blockchain
+      const tx = await collection.balanceFree(2);
 
       // If successful, format and return the result
       return (tx);

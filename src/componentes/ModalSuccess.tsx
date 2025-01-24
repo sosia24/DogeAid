@@ -33,19 +33,19 @@ export default function ModalSuccess({ onClose, msg }: ErrorProps) {
 
       {/* Modal */}
       <div
-        className={`relative w-[500px] sm:w-[300px] flex flex-col justify-center text-center p-4 text-black bg-white rounded-bl-[30px] h-[300px] rounded-br-[15px] shadow-lg transform transition-transform duration-300 ${
+        className={`relative w-[500px] sm:w-[300px] flex flex-col justify-center text-center p-4 text-black bg-white border-4 border-green-600  rounded-bl-[30px] h-[300px] rounded-br-[15px] shadow-lg transform transition-transform duration-300 ${
           show ? "scale-100" : "scale-90"
         }`}
       >
         <img
           className="absolute max-w-none w-[110%] -top-16 -left-7  sm:-top-10 sm:-left-4"
-          src="images/SuccessBanner.png"
+          src="images/BannerMsg.png"
           alt="Success banner"
         />
-        <h1 className="w-full text-2xl mt-5">{msg}</h1>
+        <h1 className="w-full text-2xl mt-14">Success: {msg}</h1>
         <button
           onClick={handleClose}
-          className="rounded-3xl  bottom-10 mt-[20px] py-6 px-16 bg-[#00FF3D] hover:bg-[#00e63a] transition-colors duration-200"
+          className="rounded-3xl  bottom-10 mt-[20px] py-6 px-16 bg-green-500 hover:bg-green-600 transition-colors duration-200"
         >
           Close
         </button>

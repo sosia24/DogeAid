@@ -208,8 +208,7 @@ function Page1() {
             )}
           <div className="w-[80%] p-[20px] bg-[#441212] rounded mt-6 flex" >
             <div className="w-2/3">            <h1 className="text-center text-2xl">Last Transactions Received</h1>
-            <p>Aqui esta comentado</p>
-            {/* {transactions.map((tx:any, index) => (
+             {transactions.map((tx:any, index) => (
               
                 <Link key={index} href={`https://polygonscan.com/tx/${tx.transactionHash}`} className="!my-10 hover:!bg-[#f60d53de] transition duration-200">
                   <div className="justify-between flex items-center flex-row">
@@ -227,7 +226,7 @@ function Page1() {
                     </div>
                   </div>
                 </Link>
-              ))} */}</div>
+              ))} </div>
             <div className="w-1/3">
             <h1 className="text-center text-2xl">Total Earned Per Level</h1>
             <div 
