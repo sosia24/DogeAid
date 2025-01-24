@@ -124,7 +124,6 @@ export async function approveUsdtDonation(value: string) {
     throw new Error("Unable to get gas price");
   }
 
-  console.log("value", value)
   const maxFeePerGas = feeData.maxFeePerGas *3n;
 
 
@@ -1580,7 +1579,6 @@ export async function fetchReferralTree(userAddress:string, currentLevel = 0, ma
 
 // Função auxiliar para buscar apenas as referências diretas
 export async function fetchReferrals(userAddress:String) {
-console.log("chegou aqui")
   const provider = await getProvider();
     const signer = await provider.getSigner();
 
@@ -1598,6 +1596,7 @@ console.log("chegou aqui")
 export async function getContributions(owner: string) {
   try {
       //const provider = new ethers.JsonRpcProvider(RPC_ADDRESS);
+      
       const provider = await getProvider();
 
     const queue = new ethers.Contract(
@@ -1607,7 +1606,7 @@ export async function getContributions(owner: string) {
     );
 
     const tokens = await queue.getActiveContributions(owner, 1);
-    console.log("contributions: ", tokens)
+
     return tokens; // Retorna a conclusão em caso de sucesso
   } catch (error: any) {
     // Retorna a mensagem de erro

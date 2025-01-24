@@ -67,7 +67,6 @@ function Page1() {
         const txs : any = await getTransactionsReceived(address);
         setTransactions(txs);        
         const totalEarnedTree =  await getTotalEarnedPerLevel(address);
-        console.log(totalEarnedTree);
         
         setTotalEarnedPerLevel(totalEarnedTree) 
       } catch (error) {

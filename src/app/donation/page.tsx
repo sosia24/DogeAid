@@ -72,7 +72,7 @@ function Donation() {
   useEffect(() => {
     const fetchTimeLeft = async () => {
       if (!walletAddress) return;
-  
+      
       try {
         const timeLeft = await getTimeUntilToClaim(walletAddress, contributions[contributionIndex].index);
   
@@ -94,7 +94,6 @@ function Donation() {
   const fetchContributions = async (owner: string) => {
     try {
       const response = await getContributions(owner);
-      console.log(response);
   
       if (response.success === false) {
         throw new Error(response.errorMessage);
@@ -338,7 +337,6 @@ function Donation() {
     } finally {
     }
   }
-  console.log(contributions[contributionIndex].index)
 
   const handleClaim = async () => {
     await requireRegistration(()=>{}); 
