@@ -22,6 +22,10 @@ interface Contribution {
   startTime: number;
   endTime: number;
   days: number;
+  timestamps: number[];
+  claims: number[];
+  priceClaim: number[];
+
 }
 
 function Donation() {
@@ -72,6 +76,7 @@ function Donation() {
   useEffect(() => {
     const fetchTimeLeft = async () => {
       if (!walletAddress) return;
+      if(contributions.length == 0) return;
       
       try {
         const timeLeft = await getTimeUntilToClaim(walletAddress, contributions[contributionIndex].index);
@@ -99,16 +104,18 @@ function Donation() {
         throw new Error(response.errorMessage);
       }
   
-      // Verificar se `response` é um array
       if (Array.isArray(response)) {
-        // Formatar a resposta da tupla em um array legível
         const formattedContributions = response.map((item: any[]) => ({
           index: Number(item[0]),
           amount: Number(item[1]),
           goal: Number(item[2]),
           startTime: Number(item[3]),
           endTime: Number(item[4]),
-          days: Number(item[6]),
+          days: Number(item[5]),
+          timestamps: (item[6]),
+          claims: (item[7]),
+          priceClaim: (item[8]),
+
         }));
   
         setContributions(formattedContributions);
@@ -414,7 +421,7 @@ async function clearAlert(){
   {/* Terceiro Card */}
         </div>
         
-            <div className="flex flex-col sm:w-[50%] justify-center items-center    ml-4 sm:ml-0 rounded-xl">
+{contributions.length > 0 ?             <div className="flex flex-col sm:w-[50%] justify-center items-center    ml-4 sm:ml-0 rounded-xl">
             <div className="flex sm2:justify-center sm2:items-center">
               <img className="sm2:size-28" src="images/claimImage.png" alt="banner" />
               <div className="ml-5">
@@ -445,7 +452,7 @@ async function clearAlert(){
             </div>
              ))}
           </div>
-          </div>
+          </div> : "No contributions data"} 
         </div>
       </div>
 
