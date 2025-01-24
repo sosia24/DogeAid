@@ -300,7 +300,7 @@ export async function claim(index:number){
     throw new Error("Unable to get gas price");
   }
 
-  const maxFeePerGas = feeData.maxFeePerGas *3n;
+  // const maxFeePerGas = feeData.maxFeePerGas *3n;
 
   
   const donation = new ethers.Contract(
@@ -311,10 +311,10 @@ export async function claim(index:number){
   
   try {
 
-    const estimatedGas = await donation.claimDonation.estimateGas();
+    // const estimatedGas = await donation.claimDonation.estimateGas();
     
 
-    const gasLimit = estimatedGas * 130n / 100n;
+    // const gasLimit = estimatedGas * 130n / 100n;
 
 
     // Envia a transação

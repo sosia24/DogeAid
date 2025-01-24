@@ -34,7 +34,6 @@ function Donation() {
   const [balance, setBalance] = useState<bigint>(0n);
   const [timeUntil, setTimeUntil] = useState("00h:00min:00s");
   const [timeUntilNumber, setTimeUntilNumber] = useState<Number>(0)
-  const [balanceToClaim, setBalanceToClaim] = useState<bigint>(0n);
   const [btc24hRealPrice, setBtc24hRealPrice] = useState<bigint>(0n);
   const [btc24hPrice, setBtc24hPrice] = useState<bigint>(0n);
   const [nextPool, setNextPool] = useState<bigint>(0n);
@@ -75,8 +74,7 @@ function Donation() {
       if (!walletAddress) return;
   
       try {
-        const timeLeft = await getTimeUntilToClaim(walletAddress, contributionIndex+1);
-        console.log("catou esse timeleft", timeLeft)
+        const timeLeft = await getTimeUntilToClaim(walletAddress, contributions[contributionIndex].index);
   
         // Atualiza os estados com os valores obtidos
         setTimeUntil(formatTime(timeLeft));
@@ -196,7 +194,6 @@ function Donation() {
           balanceValue = await getBtc24hBalance(walletAddress);
         }
         setAllowance(allowanceValue);
-
         setBalance(balanceValue);
   
         const timeLeft = await getTimeUntilToClaim(walletAddress, contributionIndex);
@@ -341,35 +338,32 @@ function Donation() {
     } finally {
     }
   }
-  
-  const handleClaim = async (isRoot:boolean) => {
+  console.log(contributions[contributionIndex].index)
+
+  const handleClaim = async () => {
     await requireRegistration(()=>{}); 
     try {
       setLoading(true);
       if (!walletAddress) {
-        
         setError("Wallet address not found. Connect your wallet.");
         return;
       }
-      
-      if (balanceToClaim === 0n) {
-        setLoading(false);
-        setError("There is no balance available to claim.");
-        
-        return;
-        }
       await claim(contributions[contributionIndex].index);         
       setAlert("Claim made successfully!");
       setLoading(false);
+      if(walletAddress) {
+        await fetchContributions(walletAddress);
+      }
       await fetchData(); 
     } catch (error:any) {
       setLoading(false);
-      if(error.reason == "AS"){
+      if(error.reason === "AS"){
         error.reason = "There is no balance available to claim."
       }
       setError(error.reason || "Error: An unknown error");
     }
   };
+
 
   async function clearError(){
     setError("");
@@ -437,14 +431,8 @@ async function clearAlert(){
 
               </div>
             <div className="flex mt-4 w-full text-xl justify-center">
-              {Number(timeUntilNumber) <= Number(0) && Number(contributions[contributionIndex]?.goal) > Number(0)?(
-                                      <button   onClick={()=>handleClaim(false)}
+                                      <button   onClick={()=>handleClaim()}
                                       className="text-black rounded-lg font-semibold p-3 mx-2 w-[120px] bg-[#fe4a00] hover:bg-[#fe4800c4] hover:scale-105 transition-all duration-300">Claim</button>        
-              ):(
-                <button   onClick={()=>handleClaim(false)}
-                              className="text-black rounded-lg font-semibold p-3 mx-2 w-[120px] bg-gray-400 cursor-not-allowed hover:scale-105 transition-all duration-300">Claim</button>
-
-              )}
 
               <p className="bg-[#f60d53de] rounded-lg mx-2 p-3">{timeUntil}</p>
             </div>
