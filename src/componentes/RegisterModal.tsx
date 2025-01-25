@@ -85,7 +85,7 @@ export default function RegisterModal() {
       {/* Indicador de Carregamento */}
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-14 h-14 border-t-4 border-b-4 border-[#00ff54] rounded-full animate-spin"></div>
+          <div className="w-14 h-14 border-t-4 border-b-4 border-[#f60d53de] rounded-full animate-spin"></div>
         </div>
       )}
 
