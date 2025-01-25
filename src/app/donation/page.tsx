@@ -196,7 +196,7 @@ function Donation() {
         setAllowance(allowanceValue);
         setBalance(balanceValue);
   
-        const timeLeft = await getTimeUntilToClaim(walletAddress, contributionIndex);
+        const timeLeft = await getTimeUntilToClaim(walletAddress, contributions[contributionIndex].index);
         setTimeUntil(formatTime(timeLeft));
         setTimeUntilNumber(Number(timeLeft));
         startDecrementalTimer(timeLeft);
@@ -326,7 +326,7 @@ function Donation() {
     try {
       if (walletAddress) {
         // Atualiza o tempo restante para reclamar
-        const timeLeft = await getTimeUntilToClaim(walletAddress, contributionIndex);
+        const timeLeft = await getTimeUntilToClaim(walletAddress, contributions[contributionIndex].index);
         setTimeUntil(formatTime(timeLeft));
         setTimeUntilNumber(Number(timeLeft));
         startDecrementalTimer(timeLeft);

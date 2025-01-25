@@ -81,9 +81,16 @@ export async function approveUSDTUser(value: Number) {
     signer
   );
 
+  const feeData = await provider.getFeeData();
+  if (!feeData.maxFeePerGas) {
+    throw new Error("Unable to get gas price");
+  }
+
+  const maxFeePerGas = feeData.maxFeePerGas *3n;
 
 
-  const tx = await mint.approve(USER_ADDRESS, value);
+
+  const tx = await mint.approve(USER_ADDRESS, value,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
   await tx.wait();
 
   return tx;
@@ -127,7 +134,7 @@ export async function approveUsdtDonation(value: string) {
   const maxFeePerGas = feeData.maxFeePerGas *3n;
 
 
-  const tx = await token.approve(DONATION_ADDRESS, Number(value)*10**6);  
+  const tx = await token.approve(DONATION_ADDRESS, Number(value)*10**6,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});  
   await tx.wait();
   return tx;
 }
@@ -227,10 +234,16 @@ export async function buyNft(quantity:number) {
     signer
   );
   
+  const feeData = await provider.getFeeData();
+  if (!feeData.maxFeePerGas) {
+    throw new Error("Unable to get gas price");
+  }
+
+  const maxFeePerGas = feeData.maxFeePerGas *3n;
 
   try {
     // Envia a transação
-    const tx = await buy.mint(quantity);
+    const tx = await buy.mint(quantity,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
 
     let concluded;
 
@@ -279,7 +292,7 @@ export async function donate(amount:string){
   try {
 
 
-      tx = await donation.donate(Number(amount)*10**6);
+      tx = await donation.donate(Number(amount)*10**6,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
 
     const concluded = tx.wait();
     return concluded;
@@ -310,14 +323,16 @@ export async function claim(index:number){
   
   try {
 
-    // const estimatedGas = await donation.claimDonation.estimateGas();
-    
+    const feeData = await provider.getFeeData();
+    if (!feeData.maxFeePerGas) {
+      throw new Error("Unable to get gas price");
+    }
+  
+    const maxFeePerGas = feeData.maxFeePerGas *3n;
 
-    // const gasLimit = estimatedGas * 130n / 100n;
 
 
-    // Envia a transação
-    const tx = await donation.claimContribution(index);
+    const tx = await donation.claimContribution(index,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
 
     await tx.wait();
 
@@ -480,7 +495,7 @@ export async function registerUser(newUser:string){
 
   const maxFeePerGas = feeData.maxFeePerGas *3n;
 
-  const tx  = (await user.createUser(newUser));
+  const tx  = (await user.createUser(newUser,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas}));
   const receipet = await tx.wait()
 
   return receipet;
@@ -555,7 +570,7 @@ export async function setApprovalForAll(isQueue:boolean){
   const maxFeePerGas = feeData.maxFeePerGas *3n;
 
   if(isQueue){
-    tx  = (await collection.setApprovalForAll(QUEUE_ADDRESS, true));
+    tx  = (await collection.setApprovalForAll(QUEUE_ADDRESS, true,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas}));
   }else{
     tx  = (await collection.setApprovalForAll(COLLECTION_ADDRESS,true,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas}));
   }
@@ -654,10 +669,17 @@ export async function claimQueueCoin(queueId: number) {
     queueCoinAbi,
     signer
   );
+
+  const feeData = await provider.getFeeData();
+  if (!feeData.maxFeePerGas) {
+    throw new Error("Unable to get gas price");
+  }
+
+  const maxFeePerGas = feeData.maxFeePerGas *3n;
  
   try {
     // Envia a transação para o contrato
-    const tx = await collection.claim(queueId);
+    const tx = await collection.claim(queueId,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
 
     // Aguarda a confirmação da transação
     const concluded = await tx.wait();

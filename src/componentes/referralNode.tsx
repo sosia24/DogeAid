@@ -34,8 +34,14 @@ const ReferralNode: React.FC<ReferralNodeProps> = ({ node, level = 0 }) => {
   const childrenCount = node.children?.length || 0;
   const backgroundColor = getBackgroundColor(level);
 
+  // Defina a margem esquerda com base no nível
+  const marginLeft = level >= 5 ? "0px" : `${level * 10}px`; // A partir do nível 5, sem margem
+
   return (
-    <div className="w-full flex flex-col items-start mb-6 sm:text-[15px] text-lg">
+    <div
+      className="w-full flex flex-col items-start mb-6 sm:text-[15px] text-lg"
+      style={{ marginLeft }} // Aplicando a margem dinamicamente
+    >
       <div className="flex justify-between items-center w-full mb-2">
         <div
           className="text-white px-4 py-2 rounded shadow-md flex items-center w-full"
@@ -62,7 +68,7 @@ const ReferralNode: React.FC<ReferralNodeProps> = ({ node, level = 0 }) => {
       </div>
 
       {isExpanded && node.children && (
-        <div className="flex flex-col mt-4 pl-6 w-full">
+        <div className="flex flex-col mt-4 pl-4 w-full">
           {node.children.map((child, index) => (
             <ReferralNode key={index} node={child} level={level + 1} />
           ))}
@@ -86,9 +92,7 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ address }) => {
       try {
         const fetchedTree = await fetchReferralTree(address);
         setTree(fetchedTree[0]);
-        
-        setQuantity(fetchedTree[1]-1);
-        
+        setQuantity(fetchedTree[1] - 1);
       } catch (error) {
         console.error("Erro ao carregar a árvore de referências:", error);
       }
@@ -103,8 +107,7 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ address }) => {
           Team
         </button>
       </h1>
-      <h1 className="my-2">          Total affiliated: {quantity}
-      </h1>
+      <h1 className="my-2">Total affiliated: {quantity}</h1>
       {tree ? (
         <div className="flex flex-col items-start w-full">
           <ReferralNode node={tree} />
