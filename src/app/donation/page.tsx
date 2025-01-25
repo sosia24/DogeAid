@@ -79,7 +79,9 @@ function Donation() {
       if(contributions.length == 0) return;
       
       try {
+        console.log("index: ",contributions[contributionIndex].index)
         const timeLeft = await getTimeUntilToClaim(walletAddress, contributions[contributionIndex].index);
+        console.log("this",timeLeft)
   
         // Atualiza os estados com os valores obtidos
         setTimeUntil(formatTime(timeLeft));
@@ -94,7 +96,7 @@ function Donation() {
     };
   
     fetchTimeLeft();
-  }, [walletAddress, contributionIndex]);
+  }, [walletAddress, contributionIndex, contributions]);
   
   const fetchContributions = async (owner: string) => {
     try {
@@ -119,10 +121,8 @@ function Donation() {
         }));
   
         setContributions(formattedContributions);
-  
-        if (walletAddress) {
-          getTimeUntilToClaim(walletAddress, contributionIndex);
-        }
+
+        
       } else {
       }
     } catch (err: any) {
@@ -443,12 +443,21 @@ async function clearAlert(){
       </div>
     </div>
     <div className="flex mt-4 w-full text-sm sm:text-lg justify-center">
+    {timeUntilNumber === 0 && contributions.length > 0?(
+       <button
+       onClick={() => handleClaim()}
+       className="text-black rounded-lg font-semibold p-2 sm:p-3 text-md sm:text-lg lg:text-xl mx-2 w-[100px] sm:w-[120px] bg-[#fe4a00] hover:bg-[#fe4800c4] hover:scale-105 transition-all duration-300"
+     >
+       Claim
+     </button>
+    ):(
       <button
-        onClick={() => handleClaim()}
-        className="text-black rounded-lg font-semibold p-2 sm:p-3 text-md sm:text-lg lg:text-xl mx-2 w-[100px] sm:w-[120px] bg-[#fe4a00] hover:bg-[#fe4800c4] hover:scale-105 transition-all duration-300"
-      >
-        Claim
-      </button>
+      className="text-black rounded-lg font-semibold p-2 sm:p-3 text-md sm:text-lg lg:text-xl mx-2 w-[100px] sm:w-[120px] bg-gray-500 cursor-not-allowed hover:scale-105 transition-all duration-300"
+    >
+      Claim
+    </button>
+    )}
+     
       <p className="bg-[#f60d53de] text-md sm:text-lg lg:text-xl rounded-lg mx-2 p-2 sm:p-3">
         {timeUntil}
       </p>
