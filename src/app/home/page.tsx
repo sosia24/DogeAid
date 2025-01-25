@@ -132,7 +132,13 @@ function Page1() {
                     height={35}
                   />
                   <p className="ml-[5px] font-bold text-[22px]">DogeAid/USDT</p>
+                  
                 </div>
+                <p className="text-[20px]">
+            {coinCotation
+    ? `$${coinCotation.toFixed(8).toLocaleString()}`
+    : "...loading"}
+</p>
 
 
 
