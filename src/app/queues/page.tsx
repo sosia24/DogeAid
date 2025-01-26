@@ -1165,7 +1165,7 @@ function Page1() {
                         {/* Carousel */}
                         <div className="lg:w-[60%] p-4 md:max-w-[480px] md:w-[96%] w-[84%] bg-white bg-opacity-10 rounded-3xl relative overflow-hidden">
                             <Slider ref={bitcoin24hSliderRef} {...settings}>
-                                {queueBitcoin24hDetails?.map((data, index) => (
+                                {queueBitcoin24hDetailsFormated?.map((data, index) => (
                                     data.nextPaied === true?(
                                         <div
                                         key={index}
@@ -1281,7 +1281,7 @@ function Page1() {
                         {/* Carousel */}
                         <div className="lg:w-[60%] p-4 md:max-w-[480px] md:w-[96%] w-[84%] bg-white bg-opacity-10 rounded-3xl relative overflow-hidden">
                             <Slider ref={ethSliderRef} {...settings}>
-                                {queueEthDetails?.map((data, index) => (
+                                {queueEthDetailsFormated?.map((data, index) => (
                                     data.nextPaied === true?(
                                         <div
                                         key={index}
