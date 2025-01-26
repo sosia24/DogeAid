@@ -30,8 +30,6 @@ function Page1() {
  
   
 
-  
-
   useEffect(() => {
     if (!address) return;
 
@@ -39,7 +37,7 @@ function Page1() {
       try {
         getCotation();
         const txs : any = await getTransactionsReceived(address);
-        setTransactions(txs);        
+        setTransactions(txs.reverse());        
         const totalEarnedTree =  await getTotalEarnedPerLevel(address);
         
         setTotalEarnedPerLevel(totalEarnedTree) 

@@ -1575,33 +1575,39 @@ interface ReferralNode {
 
 
 
-export async function fetchReferralTree(userAddress: string, currentLevel = 0, maxLevel = 20): Promise<[ReferralNode|null, number]> {
-  // Interrompe a recursão se o nível máximo for atingido
+export async function fetchReferralTree(
+  userAddress: string,
+  currentLevel = 0,
+  maxLevel = 20,
+  pageSize = 5, // Número máximo de filhos por página
+  page = 0 // Página atual
+): Promise<[ReferralNode | null, number]> {
   if (currentLevel >= maxLevel) return [null, 0];
 
   // Obtenha os referenciados diretos do contrato
-  const referrals = await fetchReferrals(userAddress);
+  const allReferrals = await fetchReferrals(userAddress);
 
-  // Crie o nó do usuário atual
+  // Divida os filhos pela página atual
+  const referrals = allReferrals.slice(page * pageSize, (page + 1) * pageSize);
+
   const node: ReferralNode = {
     address: userAddress,
     children: [],
-  }
+  };
 
-  // Inicialmente conta o próprio usuário
   let totalCount = 1;
 
-  // Para cada referenciado, chame a função recursivamente
   for (const referral of referrals) {
     const [childNode, count] = await fetchReferralTree(referral, currentLevel + 1, maxLevel);
     if (childNode) {
       node.children.push(childNode);
-      totalCount += count;  // Soma os contadores dos filhos
+      totalCount += count;
     }
   }
 
-  return [node, totalCount]; // Retorna o nó atual e a contagem total de referências na árvore
+  return [node, totalCount];
 }
+
 
 // Função auxiliar para buscar apenas as referências diretas
 export async function fetchReferrals(userAddress:String) {

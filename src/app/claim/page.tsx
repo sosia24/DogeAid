@@ -119,18 +119,13 @@ async function verifyValues(){
                     {/* Exibindo valores com verificações */}
                     <h1 className="mt-2">
                         {balances[0] !== undefined && balances[0] !== null
-                        ? (Number(balances[0]) / 10 ** 18).toFixed(4)
-                        : "Loading..."} BTC24H
-                    </h1>
-                    <h1 className="mt-2">
-                        {balances[1] !== undefined && balances[1] !== null
-                        ? (Number(balances[1]) / 10 ** 6).toFixed(2)
+                        ? (Number(balances[0]) / 10 ** 6).toFixed(4)
                         : "Loading..."} USDT
                     </h1>
                     <h1 className="mt-2">
-                        {balances[3] !== undefined && balances[3] !== null
-                        ? (Number(balances[3]) / 10 ** 9).toFixed(4)
-                        : "Loading..."} WSOL
+                        {balances[1] !== undefined && balances[1] !== null
+                        ? (Number(balances[1]) / 10 ** 18).toFixed(2)
+                        : "Loading..."} DOGEAID
                     </h1>
                     </div>
                   <button
