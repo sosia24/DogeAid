@@ -125,7 +125,7 @@ export default function Footer(){
   <div className="flex flex-col items-center text-[14px] md:text-[10px]">
     <Link href="/nfts" className="flex flex-col items-center hover:scale-105 transition-all duration-300">
       <RiNftFill className="w-[30px] h-[30px] md:w-[20px] md:h-[20px] text-white"></RiNftFill>
-      <p className={isActive('/nfts') ? 'text-white' : 'text-white'}>Nfts</p>
+      <p className={isActive('/nfts') ? 'text-white' : 'text-white'}>Nfts/Gas</p>
     </Link>
   </div>
 
