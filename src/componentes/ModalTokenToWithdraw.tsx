@@ -10,12 +10,14 @@ interface TokensProps {
     tokens: bigint;
     isBtc24h: boolean
 }
+import { useLanguage } from "@/services/languageContext";
 
 export default function ModalTokensToWithdraw({ tokens, isBtc24h }: TokensProps) {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [alert, setAlert] = useState("");
+  const {isEnglish} = useLanguage()
 
   useEffect(() => {
     setShow(true);
@@ -34,7 +36,12 @@ export default function ModalTokensToWithdraw({ tokens, isBtc24h }: TokensProps)
       const result = await withdrawTokensBtc24h();
   
       if (result.success) {
-        setAlert("Tokens successfully withdrawn!");
+        if(isEnglish){
+          setAlert("Tokens successfully withdrawn!");
+        }else{
+          setAlert("¡Tokens retirados exitosamente!");
+        }
+        
       } else {
       }
   
@@ -42,8 +49,12 @@ export default function ModalTokensToWithdraw({ tokens, isBtc24h }: TokensProps)
       handleClose();
     } catch (error) {
       setLoading(false);
-      console.error("Error withdrawing tokens:", error);
-      setAlert("Failed to withdraw tokens. Please try again.");
+      if(isEnglish){
+        setAlert("Failed to withdraw tokens. Please try again.");
+      }else{
+        setAlert("No se pudieron retirar los tokens. Inténtalo nuevamente.");
+      }
+      
     }
   };
 
@@ -54,7 +65,11 @@ export default function ModalTokensToWithdraw({ tokens, isBtc24h }: TokensProps)
       const result = await withdrawTokens();
   
       if (result.success) {
-        setAlert("Tokens successfully withdrawn!");
+        if(isEnglish){
+          setAlert("Tokens successfully withdrawn!");
+        }else{
+          setAlert("¡Tokens retirados exitosamente!");
+        }
       } else {
       }
   
@@ -62,8 +77,11 @@ export default function ModalTokensToWithdraw({ tokens, isBtc24h }: TokensProps)
       handleClose();
     } catch (error) {
       setLoading(false);
-      console.error("Error withdrawing tokens:", error);
-      setAlert("Failed to withdraw tokens. Please try again.");
+      if(isEnglish){
+        setAlert("Failed to withdraw tokens. Please try again.");
+      }else{
+        setAlert("No se pudieron retirar los tokens. Inténtalo nuevamente.");
+      }
     }
   };
   
@@ -108,7 +126,7 @@ async function clearAlert(){
             src="images/BannerTopo.png"
             alt="Congratulation banner"
           />
-          <h1 className="w-full text-xl sm:text-lg mt-5">While you were away, your NFTs cycled, and now you have tokens ready to claim!</h1>
+          <h1 className="w-full text-xl sm:text-lg mt-5">{isEnglish?"While you were away, your NFTs cycled, and now you have tokens ready to claim!":"Mientras estabas ausente, tus NFT se reciclaron y ahora tienes tokens listos para reclamar."}</h1>
           <h1 className="mt-4 text-2xl">
             {isBtc24h?(
               <>
@@ -129,13 +147,13 @@ async function clearAlert(){
               onClick={isBtc24h? handleWithdrawBtc24h : handleWithdraw}
               className="rounded-3xl bottom-10 sm:w-1/2 sm:b-0 mt-[20px] text-center py-4 px-16 sm:px-3 bg-[#f60d53de] hover:bg-[#f60d53] transition-colors duration-300"
             >
-              Claim
+              {isEnglish?"Claim":"Reclamar"}
             </button>
             <button
               onClick={handleClose}
               className="rounded-3xl bottom-10 sm:w-1/2 sm:bottom-0 mt-[20px] text-center py-4 px-16 sm:px-3 sm:ml-4 bg-white hover:bg-gray-100 border-2 border-red-600 transition-colors duration-300"
             >
-              Close
+              {isEnglish?"Close":"Cerrar"}
             </button>
           </div>
         </div>

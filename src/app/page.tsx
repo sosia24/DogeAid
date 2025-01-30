@@ -1,14 +1,16 @@
-"use client";
-
-import { useState, useEffect, Suspense } from "react";
+"use client"
+import { useContext ,useState, useEffect, Suspense } from "react";
 import { useWallet } from "@/services/walletContext";
 import Image from "next/image";
 import Link from "next/link";
 import RegisterModal from "@/componentes/RegisterModal";
 import { useSearchParams } from "next/navigation";
 import { doLogin, verifyPercentage } from "@/services/Web3Services";
+import { LanguageProvider, useLanguage } from "@/services/languageContext";
+
 
 function HomeContent() {
+  const {isEnglish, toggleLanguageUS, toggleLanguageES} = useLanguage();
   const { address, setAddress } = useWallet();
   const [showModal, setShowModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -71,7 +73,7 @@ function HomeContent() {
 
       <div className="w-[100%] lg:mt-0 mt-[60px] lg:w-[50%] flex flex-col items-center lg:items-start text-center lg:text-left md:order-1">
         <p className="lg:text-[80px] md:text-[65px] text-[35px] font-bold">DogeAid</p>
-        <p className="lg:text-[26px] md:text-[22px] text-[18px]">Transforming liquidity in opportunity for all</p>
+        <p className="lg:text-[26px] md:text-[22px] text-[18px]">{isEnglish? "Transforming liquidity in opportunity for all" : "Transformando la liquidez en oportunidad para todos"}</p>
         {address ? (
           <button className="p-2 w-[300px] bg-[#fe4800cf] rounded-3xl mt-[10px] text-black">
             {address.slice(0, 6) + "..." + address.slice(-4)}
@@ -81,14 +83,16 @@ function HomeContent() {
             className="p-2 w-[300px] bg-[#fe4a00] rounded-3xl mt-[10px] text-black hover:bg-[#fe4800cf]"
             onClick={handleLogin}
           >
-            Connect Wallet
+            {isEnglish? "Connect Wallet" : "Conectar billetera"}
           </button>
         )}
+    
+
         <Link
           className="p-2 w-[300px] text-center lg:mb-0 bg-[#fe4a00] rounded-3xl mt-[10px] text-black hover:bg-[#fe4800cf]"
           href="/home"
         >
-          Enter
+          {isEnglish? "Entrar" : "Ingressar"}
         </Link>
         {socio?(
           <Link
@@ -97,9 +101,11 @@ function HomeContent() {
         >
           Claim
         </Link>
+        
         ):(
           ""
         )}
+             
         
         
         {showModal ? <RegisterModal /> : ""}

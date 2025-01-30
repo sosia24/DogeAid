@@ -11,11 +11,14 @@ import { FaUserCog } from "react-icons/fa";
 import { useEffect } from "react";
 import Image from "next/image";
 import { useRef } from "react";
+import { isNativeError } from "util/types";
+import { useLanguage } from "@/services/languageContext";
 
 
 
 
 export default function Footer(){
+    const {isEnglish} = useLanguage()
     const pathname = usePathname();
     const isActive = (pathName:string) => pathname === pathName;
     const [popUp, setPopUp] = useState(false);
@@ -101,7 +104,7 @@ export default function Footer(){
   <div className="flex flex-col items-center text-[14px] md:text-[10px]">
     <Link href="/home" className="flex flex-col items-center hover:scale-105 transition-all duration-300">
       <IoHome className="w-[30px] h-[30px] md:w-[20px] md:h-[20px] text-white"></IoHome>
-      <p className={isActive('/home') ? 'text-white' : 'text-white'}>Home</p>
+      <p className={isActive('/home') ? 'text-white' : 'text-white'}>{isEnglish?"Home":"Hogar"}</p>
     </Link>
   </div>
 
@@ -109,7 +112,7 @@ export default function Footer(){
   <div className="flex flex-col items-center text-[14px] md:text-[10px]">
     <Link href="/donation" className="flex flex-col items-center hover:scale-105 transition-all duration-300">
       <AiFillDollarCircle className="w-[30px] h-[30px] md:w-[20px] md:h-[20px] text-white"></AiFillDollarCircle>
-      <p className={isActive('/donation') ? 'text-white' : 'text-white'}>Donation</p>
+      <p className={isActive('/donation') ? 'text-white' : 'text-white'}>{isEnglish?"Donation":"Donación"}</p>
     </Link>
   </div>
 
@@ -118,7 +121,7 @@ export default function Footer(){
     <Link href="/queues" className="flex flex-col items-center hover:scale-105 transition-all duration-300">
           <Image priority width={80} height={80} className="w-[50px] h-[50px]" src="/images/logoD.png" alt="logo"></Image>
     </Link>
-    <p className={isActive('/queues') ? 'text-white text-[18px] sm:text-[14px]' : 'text-white text-[18px] sm:text-[14px]'}>Queues</p>
+    <p className={isActive('/queues') ? 'text-white text-[18px] sm:text-[14px]' : 'text-white text-[18px] sm:text-[14px]'}>{isEnglish?"Queues":"Colas"}</p>
   </div>
 
   {/* NFTs */}
@@ -151,7 +154,7 @@ export default function Footer(){
     >
       ✕
     </button>
-    <h2 className="text-2xl font-bold mb-4 text-gray-800">Account</h2>
+    <h2 className="text-2xl font-bold mb-4 text-gray-800">{isEnglish?"Account":"Cuenta"}</h2>
     <p className="text-gray-700 mb-6">
       Account:{" "}
       <span className="font-mono text-blue-600 break-all">
@@ -163,20 +166,20 @@ export default function Footer(){
         onClick={switchAccount}
         className="w-full px-4 py-2 bg-[#f60d53de] text-white rounded-lg font-medium hover:bg-[#f60d53]"
       >
-        Switch Account
+        {isEnglish?"Switch Account":"Cambiar de cuenta"}
       </button>
       <button
         onClick={() => navigator.clipboard.writeText(address || "")}
         className="w-full px-4 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600"
         disabled={!address}
       >
-        Copy Address
+        {isEnglish?"Copy Address":"Copiar dirección"}
       </button>
       <button
       onClick={handleDisconnect}
         className="w-full px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600"
       >
-        Disconnect
+        {isEnglish?"Disconnect":"Desconectar"}
       </button>
     </div>
   </div>

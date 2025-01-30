@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { fetchReferralTree } from "@/services/Web3Services";
 import { IoMdArrowDropdown, IoMdArrowDropright } from "react-icons/io";
+import { useLanguage } from "@/services/languageContext";
 
 // Tipo para representar o nó da árvore
 interface ReferralNodeType {
@@ -91,7 +92,7 @@ const ReferralNode: React.FC<ReferralNodeProps> = ({ node, level = 0 }) => {
 const ReferralTree: React.FC<ReferralTreeProps> = ({ address }) => {
   const [tree, setTree] = useState<ReferralNodeType | null>(null);
   const [quantity, setQuantity] = useState(0);
-
+  const {isEnglish} = useLanguage()
   useEffect(() => {
     async function loadTree() {
       if (!address) return;
@@ -100,7 +101,6 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ address }) => {
         setTree(fetchedTree[0]);
         setQuantity(fetchedTree[1] - 1);
       } catch (error) {
-        console.error("Erro ao carregar a árvore de referências:", error);
       }
     }
     loadTree();
@@ -110,18 +110,18 @@ const ReferralTree: React.FC<ReferralTreeProps> = ({ address }) => {
     <div className="p-8 sm:p-4 bg-red-800 bg-opacity-40 rounded-2xl w-[80%] sm:w-[96%] overflowy-auto  mx-auto">
       <h1 className="text-3xl sm:text-xl font-bold text-center mb-6">
         <button className="bg-[#f60d51] shadow-xl rounded-3xl w-[150px] h-[40px] font-semibold text-[18px] hover:bg-[#e10c4a] transition-colors">
-          Team
+          {isEnglish?"Team":"Equipo"}
         </button>
       </h1>
       <h1 className="my-2 text-center sm:text-left">
-        Total affiliated: {quantity}
+       {isEnglish?"Total affiliated:":"Total de afiliados:"} {quantity}
       </h1>
       {tree ? (
         <div className="flex flex-col items-start w-full overflow-x-auto">
           <ReferralNode node={tree} />
         </div>
       ) : (
-        <p className="text-center text-gray-500">Loading...</p>
+        <p className="text-center text-gray-500">{isEnglish?"Loading...":"Cargando..."}</p>
       )}
     </div>
   );

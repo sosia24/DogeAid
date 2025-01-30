@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import ModalSuccess from "@/componentes/ModalSuccess";
 import ModalError from "@/componentes/ModalError";
 import { useRegistered } from "@/services/RegistrationContext";
+import { useLanguage } from "@/services/languageContext";
 
 import {
     approveUSDT,
@@ -28,7 +29,7 @@ function Page1(){
     const [alert, setAlert] = useState("");
     const [allowanceUsdt, setAllowanceUsdt] = useState<bigint>(0n);
     const [allowanceUsdtGas, setAllowanceUsdtGas] = useState<bigint>(0n);
-
+    const {isEnglish} = useLanguage();
     const [musk, setMusk] = useState<number>(0)
     const [timeUntil, setTimeUntil] = useState<bigint[]>([0n,0n,0n,0n]);
     const [quantity, setQuantity] = useState<number>(1);
@@ -106,7 +107,12 @@ function Page1(){
             }
         }catch(error){
             setLoading(false)
-            setError("Something went wrong, try again");
+            if(isEnglish){
+              setError("Something went wrong, try again");
+            }else{
+              setError("Algo salió mal, inténtalo de nuevo");
+            }
+            
         }
     }
 
@@ -117,7 +123,12 @@ function Page1(){
                 
                 setIsApprovedNftV(status);
             } catch (error) {
+              if(isEnglish){
                 console.error("Error fetching NFT approve status:", error);
+              }else{
+                console.error("Error al obtener el estado de aprobación de NFT:", error);
+              }
+                
             }
         }
     }
@@ -157,7 +168,12 @@ function Page1(){
         const result = await buyNft(quantity); // Executa a compra
     
         if (result && result.status === 1) { // status 1 significa sucesso
-          setAlert("NFT purchased successfully");
+          if(isEnglish){
+            setAlert("NFT purchased successfully");
+          }else{
+            setAlert("NFT comprado con éxito");
+          }
+          
     
           // Aguarde a atualização do allowance após a compra
           await getAllowanceUsdtFront(); 
@@ -169,8 +185,12 @@ function Page1(){
           throw new Error("Transaction failed unexpectedly");
         }
       } catch (error) {
-        console.error("Erro na compra do NFT:", error); // Log detalhado
-        setError("Something went wrong, try again");
+        if(isEnglish){
+          setError("Something went wrong, try again");
+        }else{
+          setError("Algo salió mal, inténtalo de nuevo");
+        }
+        
       } finally {
         setLoading(false);
       }
@@ -184,7 +204,11 @@ function Page1(){
         const result = await increaseGas(amount); // Executa a compra
     
         if (result && result.status === 1) { // status 1 significa sucesso
-          setAlert("Gas purchased successfully");
+          if(isEnglish){
+            setAlert("Gas purchased successfully");
+          }else{
+            setAlert("Gas comprado con éxito");
+          }
     
           // Aguarde a atualização do allowance após a compra
           await getAllowanceUsdtFront(); 
@@ -194,8 +218,12 @@ function Page1(){
           throw new Error("Transaction failed unexpectedly");
         }
       } catch (error) {
-        console.error("Erro na compra do NFT:", error); // Log detalhado
-        setError("Something went wrong, try again");
+
+        if(isEnglish){
+          setError("Something went wrong, try again");
+        }else{
+          setError("Algo salió mal, inténtalo de nuevo");
+        }
       } finally {
         setLoading(false);
       }
@@ -258,11 +286,11 @@ function Page1(){
             <p className="font-bold text-[4vh] lg:text-[45px]">{String(25*quantity)}</p>
           </div>
           <p className="flex bottom-0 mt-[-10px] text-center lg:text-right">
-            Win <span className="text-[#f60d53de] ml-[5px]"> 2x</span>
+           {isEnglish? "Win" : "Ganar"} <span className="text-[#f60d53de] ml-[5px]"> 2x</span>
           </p>
         </div>
         <div className="flex flex-col text-center">
-          <p>Quantity</p>
+          <p>{isEnglish?"Quantity":"Cantidad"}</p>
         <div className="flex items-center">
         <button
   className="bg-gray-200 px-2 py-1 rounded-l-md text-black hover:bg-gray-300"
@@ -301,7 +329,7 @@ function Page1(){
             }}
             className="text-black rounded-tl-full w-[130px] mt-[15px] rounded-br-full py-[5px] bg-[#00ff54]"
           >
-            Buy Nft
+            {isEnglish?"Buy NFT":"Comprar Nft"}
           </button>
         ) : (
           <button
@@ -310,22 +338,22 @@ function Page1(){
             }}
             className="text-black rounded-tl-full w-[130px] mt-[15px] rounded-br-full py-[5px] bg-[#f60d53de]"
           >
-            Approve
+           {isEnglish?"Approve":"Aprobar"}
           </button>
         )}
         <p className="w-full text-center mt-[3px]">
-          You have: {musk}
+          {isEnglish?"You have:":"Tienes:"} {musk}
         </p>
       </div>
     </div>
   </div>
-  <p className="text-center mt-[100px] bg-[#fe4a00] p-2 font-bold text-[20px] rounded-2xl shadow-2xl">You need to buy gas to get earnings through unilevel</p>
+  <p className="text-center mt-[100px] bg-[#fe4a00] p-2 font-bold text-[20px] rounded-2xl shadow-2xl">{isEnglish?"You need to buy gas to get earnings through unilevel":"Necesitas comprar gas para obtener ganancias a través de unilevel"}</p>
   <div className="lg:w-[100%] mt-[30px] w-full h-auto flex flex-col items-center justify-center lg:items-start lg:flex-row ">
     
   <div className="bg-white shadow-lg flex flex-col items-center justify-center w-[90%] lg:w-[330px] mt-8 h-auto text-gray-800 p-6 rounded-xl ml-5">
-  <h2 className="text-2xl font-bold text-[#fe4a00] mb-2">Buy Gas</h2>
+  <h2 className="text-2xl font-bold text-[#fe4a00] mb-2">{isEnglish?"Buy Gas":"Comprar gas"}</h2>
   <p className="text-gray-600 text-center mb-4">
-    Your Gas Available:{" "}
+    {isEnglish?"Your Gas Available:":"Su gas disponible:"}{" "}
     <span className="text-[#f60d53] font-semibold">
       {ethers.formatUnits(String(gas), 6)} USDT
     </span>
@@ -344,7 +372,7 @@ function Page1(){
       }}
       className="w-full mt-6 py-3 bg-[#00ff54] text-white rounded-lg font-semibold hover:bg-[#00d94a] transition-all duration-300"
     >
-      Buy Gas
+      {isEnglish?"Buy Gas":"Comprar gas"}
     </button>
   ) : (
     <button
@@ -353,7 +381,7 @@ function Page1(){
       }}
       className="w-full mt-6 py-3 bg-[#f60d53] text-white rounded-lg font-semibold hover:bg-[#d1464a] transition-all duration-300"
     >
-      Approve
+                {isEnglish?"Approve":"Aprobar"}
     </button>
   )}
 

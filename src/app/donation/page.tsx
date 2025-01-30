@@ -14,6 +14,7 @@ import { useRegistered } from "@/services/RegistrationContext";
 import ModalError from "@/componentes/ModalError";
 import { TbReload } from "react-icons/tb";
 import ModalSuccess from "@/componentes/ModalSuccess";
+import { useLanguage } from "@/services/languageContext";
 
 interface Contribution {
   index: number;
@@ -31,7 +32,7 @@ interface Contribution {
 function Donation() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [donationAmount, setDonationAmount] = useState("");
-
+  const {isEnglish} = useLanguage()
   const [contributions, setContributions] = useState<Contribution[]>([]);
   const [contributionIndex, setContributionIndex] = useState<number>(0);
   const [allowance, setAllowance] = useState<bigint>(0n);
@@ -79,9 +80,7 @@ function Donation() {
       if(contributions.length == 0) return;
       
       try {
-        console.log("index: ",contributions[contributionIndex].index)
         const timeLeft = await getTimeUntilToClaim(walletAddress, contributions[contributionIndex].index);
-        console.log("this",timeLeft)
   
         // Atualiza os estados com os valores obtidos
         setTimeUntil(formatTime(timeLeft));
@@ -91,7 +90,6 @@ function Donation() {
         // Inicia o cronômetro decremental
         startDecrementalTimer(timeLeft);
       } catch (error) {
-        console.error("Erro ao obter o tempo restante:", error);
       }
     };
   
@@ -234,13 +232,23 @@ function Donation() {
     await requireRegistration(()=>{}); 
   
       if (!donationAmount || parseFloat(donationAmount) <= 0) {
-        setError("Please enter a valid donation amount.");
+        if(isEnglish){
+          setError("Please enter a valid donation amount.");
+        }else{
+          setError("Ingrese un monto de donación válido.");
+        }
+        
         return
       }
 
       
       if(ethers.parseUnits(donationAmount,donateWithUsdt?6:18)> balance){
-        setError("Donation amount is greather than your balance.");
+        if(isEnglish){
+          setError("Donation amount is greather than your balance.");
+        }else{
+          setError("El monto de la donación es mayor que su saldo.");
+        }
+        
         return
       }
 
@@ -248,7 +256,12 @@ function Donation() {
       try {
         setIsProcessing(true);
         await donate(donationAmount);
-        setAlert("Donation made successfully!");
+        if(isEnglish){
+          setAlert("Donation made successfully!");
+        }else{
+          setAlert("¡Donación realizada exitosamente!");
+        }
+        
         if(walletAddress)
         fetchContributions(walletAddress)
         setSteps(3);
@@ -298,7 +311,12 @@ function Donation() {
   
   const handleApprove = async () => {
     if (!donationAmount || parseFloat(donationAmount) <= 0) {
-      setError("Please enter a valid donation amount.");
+      if(isEnglish){
+        setError("Please enter a valid donation amount.");
+      }else{
+        setError("Ingrese un monto de donación válido.");
+      }
+      
       return;
     }
   
@@ -313,7 +331,12 @@ function Donation() {
   
       setSteps(2); // Após aprovação, avança para Step 2
     } catch (error) {
-      setError("Error when performing approve. Please try again.");
+      if(isEnglish){
+        setError("Error when performing approve. Please try again.");
+      }else{
+        setError("Error al realizar la aprobación. Inténtalo nuevamente.");
+      }
+      
     } finally {
       setIsProcessing(false);
       await fetchData();
@@ -334,7 +357,6 @@ function Donation() {
       }
     } catch (error) {
       setIsReloading(false); 
-      console.error('Erro ao recarregar dados:', error);
     } finally {
     }
   }
@@ -347,8 +369,13 @@ function Donation() {
         setError("Wallet address not found. Connect your wallet.");
         return;
       }
-      await claim(contributions[contributionIndex].index);         
-      setAlert("Claim made successfully!");
+      await claim(contributions[contributionIndex].index);      
+      if(isEnglish){
+        setAlert("Claim made successfully!");
+      }else{
+        setAlert("¡Reclamación realizada con éxito!");
+      }
+      
       setLoading(false);
       const len = contributions.length;
       if(walletAddress) {
@@ -362,7 +389,12 @@ function Donation() {
     } catch (error:any) {
       setLoading(false);
       if(error.reason === "AS"){
-        error.reason = "There is no balance available to claim."
+        if(isEnglish){
+          error.reason = "There is no balance available to claim."
+        }else{
+          error.reason = "No hay saldo disponible para reclamar."
+        }
+        
       }
       setError(error.reason || "Error: An unknown error");
     }
@@ -399,7 +431,7 @@ async function clearAlert(){
           >
 
             <span className="w-full h-full flex items-center justify-center">
-              New<br className="sm:hidden" /> Donation
+              {isEnglish? "New Donation" : "Nueva Donación"}
             </span>
           </div>
         </div>
@@ -417,25 +449,25 @@ async function clearAlert(){
       />
       <div className="ml-0 sm:ml-5 text-center sm:text-left">
         <h1 className="text-xl sm:text-2xl lg:text-4xl font-semibold">
-          Claim{" "}
+          {isEnglish? "Claim" : "Reclamar"}{" "}
           <span className="text-[#fe4a00]">
-            Rewards {contributions[contributionIndex]?.index ? contributions[contributionIndex]?.index : 0}
+            {isEnglish? "Rewards" : "Recompensas"} {contributions[contributionIndex]?.index ? contributions[contributionIndex]?.index : 0}
           </span>
         </h1>
-        <p className="text-lg sm:text-xl lg:text-2xl">Donated:</p>
+        <p className="text-lg sm:text-xl lg:text-2xl">{isEnglish? "Donated:" : "Donado:"}</p>
         <p className="text-md sm:text-lg lg:text-xl">
           <span className="text-[#fe4a00]">
             U$ {contributions[contributionIndex]?.amount ? contributions[contributionIndex].amount / 1000000 : 0}
           </span>
         </p>
-        <p className="text-lg sm:text-xl lg:text-2xl">USDT Estimated:</p>
+        <p className="text-lg sm:text-xl lg:text-2xl">USDT {isEnglish? "Estimated:" : "Estimado:"}Estimated:</p>
         <p className="text-md sm:text-lg lg:text-xl">
           <span className="text-[#fe4a00]">
             U$ {contributions[contributionIndex]?.goal ? contributions[contributionIndex].goal / 1000000 : 0}
           </span>
         </p>
         <p className="text-md sm:text-lg lg:text-xl">
-          Claims:{" "}
+          {isEnglish? "Claims" : "Reclamos"}{" "}
           <span className="text-[#fe4a00]">
             {contributions[contributionIndex]?.days ? contributions[contributionIndex]?.days : 0} / 30
           </span>
@@ -448,13 +480,13 @@ async function clearAlert(){
        onClick={() => handleClaim()}
        className="text-black rounded-lg font-semibold p-2 sm:p-3 text-md sm:text-lg lg:text-xl mx-2 w-[100px] sm:w-[120px] bg-[#fe4a00] hover:bg-[#fe4800c4] hover:scale-105 transition-all duration-300"
      >
-       Claim
+       {isEnglish? "Claim" : "Reclamo"}
      </button>
     ):(
       <button
       className="text-black rounded-lg font-semibold p-2 sm:p-3 text-md sm:text-lg lg:text-xl mx-2 w-[100px] sm:w-[120px] bg-gray-500 cursor-not-allowed hover:scale-105 transition-all duration-300"
     >
-      Claim
+      {isEnglish? "Claim" : "Reclamo"}
     </button>
     )}
      
@@ -482,16 +514,16 @@ async function clearAlert(){
       className="w-[150px] sm:w-[200px] h-auto mb-4"
     />
     <h2 className="text-xl sm:text-2xl font-semibold text-white">
-      No Active Contributions Found
+      {isEnglish? "No Active Contributions Found" : "No se encontraron contribuciones activas"}
     </h2>
     <p className="text-sm sm:text-base text-white mt-2">
-      Start contributing to claim your rewards and track your progress here.
+      {isEnglish? "Start contributing to claim your rewards and track your progress here." : "Comience a contribuir para reclamar sus recompensas y seguir su progreso aquí."}
     </p>
     <button
       onClick={handleModalToggle}
       className="mt-4 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-white bg-[#fe4a00] hover:bg-[#fe4800c4] rounded-lg shadow-md transition-all duration-300"
     >
-      Start Contributing
+      {isEnglish? "Start Contributing" : "Comience a contribuir"}
     </button>
   </div>
 )}
@@ -520,10 +552,11 @@ async function clearAlert(){
             {/* Header */}
             <div className="text-center mb-6">
               <h2 className="text-2xl font-semibold text-[#f60d53de]">
-                Donate in Steps
+                {isEnglish? "Donate in Steps" : "Donar en pasos"}
+                
               </h2>
               <p className="text-gray-600 text-sm">
-                Follow the steps to complete your donation
+                {isEnglish? "Follow the steps to complete your donation" : "Sigue los pasos para completar tu donación"}
               </p>
             </div>
 
@@ -541,7 +574,7 @@ async function clearAlert(){
                       steps >= step ? "text-[#f60d53de]" : "text-gray-400"
                     }`}
                   >
-                    Step {step === 3 ? "Success" : step}
+                   { isEnglish? "Step" : "Paso"} {step === 3 ? "Success" : step}
                   </p>
                 </React.Fragment>
               ))}
@@ -552,7 +585,7 @@ async function clearAlert(){
               {steps === 0 && (
                 <div>
                   <p className="text-lg text-gray-800 mb-4">
-                    Select your donation currency
+                    {isEnglish? "Select your donation currency":"Seleccione la moneda de su donación"}
                   </p>
                   <button
                     onClick={() => {
@@ -572,11 +605,11 @@ async function clearAlert(){
                     USDT
                   </p>
                   <p className="text-lg text-gray-800 mb-4">
-                    Allowance: {ethers.formatUnits(allowance, 6)} USDT
+                    {isEnglish? "Allowance:" : "Aprobación"} {ethers.formatUnits(allowance, 6)} USDT
                   </p>
-                  <p className="text-lg text-gray-800 mb-4">Approve tokens</p>
+                  <p className="text-lg text-gray-800 mb-4">{isEnglish? "Approve tokens":"Aprobar tokens"}</p>
                   <p className="text-green-600 mb-4">
-                    The minimum to contribute is $10
+                    {isEnglish? "The minimum to contribute is $10" : "El mínimo para contribuir es $10"}
                   </p>
                   
                        <input
@@ -612,7 +645,7 @@ async function clearAlert(){
               {steps === 2 && (
                 <div>
                   <p className="text-lg text-gray-800 mb-4">
-                    Confirm your donation
+                    {isEnglish? "Confirm your donation":"Confirma tu donación"}
                   </p>
                   <button
                     onClick={handleDonation}
@@ -629,7 +662,7 @@ async function clearAlert(){
               {steps === 3 && (
                 <div>
                   <p className="text-lg text-green-500 mb-4">
-                    Donation successful! Thank you!
+                    {isEnglish?"Donation successful! Thank you!":"¡Donación realizada con éxito! ¡Gracias!"}
                   </p>
                   <svg
                     className="w-12 h-12 text-green-500 mx-auto"

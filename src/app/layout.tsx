@@ -8,6 +8,8 @@ import "flag-icons/css/flag-icons.min.css";
 import { RegisterProvider } from "@/services/RegistrationContext";
 import { useState } from "react";
 import { Analytics } from "@vercel/analytics/react"
+import { LanguageProvider } from "@/services/languageContext";
+import Language from "@/componentes/language";
 
 const montserrat = Montserrat({
   subsets: ['latin'], // Inclui os caracteres necessários
@@ -50,7 +52,10 @@ export default function RootLayout({
 
 
         {/* Main Content */}
+
         <WalletProvider>
+        <LanguageProvider>
+
           <RegisterProvider>
             
           <main
@@ -70,6 +75,7 @@ export default function RootLayout({
 
             </div>
 
+            <div className="mr-0"><Language></Language></div>
               {children}
               <div className="w-[100%] flex justify-center flex-row">
                
@@ -79,7 +85,7 @@ export default function RootLayout({
 
           </RegisterProvider>
 
-
+          </LanguageProvider>
         </WalletProvider>
 
       </body>

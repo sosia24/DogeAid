@@ -7,9 +7,10 @@ import { verifyPercentage, verifyBalance } from '@/services/Web3Services';
 import Footer from '@/componentes/footer';
 import ModalError from "@/componentes/ModalError";
 import ModalSuccess from "@/componentes/ModalSuccess";
+import { LanguageProvider, useLanguage } from "@/services/languageContext";
 
 function Page1() {
-
+const {isEnglish} = useLanguage()
 const { address, setAddress } = useWallet();
 const [socio, setSocio] = useState<boolean>(false);
 const [balances, setBalances] = useState<number[]>([])
@@ -24,6 +25,9 @@ async function clearError(){
 async function clearAlert(){
     setAlert("");
 }
+
+
+
 
 async function verifyValues(){
     try{
@@ -60,12 +64,22 @@ async function verifyValues(){
       const result = await claimPaymentManager();
   
       if (result.success) {
-        setAlert("Claim successful");
+        if(isEnglish){
+          setAlert("Claim successful");  
+        }else{
+          setAlert("Reclamo exitoso");
+        }
+        
         verifyValues();
       } else {
       }
     } catch (error) {
-      setError("An unexpected error occurred. Try again.");
+      if(isEnglish){
+        setError("An unexpected error occurred. Try again.");
+      }else{
+        setError("Ocurrió un error inesperado. Inténtalo nuevamente.");
+      }
+      
     } finally {
       setLoading(false);
     }
@@ -104,7 +118,7 @@ async function verifyValues(){
               <div className="p-20 md:p-4 bg-[#14330b8d] flex mt-32 rounded-3xl text-center w-full flex-row md:flex-col">
                 {/* Wallet Section */}
                 <div className="border-r-2 md:border-b-2 md:border-r-0 px-6 md:px-2 w-1/2 md:w-[100%]">
-                  <h1 className="text-5xl md:text-3xl text-[#FFC200]">Wallet:</h1>
+                  <h1 className="text-5xl md:text-3xl text-[#FFC200]">{isEnglish? "Wallet" : "Billetera"}</h1>
                   <h1 style={{ letterSpacing: '4px' }} className="mt-4 text-5xl md:text-3xl">
                     {address?.slice(0,6)}...{address?.slice(-4)}
                   </h1>
@@ -143,7 +157,7 @@ async function verifyValues(){
         <>
         <div className="flex flex-col justify-center items-center h-screen">
             <h2>404</h2>
-            <h1>Página nao encontrada</h1>
+            <h1>Page not found</h1>
             <button
             onClick={handleLogin}
             className="bg-[#00FF3D] text-black mt-[30px] w-[200px] hover:bg-[#00cc32] transition duration-300 scale-100 hover:scale-105 py-4 rounded-3xl text-2xl"

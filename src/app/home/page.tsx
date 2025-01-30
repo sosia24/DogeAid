@@ -13,6 +13,7 @@ import { UserDonation } from "@/services/types";
 import Marquee from "@/componentes/marquee";
 import { getTreeUsers ,getBtc24hPrice,getTransactionsReceived,getTotalEarnedPerLevel,addTokenToMetaMask } from "@/services/Web3Services"; // Import getUser
 import RegisterModal from "@/componentes/RegisterModal";
+import { useLanguage } from "@/services/languageContext";
 import { FaCircleCheck } from "react-icons/fa6";
 
 import { ethers } from "ethers";
@@ -20,6 +21,7 @@ import ReferralTree from "@/componentes/referralNode";
 
 
 function Page1() {
+  const{isEnglish} = useLanguage()
   const [coinCotation, setCoinCotation] = useState<number | null>(null);
   const { address, setAddress } = useWallet();
   const [transactions, setTransactions] = useState([]);
@@ -42,7 +44,6 @@ function Page1() {
         
         setTotalEarnedPerLevel(totalEarnedTree) 
       } catch (error) {
-        console.error("Error fetching user data:", error);
       }
     };
 
@@ -67,7 +68,6 @@ function Page1() {
             }
         }
     } catch (error) {
-      console.error("Failed to fetch coin price", error);
     }
   }
 
@@ -86,7 +86,6 @@ function Page1() {
         }, 2000);
       }
     } catch (err) {
-      console.error("Failed to copy referral link", err);
     }
   };
 
@@ -113,7 +112,7 @@ function Page1() {
         className=" sm:block hidden w-full h-[120px] object-cover p-4"
         alt="Banner Topo Mobile" 
       />
-        <p className="text-white absolute left-10 font-bold text-[25px] sm:text-[16px]">Network</p>
+        <p className="text-white absolute left-10 font-bold text-[25px] sm:text-[16px]">{isEnglish?"Network":"Red"}</p>
           </div>
         </div>
       </div>
@@ -148,7 +147,7 @@ function Page1() {
                     className="w-[200px] hover:bg-[#fe4a00] hover:scale-105 transition-all duration-300 bg-[#fe4a00] flex justify-center items-center text-black font-bold text-center rounded-3xl p-2"
                   >
                     <PiTriangleFill className="mr-2 rotate-90" />
-                    Add MetaMask 
+                    {isEnglish?"Add MetaMask":"Agregar MetaMask"}
                   </button>
                 </div>
               </div>
@@ -172,7 +171,7 @@ function Page1() {
   {/* Últimas Transações Recebidas */}
   <div className="w-full h-[300px] overflow-auto lg:w-2/3 bg-[#1f1f1f] p-4 rounded-lg shadow-md">
     <h1 className="text-center text-2xl font-semibold text-white mb-6">
-      Last Transactions Received
+      {isEnglish?"Last Transactions Received":"Últimas transacciones recibidas"}
     </h1>
     {transactions && transactions.length > 0 ? (
       transactions.map((tx: any, index) => (
@@ -185,8 +184,8 @@ function Page1() {
             <div className="flex items-center gap-4">
               <FaCircleCheck className="text-4xl text-green-500" />
               <div className="text-white">
-                <p className="font-medium">Receipt Transaction</p>
-                <p className="text-green-400 text-sm">Confirmed</p>
+                <p className="font-medium">{isEnglish?"Receipt Transaction:" : "Transacción de recibo"}</p>
+                <p className="text-green-400 text-sm">{isEnglish?"Confirmed":"Confirmada"}</p>
               </div>
             </div>
             <div className="text-[#ccc] text-lg font-medium">
@@ -196,17 +195,17 @@ function Page1() {
         </Link>
       ))
     ) : (
-      <p className="text-center text-gray-400">No transactions found.</p>
+      <p className="text-center text-gray-400">{isEnglish?"No transactions found.":"No se encontraron transacciones."}</p>
     )}
   </div>
 
   {/* Total Earned Per Level */}
   <div className="w-full lg:w-1/3 h-[300px] overflow-auto bg-[#1f1f1f] p-4 rounded-lg shadow-md">
     <h1 className="text-center text-2xl font-semibold text-white mb-6">
-      Total Earned Per Level
+      {isEnglish?"Total Earned Per Level":"Total ganado por nivel"}
     </h1>
     <div className="w-full p-4 mb-4 bg-[#F60E51] text-white font-semibold text-lg rounded-lg shadow-md flex justify-between">
-      <p>Total Earned:</p>
+      <p>{isEnglish?"Total Earned:":"Total ganado:"}</p>
       <p>
         {ethers.formatUnits(
           totalEarnedPerLevel.reduce((acc, value) => acc + value, 0n),
@@ -228,7 +227,7 @@ function Page1() {
         </div>
       ))
     ) : (
-      <p className="text-center text-gray-400">No earnings data available.</p>
+      <p className="text-center text-gray-400">{isEnglish?"No earnings data available":"No hay datos de ganancias disponibles"}.</p>
     )}
 
 

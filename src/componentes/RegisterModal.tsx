@@ -7,6 +7,8 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import ModalError from "./ModalError";
 import ModalSuccess from "./ModalSuccess";
+import { isError } from "ethers";
+import { useLanguage } from "@/services/languageContext";
 
 export default function RegisterModal() {
   const searchParams = useSearchParams();
@@ -20,6 +22,8 @@ export default function RegisterModal() {
   const [loading, setLoading] = useState(false); // Indicador de carregamento
   const [error, setError] = useState(""); // Controle de erros
   const [alert, setAlert] = useState(""); // Controle de alertas
+
+  const {isEnglish} = useLanguage()
 
   // Verifica se o usuário já está registrado ao carregar o modal
   useEffect(() => {
@@ -48,19 +52,33 @@ export default function RegisterModal() {
 
   const handleRegisterSponsor = async () => {
     if (!referralAddress.trim()) {
-      setError("Please enter a referral address!");
+      if(isEnglish){
+        setError("Please enter a referral address!");
+      }else{
+        setError("¡Ingrese una dirección de referencia!");
+      }
+      
       return;
     }
 
     setLoading(true);
     try {
       await registerUser(referralAddress);
-      setAlert("Sponsor registered successfully!");
+      if(isEnglish){
+        setAlert("Sponsor registered successfully!");
+      }else{
+        setAlert("¡Patrocinador registrado exitosamente!");
+      }
+      
       setIsRegisteredV(true); // Atualiza o contexto global
       setIsOpen(false); // Fecha o modal após o registro
     } catch (err) {
-      console.error("Error registering sponsor:", err);
-      setError("Failed to register sponsor. Please try again.");
+      if(isEnglish){
+        setError("Failed to register sponsor. Please try again.");
+      }else{
+        setError("No se pudo registrar el patrocinador. Por favor inténtalo de nuevo.");
+      }
+
     } finally {
       setLoading(false);
     }
@@ -107,13 +125,13 @@ export default function RegisterModal() {
               alt="Banner"
             />
             <h2 className="absolute text-2xl font-bold text-black -bottom-3 left-4">
-              Register
+             {isEnglish?"Register":"Registro"}
             </h2>
           </div>
 
           {/* Content */}
           <div className="p-6 text-center text-gray-800 mt-[60px]">
-            <p>Referral</p>
+            <p>{isEnglish?"Referral":"Remisión"}</p>
             <input
               type="text"
               className="w-full px-4 text-sm py-2 border !border-gray-500 rounded-md focus:outline-none focus:ring focus:ring-[#f60d53de]"
@@ -129,7 +147,7 @@ export default function RegisterModal() {
               className="w-full bg-[#f60d53de] text-black py-2 px-4 rounded-lg hover:bg-[#f60d53b0] transition"
               onClick={handleRegisterSponsor}
             >
-              Register Sponsor
+              {isEnglish?"Register Sponsor":"Registrar Patrocinador"}
             </button>
           </div>
         </div>

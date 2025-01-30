@@ -49,6 +49,7 @@ import { useWallet } from '@/services/walletContext';
 import withAuthGuard from "@/services/authGuard";
 import ModalTokensToWithdraw from '@/componentes/ModalTokenToWithdraw';
 import { waitForDebugger } from 'inspector';
+import { useLanguage } from '@/services/languageContext';
 
 function Page1() {
 
@@ -87,6 +88,7 @@ function Page1() {
     const [valuesDeposit, setValuesDeposit] = useState<bigint[] | null>(null)
     const [allowanceCoin, setAllowanceCoin] = useState<bigint[]>([0n,0n,0n])
 
+    const{isEnglish} = useLanguage();
 
 
 
@@ -95,11 +97,21 @@ function Page1() {
         try{
             const result = await addQueueCoin(2)
             setLoading(false)
-            setAlert("Success");
+            if(isEnglish){
+                setAlert("Success");
+            }else{
+                setAlert("Éxito");
+            }
+            
             getQueueBitcoin24hDetails();
         }catch(error){
             setLoading(false)
-            setError("Try again")
+            if(isEnglish){
+                setError("Try again")
+            }else{
+                setError("Intentar otra vez")
+            }
+            
         }
         setLoading(false)
     }
@@ -109,11 +121,19 @@ function Page1() {
         try{
             const result = await addQueueCoin(3)
             setLoading(false)
-            setAlert("Success");
+            if(isEnglish){
+                setAlert("Success");
+            }else{
+                setAlert("Éxito");
+            }
             getQueueEthDetails()
         }catch(error){
             setLoading(false)
-            setError("Try again")
+            if(isEnglish){
+                setError("Try again")
+            }else{
+                setError("Intentar otra vez")
+            }
         }
         setLoading(false)
     }
@@ -135,7 +155,6 @@ function Page1() {
             });
           }
         } catch (error) {
-          console.error("Error in getAllowanceDogeFront:", error);
         }
       }
       
@@ -151,12 +170,18 @@ function Page1() {
       
           // Chama a função approveDoge com o valor adequado
           const result = await approveBtc(valueToApprove);
-            setAlert("Success")
-          console.log("ApproveDoge result:", result);
+          if(isEnglish){
+            setAlert("Success");
+        }else{
+            setAlert("Éxito");
+        }
           setLoading(false)
         } catch (error) {
-          console.error("Error in doApproveDoge:", error);
-          setError("Try again")
+          if(isEnglish){
+            setError("Try again")
+        }else{
+            setError("Intentar otra vez")
+        }
           setLoading(false)
         }
         setLoading(false)
@@ -174,12 +199,18 @@ function Page1() {
           // Chama a função approveDoge com o valor adequado
           const result = await approveEth(valueToApprove);
       
-          console.log("ApproveDoge result:", result);
-          setAlert("Success")
+          if(isEnglish){
+            setAlert("Success");
+        }else{
+            setAlert("Éxito");
+        }
           setLoading(false)
         } catch (error) {
-          console.error("Error in doApproveDoge:", error);
-          setError("Try again")
+          if(isEnglish){
+            setError("Try again")
+        }else{
+            setError("Intentar otra vez")
+        }
           setLoading(false)
         }
         setLoading(false)
@@ -198,7 +229,6 @@ function Page1() {
                 });
             }
         } catch (error) {
-            console.error("Erro ao obter o balance WBTC:", error);
         }
     }
 
@@ -215,7 +245,6 @@ function Page1() {
                 });
             }
         } catch (error) {
-            console.error("Erro ao obter o balance WBTC:", error);
         }
     }
 
@@ -227,9 +256,14 @@ function Page1() {
         try{
             const result = await addQueueCoin(1)
             setLoading(false)
-            setAlert("Success");
+            if(isEnglish){
+                setAlert("Success");
+            }else{
+                setAlert("Éxito");
+            }
             getQueueDogeDetails();
         }catch(error){
+            
             setLoading(false)
         }
         setLoading(false)
@@ -250,7 +284,6 @@ function Page1() {
             });
           }
         } catch (error) {
-          console.error("Error in getAllowanceDogeFront:", error);
         }
       }
 
@@ -268,7 +301,6 @@ function Page1() {
             });
           }
         } catch (error) {
-          console.error("Error in getAllowanceDogeFront:", error);
         }
       }
       
@@ -283,11 +315,13 @@ function Page1() {
       
           // Chama a função approveDoge com o valor adequado
           const result = await approveDoge(valueToApprove);
-      
-          console.log("ApproveDoge result:", result);
+          if(isEnglish){
+            setAlert("Success");
+        }else{
+            setAlert("Éxito");
+        }
           setLoading(false)
         } catch (error) {
-          console.error("Error in doApproveDoge:", error);
           setLoading(false)
         }
         setLoading(false)
@@ -335,11 +369,19 @@ function Page1() {
                 getBalanceBtc()
                 getBalanceEth()
                 setLoading(false)
-                setAlert("Success")
+                if(isEnglish){
+                    setAlert("Success");
+                }else{
+                    setAlert("Éxito");
+                }
             }
         }catch(error){
             setLoading(false)
-            setError("Error")
+            if(isEnglish){
+                setError("Try again")
+            }else{
+                setError("Intentar otra vez")
+            }
         }
     }
 
@@ -351,11 +393,19 @@ function Page1() {
                 getQueueBitcoin24hDetails();
                 getBalanceBitcoin24h();
                 setLoading(false)
-                setAlert("Success")
+                if(isEnglish){
+                    setAlert("Success");
+                }else{
+                    setAlert("Éxito");
+                }
             }
         }catch(error){
             setLoading(false)
-            setError("Error")
+            if(isEnglish){
+                setError("Try again")
+            }else{
+                setError("Intentar otra vez")
+            }
         }
     }
 
@@ -371,7 +421,6 @@ function Page1() {
                 });
             }
         } catch (error) {
-            console.error("Erro ao obter o balance WBTC:", error);
         }
     }
 
@@ -440,7 +489,12 @@ function Page1() {
         try {
             setLoading(true);
             await addQueue();
-            setAlert("Added successfully");
+            if(isEnglish){
+                setAlert("Added successfully");
+            }else{
+                setAlert("Agregado exitosamente");
+            }
+            
             getQueueMuskDetails();
             getMusknft()
             getQueueDogeDetails()
@@ -450,9 +504,19 @@ function Page1() {
         } catch (error: any) {
             
             if (error.message.includes("You don't have this NFT")) {
-                setError("You don't own this NFT");
+                if(isEnglish){
+                    setError("You don't own this NFT");
+                }else{
+                    setError("No eres dueño de este NFT");
+                }
+                
             } else {
-                setError("Something went wrong, please try again.");
+                if(isEnglish){
+                    setError("Something went wrong, please try again.");
+                }else{
+                    setError("Algo salió mal, por favor inténtalo de nuevo.");
+                }
+                
             }
         } finally {
             setLoading(false); 
@@ -482,14 +546,24 @@ function Page1() {
           const result = await claimQueue();
       
           if (result) {
-            setAlert("Claim Successful");
+            if(isEnglish){
+                setAlert("Claim Successful");
+            }else{
+                setAlert("Reclamación exitosa");
+            }
+            
             getQueueMuskDetails();
             getQueueDogeDetails()
             getQueueBitcoin24hDetails()
             getQueueEthDetails()
           }
         } catch (error) {
-          setError("Claim Failed");
+            if(isEnglish){
+                setError("Claim Failed");
+            }else{
+                setError("Reclamo fallido");
+            }
+          
         } finally {
           setLoading(false);
         }
@@ -504,14 +578,22 @@ function Page1() {
           const result = await claimQueueCoin(index);
       
           if (result) {
-            setAlert("Claim Successful");
+            if(isEnglish){
+                setAlert("Claim Successful");
+            }else{
+                setAlert("Reclamación exitosa");
+            }
             getQueueMuskDetails();
             getQueueDogeDetails()
             getQueueBitcoin24hDetails()
             getQueueEthDetails()
           }
         } catch (error) {
-          setError("Claim Failed");
+            if(isEnglish){
+                setError("Claim Failed");
+            }else{
+                setError("Reclamo fallido");
+            }
         } finally {
           setLoading(false);
         }
@@ -570,7 +652,6 @@ function Page1() {
             if (coinCotation === undefined || coinCotation === null) {
                 return;
             }
-            console.log("COTACAO",coinCotation)
             const validCoinCotation = Number(coinCotation);
             if (isNaN(validCoinCotation)) {
                 throw new Error("coinCotation não é um número válido.");
@@ -582,7 +663,6 @@ function Page1() {
                 if (result !== undefined && result !== null) {
                     results.push(Number(result) * validCoinCotation);
                 }
-            console.log("resultados", results)
             setBalance(results); // Atualiza o estado com os resultados
         } catch (error) {
         }
@@ -827,7 +907,12 @@ function Page1() {
         const result = await withdrawTokens();
       
         if (result.success) {
-          setAlert("Sucess");
+            if(isEnglish){
+                setAlert("Sucess");
+            }else{
+                setAlert("Éxito");
+            }
+          
         } else {
           setError(result.errorMessage);
         }
@@ -844,7 +929,11 @@ function Page1() {
         const result = await withdrawTokensBtc24h();
       
         if (result.success) {
-          setAlert("Sucess");
+            if(isEnglish){
+                setAlert("Sucess");
+            }else{
+                setAlert("Éxito");
+            }
         } else {
           setError(result.errorMessage);
         }
@@ -923,28 +1012,28 @@ function Page1() {
 
                         {/* Balance and Action */}
                         <div className="lg:w-[15%] w-[40%] flex flex-col items-center text-center">
-                            <p>Balance to Paid:</p>
+                            <p>{isEnglish?"Balance to Paid:":"Saldo a pagar:"}</p>
 
                            
                                 <p className="text-[#fe4a00]">{balance[0]?.toFixed(2) || 0}$</p>
                            
                             {readyToPaidMusk >= 10 && queueMuskDetailsFormated?(
                                 <button onClick={() => doClaimQueue()} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
-                                Distribute
+                                {isEnglish?"Distribute":"Distribuir"}
                                 </button>
                             ):(
                                 <button className="w-[150px] p-2 cursor-not-allowed bg-gray-400 rounded-3xl text-black mt-[10px] hover:bg-gray-500 hover:scale-105 transition-all duration-300">
-                                Distribute
+                                {isEnglish?"Distribute":"Distribuir"}
                                 </button>
                             )}
                             
                             {isApproved?(
                             <button onClick={() => addQueueFront()} className="w-[150px] p-2 bg-[#fe4a00] hover:scale-105 transition-all duration-300 rounded-3xl text-black mt-[10px]">
-                                Add Nft
+                                {isEnglish?"Add Nft":"Agregar Nft"}
                             </button>
                             ):(
                             <button onClick={doApprove} className="w-[150px] p-2 bg-[#fe4a00] rounded-3xl hover:scale-105 transition-all duration-300 text-black mt-[10px]">
-                                Approve
+                                {isEnglish?"Approve":"Aprobar"}
                             </button>
                             )}
                             
@@ -959,27 +1048,27 @@ function Page1() {
                                         key={index}
                                         className="border-2 border-green-500 p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
                                         >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 50$</p>
+                                        <p>{isEnglish?"User:":"Usuario:"} {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
+                                        <p>{isEnglish?"Position:":"Posición:"} {index+1}</p>
+                                        <p>{isEnglish?"Received:":"Recibió:"} 50$</p>
                                         </div>
                                     ):data.user.toLowerCase() === address?.toLowerCase()?(
                                         <div
                                         key={index}
                                         className="border-2 border-[#fe4a00] p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
                                         >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 50$</p>
+                                        <p>{isEnglish?"User:":"Usuario:"}{data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
+                                        <p>{isEnglish?"Position:":"Posición:"} {index+1}</p>
+                                        <p>{isEnglish?"Received:":"Recibió:"} 50$</p>
                                         </div>
                                     ):(
                                         <div
                                         key={index}
                                         className=" p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
                                         >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 50$</p>
+                                        <p>{isEnglish?"User:":"Usuario:"}{data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
+                                        <p>{isEnglish?"Position:":"Posición:"} {index+1}</p>
+                                        <p>{isEnglish?"Received:":"Recibió:"} 50$</p>
                                         </div>
                                     )
                                     
@@ -996,8 +1085,8 @@ function Page1() {
                                 <MdKeyboardDoubleArrowRight />
                              </button>
                              <div className='p-2 mt-[10px]'>
-                             <p >You have on queue: {countUserNftMusk}</p>
-                             <p >You have on wallet: {musk}</p>
+                             <p >{isEnglish?"You have on queue:":"Tienes en cola:"} {countUserNftMusk}</p>
+                             <p >{isEnglish?"You have on wallet: ":"Tienes en tu billetera:"}{musk}</p>
                              </div>
                         </div>
                     </div>
@@ -1019,15 +1108,16 @@ function Page1() {
                                 alt={`QueueBronze`}
                             />
                         </div>
-                        <p className='font-bold bg-[#fe4a00] p-4 text-center rounded-2xl'>DogeAid Queue</p>
+                        <p className='font-bold bg-[#fe4a00] p-4 text-center rounded-2xl'>DogeAid {isEnglish?"Queue":"Cola"}</p>
                         
 
                         {/* Balance and Action */}
                         
                         <div className="lg:w-[15%] w-[40%] flex flex-col items-center text-center">
-                            <p>Balance to Paid:</p>
+                        <p>{isEnglish?"Balance to Paid:":"Saldo a pagar:"}</p>
+
                             <p className="text-[#fe4a00]">{(balance[1])  || 0}$</p>
-                            <p>Preview Value: </p>
+                            <p>{isEnglish?"Preview Value:":"Valor de vista previa:"} </p>
                             <p className="text-[#fe4a00]">
                             {valuesDeposit 
                                 ? (Number(valuesDeposit[0]) / 10 ** 18).toFixed(2) // Converte e limita a 6 casas decimais
@@ -1036,22 +1126,22 @@ function Page1() {
                             </p>
                             {readyToPaidDoge >= 10 && queueDogeDetailsFormated?(
                                 <button onClick={() => doClaimCoinQueue(1)} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
-                                Distribute
+                                {isEnglish?"Distribute":"Distribuir"}
                                 </button>
                             ):(
                                 <button className="w-[150px] p-2 cursor-not-allowed bg-gray-400 rounded-3xl text-black mt-[10px] hover:bg-gray-500 hover:scale-105 transition-all duration-300">
-                                Distribute
+                                {isEnglish?"Distribute":"Distribuir"}
                                 </button>
                             )}
                             
 
                             {valuesDeposit && allowanceCoin[0] > (valuesDeposit[0] || 0n)?(
                             <button onClick={()=>addQueueDogeFront()} className="w-[150px] p-2 bg-[#fe4a00] rounded-3xl text-black mt-[10px]  hover:scale-105 transition-all duration-300">
-                                Add Queue
+                                {isEnglish?"Add Nft":"Agregar Nft"}
                             </button>
                             ):(
                             <button onClick={()=>doApproveDoge()} className="w-[150px] p-2 bg-[#fe4a00] rounded-3xl text-black mt-[10px] hover:scale-105 transition-all duration-300">
-                                Approve
+                                {isEnglish?"Approve":"Aprobar"}
                             </button>
                             )}
                         </div>
@@ -1065,27 +1155,27 @@ function Page1() {
                                         key={index}
                                         className="border-2 border-green-500 p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
                                         >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 100$</p>
+                                        <p>{isEnglish?"User:":"Usuario:"} {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
+                                        <p>{isEnglish?"Position:":"Posición:"} {index+1}</p>
+                                        <p>{isEnglish?"Received:":"Recibió:"} 100$</p>
                                         </div>
                                     ):data.user.toLowerCase() === address?.toLowerCase()?(
                                         <div
                                         key={index}
                                         className="border-2 border-[#fe4a00] p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
                                         >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 100$</p>
+                                        <p>{isEnglish?"User:":"Usuario:"} {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
+                                        <p>{isEnglish?"Position:":"Posición:"} {index+1}</p>
+                                        <p>{isEnglish?"Received:":"Recibió:"} 100$</p>
                                         </div>
                                     ):(
                                         <div
                                         key={index}
                                         className=" p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
                                         >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 100$</p>
+                                        <p>{isEnglish?"User:":"Usuario:"} {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
+                                        <p>{isEnglish?"Position:":"Posición:"} {index+1}</p>
+                                        <p>{isEnglish?"Received:":"Recibió:"} 100$</p>
                                         </div>
                                     )
                                     
@@ -1102,7 +1192,7 @@ function Page1() {
                                 <MdKeyboardDoubleArrowRight />
                              </button>
                              <div className='p-2 mt-[10px]'>
-                             <p >You have on queue: {countUserNftDoge}</p>
+                             <p >{isEnglish?"You have on queue:":"Tienes en cola:"}  {countUserNftDoge}</p>
                              </div>
                               </div>
 
@@ -1126,14 +1216,14 @@ function Page1() {
                                 alt={`QueueBronze`}
                             />
                         </div>
-                        <p className='font-bold bg-yellow-600 p-4 text-center rounded-2xl'>BtcAid Queue</p>
+                        <p className='font-bold bg-yellow-600 p-4 text-center rounded-2xl'>BtcAid {isEnglish?"Queue":"Cola"}</p>
 
                         {/* Balance and Action */}
                         
                         <div className="lg:w-[15%] w-[40%] flex flex-col items-center text-center">
-                            <p>Balance to Paid:</p>
+                        <p>{isEnglish?"Balance to Paid:":"Saldo a pagar:"}</p>
                             <p className="text-yellow-600">{ Number(balance[2])  || 0}$</p>
-                            <p>Preview Value:</p>
+                            <p>{isEnglish?"Preview Value:":"Valor de vista previa:"} </p>
                             <p className="text-yellow-600">
                             {valuesDeposit 
                                 ? (Number(valuesDeposit[1]) / 10 ** 18).toFixed(2) // Converte e limita a 6 casas decimais
@@ -1143,21 +1233,21 @@ function Page1() {
 
                             {readyToPaidBitcoin24h >= 10 && queueBitcoin24hDetailsFormated?(
                                 <button onClick={() => doClaimCoinQueue(2)} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
-                                Distribute
+                                {isEnglish?"Distribute":"Distribuir"}
                                 </button>
                             ):(
                                 <button className="w-[150px] p-2 cursor-not-allowed bg-gray-400 rounded-3xl text-black mt-[10px] hover:bg-gray-500 hover:scale-105 transition-all duration-300">
-                                Distribute
+                                {isEnglish?"Distribute":"Distribuir"}
                                 </button>
                             )}
                             
                             {valuesDeposit && allowanceCoin[1] > (valuesDeposit[1] || 0n)?(
                             <button onClick={()=>addQueueBtcFront()} className="w-[150px] p-2 bg-yellow-600 rounded-3xl text-black mt-[10px]  hover:scale-105 transition-all duration-300">
-                                Add Queue
+                                {isEnglish?"Add Nft":"Agregar Nft"}
                             </button>
                             ):(
                             <button onClick={()=>doApproveBtc()}  className="w-[150px] p-2 bg-yellow-600 rounded-3xl text-black mt-[10px] hover:scale-105 transition-all duration-300">
-                                Approve
+                                {isEnglish?"Approve":"Aprobar"}
                             </button>
                             )}
                         </div>
@@ -1171,27 +1261,27 @@ function Page1() {
                                         key={index}
                                         className="border-2 border-green-500 p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
                                         >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 100$</p>
+                                        <p>{isEnglish?"User:":"Usuario:"} {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
+                                        <p>{isEnglish?"Position:":"Posición:"} {index+1}</p>
+                                        <p>{isEnglish?"Received:":"Recibió:"} 100$</p>
                                         </div>
                                     ):data.user.toLowerCase() === address?.toLowerCase()?(
                                         <div
                                         key={index}
                                         className="border-2 border-yellow-600 p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
                                         >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 100$</p>
+                                        <p>{isEnglish?"User:":"Usuario:"} {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
+                                        <p>{isEnglish?"Position:":"Posición:"} {index+1}</p>
+                                        <p>{isEnglish?"Received:":"Recibió:"} 100$</p>
                                         </div>
                                     ):(
                                         <div
                                         key={index}
                                         className=" p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
                                         >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 100$</p>
+                                        <p>{isEnglish?"User:":"Usuario:"} {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
+                                        <p>{isEnglish?"Position:":"Posición:"} {index+1}</p>
+                                        <p>{isEnglish?"Received:":"Recibió:"} 100$</p>
                                         </div>
                                     )
                                     
@@ -1208,7 +1298,7 @@ function Page1() {
                                 <MdKeyboardDoubleArrowRight />
                              </button>
                              <div className='p-2 mt-[10px]'>
-                             <p >You have on queue: {countUserNftBtc}</p>
+                             <p >{isEnglish?"You have on queue:":"Tienes en cola:"}  {countUserNftBtc}</p>
                              </div>
                              </div>
                     </div>
@@ -1241,14 +1331,14 @@ function Page1() {
                                 alt={`QueueBronze`}
                             />
                         </div>
-                        <p className='font-bold bg-blue-600 p-4 text-center rounded-2xl'>EthAid Queue</p>
+                        <p className='font-bold bg-blue-600 p-4 text-center rounded-2xl'>EthAid {isEnglish?"Queue":"Cola"}</p>
 
                         {/* Balance and Action */}
                         
                         <div className="lg:w-[15%] w-[40%] flex flex-col items-center text-center">
-                            <p>Balance to Paid:</p>
+                        <p>{isEnglish?"Balance to Paid:":"Saldo a pagar:"}</p>
                             <p className="text-blue-600">{ Number(balance[3])  || 0}$</p>
-                            <p>Preview Value:</p>
+                            <p>{isEnglish?"Preview Value:":"Valor de vista previa:"} </p>
                             <p className="text-blue-600">
                             {valuesDeposit 
                                 ? (Number(valuesDeposit[2]) / 10 ** 18).toFixed(2) // Converte e limita a 6 casas decimais
@@ -1259,21 +1349,21 @@ function Page1() {
 
                             {readyToPaidEth >= 10 && queueEthDetailsFormated?(
                                 <button onClick={() => doClaimCoinQueue(3)} className="w-[150px] p-2 bg-[#00ff54] rounded-3xl text-black mt-[10px] hover:bg-[#00D837] hover:scale-105 transition-all duration-300">
-                                Distribute
+                                {isEnglish?"Distribute":"Distribuir"}
                                 </button>
                             ):(
                                 <button className="w-[150px] p-2 cursor-not-allowed bg-gray-400 rounded-3xl text-black mt-[10px] hover:bg-gray-500 hover:scale-105 transition-all duration-300">
-                                Distribute
+                               {isEnglish?"Distribute":"Distribuir"}
                                 </button>
                             )}
                             
                             {valuesDeposit && allowanceCoin[2] > (valuesDeposit[2] || 0n)?(
                             <button  onClick={()=>addQueueEthFront()}  className="w-[150px] p-2 bg-blue-600 rounded-3xl text-black mt-[10px]  hover:scale-105 transition-all duration-300">
-                                Add Queue
+                                 {isEnglish?"Add Nft":"Agregar Nft"}
                             </button>
                             ):(
                             <button onClick={()=>doApproveEth()}  className="w-[150px] p-2 bg-blue-600 rounded-3xl text-black mt-[10px] hover:scale-105 transition-all duration-300">
-                                Approve
+                                {isEnglish?"Approve":"Aprobar"}
                             </button>
                             )}
                         </div>
@@ -1287,27 +1377,27 @@ function Page1() {
                                         key={index}
                                         className="border-2 border-green-500 p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
                                         >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 100$</p>
+                                        <p>{isEnglish?"User:":"Usuario:"} {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
+                                        <p>{isEnglish?"Position:":"Posición:"} {index+1}</p>
+                                        <p>{isEnglish?"Received:":"Recibió:"} 100$</p>
                                         </div>
                                     ):data.user.toLowerCase() === address?.toLowerCase()?(
                                         <div
                                         key={index}
                                         className="border-2 border-blue-600 p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
                                         >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 100$</p>
+                                        <p>{isEnglish?"User:":"Usuario:"} {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
+                                        <p>{isEnglish?"Position:":"Posición:"} {index+1}</p>
+                                        <p>{isEnglish?"Received:":"Recibió:"} 100$</p>
                                         </div>
                                     ):(
                                         <div
                                         key={index}
                                         className=" p-4 sm:text-[12px] text-[16px] flex flex-col items-center justify-center bg-white bg-opacity-10 rounded-md"
                                         >
-                                        <p>User: {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
-                                        <p>Position: {index+1}</p>
-                                        <p>Received: 100$</p>
+                                        <p>{isEnglish?"User:":"Usuario:"} {data.user.slice(0,6)+"..."+data.user.slice(-4)}</p>
+                                        <p>{isEnglish?"Position:":"Posición:"} {index+1}</p>
+                                        <p>{isEnglish?"Received:":"Recibió:"} 100$</p>
                                         </div>
                                     )
                                     
@@ -1324,7 +1414,7 @@ function Page1() {
                                 <MdKeyboardDoubleArrowRight />
                              </button>
                              <div className='p-2 mt-[10px]'>
-                             <p >You have on queue: {countUserNftEth}</p>
+                             <p >{isEnglish?"You have on queue:":"Tienes en cola:"}  {countUserNftEth}</p>
                              </div>                    
                              </div>
                     </div>
@@ -1349,24 +1439,24 @@ function Page1() {
 
 
                     <div className='w-[90%] sm:w-[70%]  border-2 border-[#f60d53de] flex items-center sm:p-6 p-8 rounded-2xl flex-col'>
-                        <p className='text-3xl sm:text-xl font-bold'>You have to withdraw: </p>
+                        <p className='text-3xl sm:text-xl font-bold'>{isEnglish?"You have to withdraw:":"Debes retirar:"} </p>
                         {tokensToWithdraw > 0?(
                             <>                       <p className='font-bold text-3xl mt-[5px]'>{tokensToWithdraw?  parseFloat(ethers.formatEther(tokensToWithdraw)).toFixed(2) : ' 0'} DogeAid</p>
-                                                    <p>When your nft's generate rewards, you can see them here</p>
+                                                    <p>{isEnglish?"When your nft's generate rewards, you can see them here":"Cuando tus NFT generen recompensas, podrás verlas aquí"}</p>
 
-                                                        <button onClick={handleWithdraw} className='text-black  font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl bg-[#00ff54] hover:w-[210px] duration-100'>Claim</button>
+                                                        <button onClick={handleWithdraw} className='text-black  font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl bg-[#00ff54] hover:w-[210px] duration-100'>{isEnglish?"Claim":"Reclamar"}</button>
 
 </>
                         ):tokensToWithdrawBtc24h > 0?(
                             <>
                                                        <p className='font-bold text-3xl mt-[5px]'>{tokensToWithdrawBtc24h?  parseFloat(ethers.formatUnits(tokensToWithdrawBtc24h,6)).toFixed(2) : ' 0'} USDT</p>
-                                                       <p>When your nft's generate rewards, you can see them here</p>
+                                                       <p>{isEnglish?"When your nft's generate rewards, you can see them here":"Cuando tus NFT generen recompensas, podrás verlas aquí"}</p>
 
-                                                        <button onClick={handleWithdrawBtc24h} className='text-black  font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl bg-[#00ff54] hover:w-[210px] duration-100'>Claim</button>
+                                                        <button onClick={handleWithdrawBtc24h} className='text-black  font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl bg-[#00ff54] hover:w-[210px] duration-100'>{isEnglish?"Claim":"Reclamar"}</button>
 
                             </>
                         ):(
-                            <button className='text-black cursor-not-allowed bg-gray-400 font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl'>Claim</button>   
+                            <button className='text-black cursor-not-allowed bg-gray-400 font-bold text-[22px] mt-[15px] mb-[20px] p-4 w-[200px] rounded-2xl'>{isEnglish?"Claim":"Reclamar"}</button>   
                         )}
                         
                     </div>
