@@ -460,7 +460,7 @@ async function clearAlert(){
             U$ {contributions[contributionIndex]?.amount ? contributions[contributionIndex].amount / 1000000 : 0}
           </span>
         </p>
-        <p className="text-lg sm:text-xl lg:text-2xl">USDT {isEnglish? "Estimated:" : "Estimado:"}Estimated:</p>
+        <p className="text-lg sm:text-xl lg:text-2xl">USDT {isEnglish? "Estimated:" : "Estimado:"}</p>
         <p className="text-md sm:text-lg lg:text-xl">
           <span className="text-[#fe4a00]">
             U$ {contributions[contributionIndex]?.goal ? contributions[contributionIndex].goal / 1000000 : 0}
