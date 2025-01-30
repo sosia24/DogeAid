@@ -10,7 +10,6 @@ import Link from "next/link";
 import { PiTriangleFill } from "react-icons/pi";
 import { FaCopy, FaCheck } from "react-icons/fa";
 import { UserDonation } from "@/services/types";
-import Marquee from "@/componentes/marquee";
 import { getTreeUsers ,getBtc24hPrice,getTransactionsReceived,getTotalEarnedPerLevel,addTokenToMetaMask } from "@/services/Web3Services"; // Import getUser
 import RegisterModal from "@/componentes/RegisterModal";
 import { useLanguage } from "@/services/languageContext";
