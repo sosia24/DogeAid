@@ -291,8 +291,11 @@ export async function donate(amount:string){
   let tx
   try {
 
+    const estimatedGas = await donation.donate.estimateGas(Number(amount)*10**6);
+    const gasLimit = estimatedGas * 150n / 100n;
 
-      tx = await donation.donate(Number(amount)*10**6,{maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas});
+    tx = await donation.donate(Number(amount)*10**6, {maxFeePerGas: maxFeePerGas,maxPriorityFeePerGas: maxPriorityFeePerGas,gasLimit});
+
 
     const concluded = tx.wait();
     return concluded;

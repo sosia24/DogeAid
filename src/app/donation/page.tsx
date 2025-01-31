@@ -501,7 +501,7 @@ async function clearAlert(){
           key={index}
           className="cursor-pointer hover:scale-105 w-[40px] h-[30px] p-2 bg-[#f60d53de] text-center flex justify-center items-center ml-[5px]"
         >
-          {contributions[contributionIndex].index}
+          {contributions[index].index}
         </div>
       ))}
     </div>
