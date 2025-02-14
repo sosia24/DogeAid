@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 
-// Função para calcular o tempo restante
+// Função para calcular o tempo restante com UTC
 const calculateTimeLeft = (targetDate: string) => {
+  // Criar a data-alvo como UTC
   const target = new Date(targetDate).getTime();
+  // Pegar o tempo atual em UTC
   const now = new Date().getTime();
+  // Calcular a diferença
   const difference = target - now;
 
   if (difference <= 0) {
@@ -19,25 +22,25 @@ const calculateTimeLeft = (targetDate: string) => {
 };
 
 interface CountdownProps {
-  targetDate: string;
+  targetDate: string; // Deve estar em formato ISO UTC: "YYYY-MM-DDTHH:mm:ssZ"
 }
 
 const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
   const [timeLeft, setTimeLeft] = useState<string>('');
 
-  // Calcula a contagem regressiva a cada segundo
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeLeft(calculateTimeLeft(targetDate));
     }, 1000);
 
-    // Limpeza do intervalo quando o componente for desmontado
     return () => clearInterval(interval);
   }, [targetDate]);
 
   return (
     <div>
-      <p className='bg-gradient-to-r from-[#0d56df] to-[#299508] text-transparent bg-clip-text font-semibold text-[50px] sm:text-[30px] mb-[30px] '>{timeLeft}</p>
+      <p className='bg-gradient-to-r from-[#f60d53de] to-[#fe4a00] text-transparent bg-clip-text font-semibold text-[50px] sm:text-[30px] mb-[30px]'>
+        {timeLeft}
+      </p>
     </div>
   );
 };

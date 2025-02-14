@@ -7,6 +7,7 @@ import RegisterModal from "@/componentes/RegisterModal";
 import { useSearchParams } from "next/navigation";
 import { doLogin, verifyPercentage } from "@/services/Web3Services";
 import { LanguageProvider, useLanguage } from "@/services/languageContext";
+import Countdown from "@/componentes/countdown";
 
 
 function HomeContent() {
@@ -59,9 +60,8 @@ function HomeContent() {
   return (
     <>
 
-    <div className="h-[80%] w-[70%] flex flex-col items-center lg:flex-row">
-      
-      <div className="w-[100%] lg:w-[50%] flex justify-center items-center lg:order-2">        
+    <div className="h-[80%] w-[70%] flex flex-col items-center lg:flex-row"> 
+      <div className="w-[100%] lg:w-[50%] flex justify-center items-center lg:order-2">      
         <Image
           src="/images/initialCoins.png"
           alt="Coin3d"

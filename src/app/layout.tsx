@@ -71,6 +71,7 @@ export default function RootLayout({
               
             <div className="w-[80%] rounded-3xl  text-black mt-[100px]  text-[16px]">
 
+            
             {/*------------ AVISOSS AQUI --------- */}
 
             </div>

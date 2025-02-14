@@ -17,6 +17,7 @@ import { FaCircleCheck } from "react-icons/fa6";
 
 import { ethers } from "ethers";
 import ReferralTree from "@/componentes/referralNode";
+import Countdown from "@/componentes/countdown";
 
 
 function Page1() {
@@ -59,11 +60,17 @@ function Page1() {
 
         const result = await getBtc24hPrice();
         if (result) {
-          setCoinCotation(Number(result) / Number(1000000));
+          setCoinCotation(0.000045)
+            /* 
+              setCoinCotation(Number(again) / Number(1000000));
+            */
         }else{
           const again = await getBtc24hPrice();
             if(again){
+              setCoinCotation(0.000045)
+              /* 
               setCoinCotation(Number(again) / Number(1000000));
+              */
             }
         }
     } catch (error) {
@@ -91,8 +98,31 @@ function Page1() {
 
   return (
     <>
+    <div className="w-[96%] bg-white bg-opacity-10 p-8 text-center rounded-3xl mb-[30px]">
+      <div className="p-4 bg-white bg-opacity-5">
+        {isEnglish?(
+          <p className="font-bold text-2xl">Current Halving </p>
+        ):(
+          <p className="font-bold text-2xl">Actual Halving </p>
+        )}
+      <p className="p-4 text-3xl font-bold">1 </p>
+      <span className="text-[16px]">(0.000045$)</span>
+    </div>
+
+    {isEnglish?(
+      <p className="mt-[15px]">Next Halving In</p>
+      
+    ):(
+      <p className="mt-[15px]">Seguiente Halving En</p>
+    )}
+    <p className="mt-[20px] text-lg"></p>
+    <Countdown targetDate="2025-03-16T23:59:59Z" />
+
+
+    </div>
+
       <div className="p-4 w-full  flex justify-center items-center overflow-hidden">
-        
+
         <div className="lg:w-[90%]  w-[100%]  flex flex-col ">
 
         <div className=" px-2 w-full flex flex-col  items-center overflow-x-hidden overflow-y-hidden">
