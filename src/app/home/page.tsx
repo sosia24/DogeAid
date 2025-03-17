@@ -60,14 +60,14 @@ function Page1() {
 
         const result = await getBtc24hPrice();
         if (result) {
-          setCoinCotation(0.000045)
+          setCoinCotation(0.00009)
             /* 
               setCoinCotation(Number(again) / Number(1000000));
             */
         }else{
           const again = await getBtc24hPrice();
             if(again){
-              setCoinCotation(0.000045)
+              setCoinCotation(0.00009)
               /* 
               setCoinCotation(Number(again) / Number(1000000));
               */
@@ -105,8 +105,8 @@ function Page1() {
         ):(
           <p className="font-bold text-2xl">Actual Halving </p>
         )}
-      <p className="p-4 text-3xl font-bold">1 </p>
-      <span className="text-[16px]">(0.000045$)</span>
+      <p className="p-4 text-3xl font-bold">2 </p>
+      <span className="text-[16px]">(0.00009$)</span>
     </div>
 
     {isEnglish?(
@@ -116,7 +116,7 @@ function Page1() {
       <p className="mt-[15px]">Seguiente Halving En</p>
     )}
     <p className="mt-[20px] text-lg"></p>
-    <Countdown targetDate="2025-03-16T23:59:59Z" />
+    <Countdown targetDate="2025-04-15T23:59:59Z" />
 
 
     </div>
